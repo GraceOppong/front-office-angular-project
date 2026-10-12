@@ -1,0 +1,501 @@
+<div class="page">
+  <div class="screen">
+    <header class="page-header">
+      <div class="header-main">
+        <div class="heading-block">
+          <h1>{{ screenTitle }}</h1>
+          <p class="screen-caption">{{ screenCaption }}</p>
+        </div>
+      </div>
+
+      <div class="meta-bar">
+        <div class="meta-item">
+          <span class="meta-label">Activity</span>
+          <span class="meta-value">{{ activityCode }}</span>
+        </div>
+        <span class="meta-sep" aria-hidden="true"></span>
+        <div class="meta-item">
+          <span class="meta-label">Current Date</span>
+          <span class="meta-value">{{ currentDate }}</span>
+        </div>
+        <span class="meta-sep" aria-hidden="true"></span>
+        <div class="meta-item">
+          <span class="meta-label">Business Date</span>
+          <span class="meta-value">{{ businessDate }}</span>
+        </div>
+        <span class="meta-sep" aria-hidden="true"></span>
+        <div class="meta-item">
+          <span class="meta-label">User</span>
+          <span class="meta-value">{{ userId }}</span>
+        </div>
+        <span class="meta-sep" aria-hidden="true"></span>
+        <div class="meta-item">
+          <span class="meta-label">Branch</span>
+          <span class="meta-value">{{ branch }}</span>
+        </div>
+      </div>
+    </header>
+
+
+    <section class="summary-strip" aria-label="Vault summary">
+      <article class="summary-card">
+        <span class="summary-label">Opening Balance</span>
+        <strong>{{ vaultStore.openingBalance() | number: '1.2-2' }}</strong>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">Issued Today</span>
+        <strong class="is-out">{{ vaultStore.issuedToday() | number: '1.2-2' }}</strong>
+      </article>
+      <article class="summary-card">
+        <span class="summary-label">Received Today</span>
+        <strong class="is-in">{{ vaultStore.receivedToday() | number: '1.2-2' }}</strong>
+      </article>
+      <article class="summary-card is-emphasis">
+        <span class="summary-label">Closing Position</span>
+        <strong>{{ vaultStore.closingPosition() | number: '1.2-2' }}</strong>
+      </article>
+    </section>
+
+    <div class="workspace">
+      <section class="center-stack">
+        <article class="card currency-card">
+          <header class="card-head">
+            <span class="card-icon is-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V5h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+            </span>
+            <h2>Currency</h2>
+          </header>
+
+          <div class="currency-row">
+            <select
+              id="vaultCurrency"
+              class="field select-field"
+              [class.is-placeholder]="!selectedCurrency()"
+              [value]="selectedCurrency()"
+              (change)="onCurrencyChange($any($event.target).value)"
+              aria-label="Currency"
+            >
+              <option value="" disabled hidden>Tap to select currency</option>
+              @for (item of currencies; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="quick-actions">
+            <button type="button" class="btn btn-soft" (click)="onAction('Vault Enquiry')">Vault Enquiry</button>
+            <button type="button" class="btn btn-soft" (click)="onAction('Vault Limit')">Vault Limit</button>
+            <button type="button" class="btn btn-soft" (click)="onAction('Print Vault')">Print Vault</button>
+            <button type="button" class="btn btn-soft" (click)="onAction('Vault Journal')">Vault Journal</button>
+          </div>
+        </article>
+
+        <article class="card table-card">
+          <header class="table-card-head">
+            <div class="table-title">
+              <span class="card-icon is-blue" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
+              </span>
+              <h2>Vault Position</h2>
+            </div>
+            <span class="total-pill">Total {{ vaultStore.vaultTotal() | number: '1.2-2' }}</span>
+          </header>
+
+          <div class="table-wrap">
+            <table class="batch-table">
+              <thead>
+                <tr>
+                  <th class="col-denom">Denomination</th>
+                  <th class="col-qty">Quantity</th>
+                  <th class="col-amount">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of vaultStore.vaultRows(); track row.denomination) {
+                  <tr>
+                    <td class="col-denom mono">{{ row.denomination }}</td>
+                    <td class="col-qty">{{ row.quantity }}</td>
+                    <td class="col-amount">{{ row.amount | number: '1.2-2' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <div class="action-cards" aria-label="Vault actions">
+          <button type="button" class="card action-card" (click)="onAction('Issue to Teller')">
+            <span class="action-icon is-issue" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.99 11H17.1l-3.55-3.55L15 6l6 6-6 6-1.45-1.45L17.1 13H6.99v-2z"/></svg>
+            </span>
+            <span class="action-copy">
+              <span class="action-title">Issue to Teller</span>
+              <span class="action-desc">
+                {{ awaitingRequests().length }} cash request{{ awaitingRequests().length === 1 ? '' : 's' }} waiting
+              </span>
+            </span>
+            <span class="action-go" aria-hidden="true">›</span>
+          </button>
+
+          <button type="button" class="card action-card" (click)="onAction('Receive from Teller')">
+            <span class="action-icon is-receive" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.01 13H6.9l3.55 3.55L9 18l-6-6 6-6 1.45 1.45L6.9 11h10.11v2z"/></svg>
+            </span>
+            <span class="action-copy">
+              <span class="action-title">Receive from Teller</span>
+              <span class="action-desc">
+                {{ awaitingTransfers().length }} transfer{{ awaitingTransfers().length === 1 ? '' : 's' }} to check
+              </span>
+            </span>
+            <span class="action-go" aria-hidden="true">›</span>
+          </button>
+
+          <button type="button" class="card action-card" (click)="onAction('Seal Bags')">
+            <span class="action-icon is-seal" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 8h-1V6a5 5 0 0 0-10 0v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"/></svg>
+            </span>
+            <span class="action-copy">
+              <span class="action-title">Seal Bags</span>
+              <span class="action-desc">Bag and seal vault cash for transit</span>
+            </span>
+            <span class="action-go" aria-hidden="true">›</span>
+          </button>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <article class="card account-info-card">
+          <header class="account-info-head">
+            <span class="role-icon is-pending" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11h4v-2h-3V7h-2v6z"/></svg>
+            </span>
+            <h3>Pending Vault Work</h3>
+            <span class="role-tag is-primary">Live</span>
+          </header>
+
+          <dl class="balance-list">
+            <div class="balance-row">
+              <dt>Cash Requests</dt>
+              <dd>
+                <span class="is-highlight">{{ awaitingRequests().length }}</span>
+                <button type="button" class="row-go" aria-label="Open cash requests" (click)="openIssueQueue()">›</button>
+              </dd>
+            </div>
+            <div class="balance-row">
+              <dt>Teller Transfers</dt>
+              <dd>
+                <span class="is-highlight">{{ awaitingTransfers().length }}</span>
+                <button type="button" class="row-go" aria-label="Open teller transfers" (click)="openReceiveQueue()">›</button>
+              </dd>
+            </div>
+            <div class="balance-row">
+              <dt>Pending Amount</dt>
+              <dd>
+                <span class="is-highlight">{{ pendingWorkAmount() | number: '1.2-2' }}</span>
+              </dd>
+            </div>
+            <div class="balance-row">
+              <dt>Sealed Bags</dt>
+              <dd>
+                <span>{{ vaultStore.sealedBags() }}</span>
+              </dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="card movements-card">
+          <header class="account-info-head">
+            <span class="role-icon is-transfer" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.99 11H17.1l-3.55-3.55L15 6l6 6-6 6-1.45-1.45L17.1 13H6.99v-2zM3 6h2v12H3V6z"/></svg>
+            </span>
+            <h3>Today’s Movements</h3>
+            <span class="role-tag is-beneficiary">Branch</span>
+          </header>
+
+          <ul class="movement-list">
+            @for (item of vaultStore.movements(); track item.id) {
+              <li class="movement-item">
+                <div class="movement-main">
+                  <span class="movement-type">{{ movementLabel(item.type) }}</span>
+                  <span class="movement-meta">{{ item.teller }} · {{ item.reference }} · {{ item.time }}</span>
+                </div>
+                <div class="movement-side">
+                  <strong [class.is-out]="item.type === 'ISSUE' || item.type === 'SEAL'" [class.is-in]="item.type === 'RECEIVE'">
+                    {{ item.amount | number: '1.2-2' }}
+                  </strong>
+                  <span class="status-pill" [class.is-pending]="item.status === 'Pending'" [class.is-done]="item.status === 'Completed'">
+                    {{ item.status }}
+                  </span>
+                </div>
+              </li>
+            } @empty {
+              <li class="movement-empty">No vault movements yet today.</li>
+            }
+          </ul>
+        </article>
+
+        <button type="button" class="btn btn-primary vault-close-btn" (click)="onAction('Vault Close')">
+          Vault Close
+        </button>
+      </aside>
+    </div>
+  </div>
+
+  @if (activePanel() === 'issue') {
+    <div class="modal-backdrop" (click)="closePanel()" role="presentation">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="issueQueueTitle" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="heading-block">
+            <h2 id="issueQueueTitle">Issue to Teller</h2>
+            <p class="modal-caption">Pick a cash request, set denominations that total the amount, then send.</p>
+          </div>
+          <button type="button" class="close-icon-btn" (click)="closePanel()" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          </button>
+        </header>
+
+        <div class="modal-body">
+
+          @if (!issuingRequest()) {
+            <section class="table-panel">
+              <header class="table-head">
+                <h3>Awaiting Cash Requests</h3>
+                <span class="count-pill">{{ awaitingRequests().length }}</span>
+              </header>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Batch</th>
+                      <th>Teller</th>
+                      <th>Currency</th>
+                      <th class="is-amount">Amount</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of awaitingRequests(); track row.id) {
+                      <tr>
+                        <td class="mono">{{ row.batchNo }}</td>
+                        <td>{{ row.teller }}</td>
+                        <td>{{ row.currency }}</td>
+                        <td class="mono is-amount">{{ row.transAmount | number: '1.2-2' }}</td>
+                        <td class="col-actions">
+                          <button type="button" class="btn btn-primary btn-sm" (click)="startIssue(row)">Issue</button>
+                          <button type="button" class="btn btn-soft btn-sm" (click)="rejectRequest(row.id)">Reject</button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr class="empty-row">
+                        <td colspan="5">No teller cash requests waiting at vault.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          } @else {
+            @if (issuingRequest(); as request) {
+              <div class="summary-bar">
+                <div class="summary-item">
+                  <span class="summary-label">Batch</span>
+                  <span class="summary-value">{{ request.batchNo }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Teller</span>
+                  <span class="summary-value">{{ request.teller }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Requested</span>
+                  <span class="summary-value is-amount">{{ request.transAmount | number: '1.2-2' }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Issue Total</span>
+                  <span class="summary-value is-amount" [class.is-match]="issueTallies()" [class.is-mismatch]="!issueTallies()">
+                    {{ issueTotal() | number: '1.2-2' }}
+                  </span>
+                </div>
+              </div>
+
+              <section class="table-panel">
+                <header class="table-head">
+                  <h3>Denomination to Issue</h3>
+                  <span class="count-pill" [class.is-match]="issueTallies()">
+                    {{ issueTallies() ? 'Tallies' : 'Adjust amounts' }}
+                  </span>
+                </header>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Denomination</th>
+                        <th>Quantity</th>
+                        <th class="is-amount">Amount</th>
+                        <th>Available</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (row of issueRows(); track row.denomination) {
+                        <tr>
+                          <td class="mono">{{ row.denomination }}</td>
+                          <td>
+                            <input
+                              type="number"
+                              min="0"
+                              class="field qty-field"
+                              [value]="row.quantity || ''"
+                              (input)="onIssueQuantityInput(row.denomination, $any($event.target).value)"
+                            />
+                          </td>
+                          <td class="mono is-amount">{{ row.quantity * +row.denomination | number: '1.2-2' }}</td>
+                          <td class="mono">{{ vaultStore.availableQuantity(row.denomination) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            }
+          }
+        </div>
+
+        <footer class="modal-footer">
+          @if (issuingRequest()) {
+            <button type="button" class="btn btn-soft" (click)="cancelIssue()">Back</button>
+            <button type="button" class="btn btn-primary" [disabled]="!issueTallies()" (click)="sendIssue()">
+              Send to Pending Cash In
+            </button>
+          } @else {
+            <button type="button" class="btn btn-primary" (click)="closePanel()">Close</button>
+          }
+        </footer>
+      </div>
+    </div>
+  }
+
+  @if (activePanel() === 'receive') {
+    <div class="modal-backdrop" (click)="closePanel()" role="presentation">
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="receiveQueueTitle" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div class="heading-block">
+            <h2 id="receiveQueueTitle">Receive from Teller</h2>
+            <p class="modal-caption">Check the denominations the teller is transferring, then accept or reject.</p>
+          </div>
+          <button type="button" class="close-icon-btn" (click)="closePanel()" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          </button>
+        </header>
+
+        <div class="modal-body">
+          @if (!reviewingTransfer()) {
+            <section class="table-panel">
+              <header class="table-head">
+                <h3>Awaiting Transfers</h3>
+                <span class="count-pill">{{ awaitingTransfers().length }}</span>
+              </header>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Batch</th>
+                      <th>Teller</th>
+                      <th>Vault</th>
+                      <th class="is-amount">Amount</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of awaitingTransfers(); track row.id) {
+                      <tr>
+                        <td class="mono">{{ row.batchNo }}</td>
+                        <td>{{ row.teller }}</td>
+                        <td>{{ row.vault }}</td>
+                        <td class="mono is-amount">{{ row.total | number: '1.2-2' }}</td>
+                        <td class="col-actions">
+                          <button type="button" class="btn btn-primary btn-sm" (click)="openTransferReview(row)">Check</button>
+                          <button type="button" class="btn btn-soft btn-sm" (click)="rejectTransfer(row.id)">Reject</button>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr class="empty-row">
+                        <td colspan="5">No teller transfers waiting at vault.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          } @else {
+            @if (reviewingTransfer(); as transfer) {
+              <div class="summary-bar">
+                <div class="summary-item">
+                  <span class="summary-label">Batch</span>
+                  <span class="summary-value">{{ transfer.batchNo }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Teller</span>
+                  <span class="summary-value">{{ transfer.teller }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Vault</span>
+                  <span class="summary-value">{{ transfer.vault }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Total</span>
+                  <span class="summary-value is-amount">{{ transfer.total | number: '1.2-2' }}</span>
+                </div>
+              </div>
+
+              <section class="table-panel">
+                <header class="table-head">
+                  <h3>Declared Denominations</h3>
+                  <span class="count-pill">{{ transfer.lines.length }}</span>
+                </header>
+                <div class="table-wrap">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Denomination</th>
+                        <th>Quantity</th>
+                        <th class="is-amount">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (line of transfer.lines; track line.denomination) {
+                        <tr>
+                          <td class="mono">{{ line.denomination }}</td>
+                          <td>{{ line.quantity }}</td>
+                          <td class="mono is-amount">{{ line.amount | number: '1.2-2' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            }
+          }
+        </div>
+
+        <footer class="modal-footer">
+          @if (reviewingTransfer(); as transfer) {
+            <button type="button" class="btn btn-soft" (click)="cancelTransferReview()">Back</button>
+            <button type="button" class="btn btn-soft" (click)="rejectTransfer(transfer.id)">Reject</button>
+            <button type="button" class="btn btn-primary" (click)="acceptTransfer(transfer.id)">
+              Accept → Pending Cash Out
+            </button>
+          } @else {
+            <button type="button" class="btn btn-primary" (click)="closePanel()">Close</button>
+          }
+        </footer>
+      </div>
+    </div>
+  }
+
+  <app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
+  <app-message-popup
+    [message]="issueFeedback()"
+    title="Check denominations"
+    variant="warn"
+    (closed)="issueFeedback.set('')"
+  />
+</div>

@@ -1,0 +1,166 @@
+<div class="modal-backdrop" (click)="onBackdropClick()" role="presentation">
+  <div
+    class="modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="requestCashTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="modal-header">
+      <div class="heading-block">
+        <h2 id="requestCashTitle">Request Cash</h2>
+        <p class="modal-caption">Request additional cash for your till from the vault.</p>
+      </div>
+      <button type="button" class="close-icon-btn" (click)="onClose()" aria-label="Close" title="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+
+      <section class="details-block">
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="currency">Currency</label>
+            <select
+              id="currency"
+              class="field select-field"
+              [class.is-placeholder]="!currency()"
+              [value]="currency()"
+              (change)="onCurrencyChange($any($event.target).value)"
+            >
+              <option value="" disabled hidden>Tap to select currency</option>
+              @for (item of currencies; track item.name) {
+                <option [value]="item.name">{{ item.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="amount">Amount</label>
+            <input
+              id="amount"
+              type="number"
+              min="0"
+              step="0.01"
+              class="field field-amount"
+              placeholder="0.00"
+              [value]="amount()"
+              (input)="onAmountInput($any($event.target).value)"
+            />
+          </div>
+
+          <div class="form-row">
+            <label for="requestingFrom">Requesting From</label>
+            <select
+              id="requestingFrom"
+              class="field select-field"
+              [value]="requestingFromId()"
+              (change)="onRequestingFromChange($any($event.target).value)"
+            >
+              @for (item of requestFromOptions; track item.id) {
+                <option [value]="item.id">{{ item.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      @if (showTables()) {
+        <div class="tables-grid" [class.is-single]="!showAwaitingTable() || !showRejectedTable()">
+          @if (showAwaitingTable()) {
+            <section class="table-panel">
+              <header class="table-head">
+                <h3>Awaiting Vault</h3>
+                <span class="count-pill">{{ awaitingVaultRequests().length }}</span>
+              </header>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th class="col-batch">Batch No</th>
+                      <th class="col-amount">Trans Amount</th>
+                      <th class="col-to">Trans To</th>
+                      <th class="col-status">Status</th>
+                      <th class="col-actions">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of awaitingVaultRequests(); track row.id) {
+                      <tr>
+                        <td class="col-batch mono">{{ row.batchNo }}</td>
+                        <td class="col-amount">{{ row.transAmount | number: '1.2-2' }}</td>
+                        <td class="col-to">{{ row.transTo }}</td>
+                        <td class="col-status">
+                          <span class="status-pill" data-status="pending">At Vault</span>
+                        </td>
+                        <td class="col-actions">
+                          <button
+                            type="button"
+                            class="icon-action is-delete"
+                            title="Delete request"
+                            aria-label="Delete awaiting request"
+                            (click)="deletePending(row.id)"
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          }
+
+          @if (showRejectedTable()) {
+            <section class="table-panel">
+              <header class="table-head">
+                <h3 class="is-danger">Rejected Cash Request</h3>
+                <span class="count-pill is-danger">{{ rejectedRequests().length }}</span>
+              </header>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th class="col-batch">Batch No</th>
+                      <th class="col-amount">Trans Amount</th>
+                      <th class="col-to">Trans To</th>
+                      <th class="col-status">Status</th>
+                      <th class="col-actions">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (row of rejectedRequests(); track row.id) {
+                      <tr>
+                        <td class="col-batch mono">{{ row.batchNo }}</td>
+                        <td class="col-amount">{{ row.transAmount | number: '1.2-2' }}</td>
+                        <td class="col-to">{{ row.transTo }}</td>
+                        <td class="col-status">
+                          <span class="status-pill" data-status="rejected">Rejected</span>
+                        </td>
+                        <td class="col-actions">
+                          <button type="button" class="btn btn-outline btn-ok" (click)="acknowledgeRejected(row.id)">
+                            OK
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          }
+        </div>
+      }
+    </div>
+
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-primary submit-btn" (click)="onSubmit()">
+        Submit
+      </button>
+    </footer>
+  </div>
+</div>
+
+<app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />

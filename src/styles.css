@@ -1,1 +1,43 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-bg: #e4ebf3;
+  --surface: #ffffff;
+  --header-bg: #f4f8fc;
+  --mandatory-bg: #eef5fb;
+  --text-primary: #152536;
+  --text-secondary: #3d5166;
+  --text-muted: #6b7f94;
+  --border-subtle: #e2eaf2;
+  --border-input: #d5dee8;
+  --brand-primary: #1565a8;
+  --brand-primary-dark: #0f4d82;
+  --focus-ring: #9bc7e8;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --shadow-sm: 0 2px 8px rgba(15, 40, 70, 0.06);
+  --shadow-panel: 0 12px 40px rgba(15, 40, 70, 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #eef2f7;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+}

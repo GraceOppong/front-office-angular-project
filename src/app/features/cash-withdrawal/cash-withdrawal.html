@@ -1,0 +1,228 @@
+<div class="page">
+  <div class="screen">
+    <header class="page-header">
+      <div class="header-main">
+        <a routerLink="/teller-activities" class="back-icon-btn" aria-label="Back to Teller Activities" title="Back">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </a>
+        <div class="heading-block">
+          <h1>Cash Withdrawal</h1>
+          <p class="screen-caption">Pay cash out from a customer debit account.</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-actions">
+      <button type="button" class="btn btn-soft" (click)="onNew()">
+        <svg lucidePlus size="16" aria-hidden="true"></svg>
+        New
+      </button>
+      <button type="button" class="btn btn-primary" (click)="onSubmit()">Submit</button>
+    </div>
+
+    <div class="deposit-layout">
+      <div class="deposit-main">
+        <section class="card form-panel">
+          <div class="form-stack">
+            <div class="form-row">
+              <label for="debitAccount"><span class="req">*</span> Debit Account</label>
+              <input
+                id="debitAccount"
+                type="text"
+                class="field"
+                placeholder="Enter account number"
+                [value]="debitAccount()"
+                (input)="onDebitAccountInput($any($event.target).value)"
+                (blur)="onDebitAccountBlur()"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="accountName">Account Name</label>
+              <input
+                id="accountName"
+                type="text"
+                class="field field-readonly"
+                [value]="accountName()"
+                readonly
+                placeholder="—"
+              />
+            </div>
+
+            <h2 class="section-title">Transaction Details</h2>
+
+            <div class="form-row">
+              <label for="voucherDate">Voucher Date</label>
+              <input id="voucherDate" type="text" class="field field-readonly" [value]="voucherDate()" readonly />
+            </div>
+
+            <div class="form-row">
+              <label for="amount"><span class="req">*</span> Amount</label>
+              <input
+                id="amount"
+                type="number"
+                min="0"
+                step="0.01"
+                class="field field-amount"
+                placeholder="0.00"
+                [value]="amount()"
+                (input)="onAmountInput($any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="voucherRef">Voucher Reference</label>
+              <input
+                id="voucherRef"
+                type="text"
+                class="field"
+                [value]="voucherRef()"
+                (input)="onVoucherRefInput($any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="sourceOfFunds">Source of Funds</label>
+              <select
+                id="sourceOfFunds"
+                class="field select-field"
+                [class.is-placeholder]="!sourceOfFunds()"
+                [value]="sourceOfFunds()"
+                (change)="onSourceOfFundsChange($any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of sourceOfFundsOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-row">
+              <span class="row-label"><span class="req">*</span> Third Party</span>
+              <div class="radio-group" role="radiogroup" aria-label="Third party transaction">
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="thirdParty"
+                    value="yes"
+                    [checked]="thirdParty() === 'yes'"
+                    (change)="onThirdPartyChange('yes')"
+                  />
+                  Yes
+                </label>
+                <label class="radio-option">
+                  <input
+                    type="radio"
+                    name="thirdParty"
+                    value="no"
+                    [checked]="thirdParty() === 'no'"
+                    (change)="onThirdPartyChange('no')"
+                  />
+                  No
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="narration1"><span class="req">*</span> Narration 1</label>
+              <input
+                id="narration1"
+                type="text"
+                class="field"
+                [value]="narration1()"
+                (input)="onNarration1Input($any($event.target).value)"
+              />
+            </div>
+
+            <div class="form-row">
+              <label for="narration2">Narration 2</label>
+              <input
+                id="narration2"
+                type="text"
+                class="field"
+                [value]="narration2()"
+                (input)="onNarration2Input($any($event.target).value)"
+              />
+            </div>
+          </div>
+        </section>
+
+        <article class="card instructions-panel">
+          <h3>Instructions</h3>
+          <ul>
+            <li>Third-party transactions require additional verification.</li>
+            <li>Confirm available balance before paying cash out.</li>
+            <li>Default narration is CASH WITHDRAWAL unless amended.</li>
+          </ul>
+        </article>
+      </div>
+
+      <aside class="deposit-side">
+        <article class="card account-info-card">
+          <header class="account-info-head">
+            <span class="card-icon is-blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            </span>
+            <h3>Account Information</h3>
+          </header>
+
+          <button type="button" class="btn btn-outline signature-btn" (click)="openSignature()">
+            Signature
+          </button>
+
+          <dl class="info-list">
+            <div class="info-row">
+              <dt>Available Balance</dt>
+              <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Cleared Balance</dt>
+              <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Uncleared Balance</dt>
+              <dd>
+                <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
+                <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
+              </dd>
+            </div>
+            <div class="info-row">
+              <dt>Overdraft Amount</dt>
+              <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Block Amount</dt>
+              <dd>
+                <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
+                <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>
+              </dd>
+            </div>
+            <div class="info-row">
+              <dt>Account Branch</dt>
+              <dd>{{ accountSnapshot()?.branch ?? '—' }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Account Product</dt>
+              <dd>{{ accountSnapshot()?.product ?? '—' }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Currency</dt>
+              <dd>{{ displayCurrency() }}</dd>
+            </div>
+          </dl>
+        </article>
+
+        @if (showSignaturePanel()) {
+          <article class="card signature-panel">
+            <h3>Signature</h3>
+            <p class="signature-placeholder">Signature capture placeholder for demo.</p>
+          </article>
+        }
+      </aside>
+    </div>
+  </div>
+
+  <app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
+</div>

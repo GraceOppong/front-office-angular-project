@@ -1,0 +1,72 @@
+.message-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(16, 39, 64, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.message-popup-dialog {
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);
+  padding: 1.25rem 1.35rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message-popup-dialog.is-warn {
+  border-top: 4px solid #f79009;
+}
+
+.message-popup-dialog.is-success {
+  border-top: 4px solid #12b76a;
+}
+
+.message-popup-dialog.is-info {
+  border-top: 4px solid #1565a8;
+}
+
+.message-popup-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #152536;
+}
+
+.message-popup-body {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #3d5166;
+}
+
+.message-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.message-popup-actions .btn-primary {
+  min-width: 5.5rem;
+  padding: 0.55rem 1.15rem;
+  border: none;
+  border-radius: 10px;
+  background: #1565a8;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.message-popup-actions .btn-primary:hover {
+  background: #0f4d82;
+}
+
+.message-popup-actions .btn-primary:focus-visible {
+  outline: 2px solid #9bc7e8;
+  outline-offset: 2px;
+}

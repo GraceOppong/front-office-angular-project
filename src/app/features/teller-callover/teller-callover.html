@@ -1,0 +1,487 @@
+<div class="page">
+  <div class="screen">
+    <header class="page-header">
+      <div class="header-main">
+        <a routerLink="/teller-activities" class="back-icon-btn" aria-label="Back to Teller Activities" title="Back">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+        </a>
+        <div class="heading-block">
+          <h1>Teller Callover</h1>
+          <p class="screen-caption">
+            Review today’s teller transactions and tick each one to confirm it tallies.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <section class="card details-block">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="accountNumber">Account Number</label>
+          <input
+            id="accountNumber"
+            type="text"
+            class="field"
+            placeholder="Search account"
+            [value]="accountNumber()"
+            (input)="onAccountInput($any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="transactionNumber">Transaction Number</label>
+          <input
+            id="transactionNumber"
+            type="text"
+            class="field"
+            placeholder="Search transaction / batch"
+            [value]="transactionNumber()"
+            (input)="onTransactionNumberInput($any($event.target).value)"
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="transactionDetails">Transaction Details</label>
+          <input
+            id="transactionDetails"
+            type="text"
+            class="field"
+            placeholder="Search details"
+            [value]="transactionDetails()"
+            (input)="onTransactionDetailsInput($any($event.target).value)"
+          />
+        </div>
+      </div>
+    </section>
+
+    <div class="callover-actions">
+      <button
+        type="button"
+        class="export-icon is-excel"
+        (click)="downloadExcel()"
+        aria-label="Download Excel"
+        title="Excel"
+      >
+        <svg lucideFileSpreadsheet size="22"></svg>
+      </button>
+      <button
+        type="button"
+        class="export-icon is-pdf"
+        (click)="downloadPdf()"
+        aria-label="Download PDF"
+        title="PDF"
+      >
+        <svg lucideFileType size="22"></svg>
+      </button>
+      <button type="button" class="btn btn-primary submit-btn" (click)="onSubmit()">
+        Submit
+      </button>
+    </div>
+
+    <section class="card table-panel">
+      <header class="table-head">
+        <h2>Teller Transactions</h2>
+        <span class="count-pill">{{ tickedCount() }} / {{ count() }} ticked</span>
+      </header>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="col-batch">Batch No</th>
+              <th class="col-acct">Acct Link</th>
+              <th class="col-desc">Account Description</th>
+              <th class="col-amount">Amount</th>
+              <th class="col-details">Transaction Details</th>
+              <th class="col-trans">Trans No</th>
+              <th class="col-by">Callover By</th>
+              <th class="col-when">Callover Date/Time</th>
+              <th class="col-actions">Action</th>
+              <th class="col-check">
+                <input
+                  type="checkbox"
+                  [checked]="pageAllTicked()"
+                  (change)="toggleAll($any($event.target).checked)"
+                  aria-label="Tick all visible transactions"
+                  title="Tick all on page"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pagedRows(); track row.id) {
+              <tr
+                class="is-clickable"
+                [class.is-ticked]="row.ticked"
+                (click)="openDetails(row)"
+              >
+                <td class="col-batch mono">{{ row.batchNo }}</td>
+                <td class="col-acct mono">{{ row.acctLink }}</td>
+                <td class="col-desc">{{ row.accountDescription }}</td>
+                <td class="col-amount">{{ row.amount | number: '1.2-2' }}</td>
+                <td class="col-details">{{ row.transactionDetails }}</td>
+                <td class="col-trans mono">{{ row.transNo }}</td>
+                <td class="col-by">{{ row.calloverBy || '—' }}</td>
+                <td class="col-when">{{ row.calloverDateTime || '—' }}</td>
+                <td class="col-actions" (click)="$event.stopPropagation()">
+                  <button
+                    type="button"
+                    class="icon-action is-delete"
+                    title="Delete transaction"
+                    [attr.aria-label]="'Delete ' + row.transNo"
+                    (click)="deleteRow(row.id)"
+                  >
+                    <svg lucideTrash size="16"></svg>
+                  </button>
+                </td>
+                <td class="col-check" (click)="$event.stopPropagation()">
+                  <input
+                    type="checkbox"
+                    [checked]="row.ticked"
+                    (change)="toggleTick(row.id, $any($event.target).checked)"
+                    [attr.aria-label]="'Tick ' + row.transNo"
+                  />
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="10">No teller transactions match your search.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="table-footer">
+        <div class="footer-left">
+          <div class="count-field">
+            <label for="calloverCount">Count</label>
+            <input id="calloverCount" class="field field-readonly" [value]="count()" readonly />
+          </div>
+
+          <div class="page-size-field">
+            <label for="pageSize">Show</label>
+            <select
+              id="pageSize"
+              class="field page-size-select"
+              [value]="pageSize()"
+              (change)="onPageSizeChange($any($event.target).value)"
+            >
+              @for (option of pageSizeOptions; track option.label) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        @if (showPagination()) {
+          <div class="pagination">
+            <button type="button" class="btn btn-soft page-btn" [disabled]="currentPage() <= 1" (click)="previousPage()">
+              Prev
+            </button>
+            @for (page of pageNumbers(); track page) {
+              <button
+                type="button"
+                class="btn page-btn"
+                [class.btn-primary]="page === currentPage()"
+                [class.btn-soft]="page !== currentPage()"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            }
+            <button
+              type="button"
+              class="btn btn-soft page-btn"
+              [disabled]="currentPage() >= totalPages()"
+              (click)="nextPage()"
+            >
+              Next
+            </button>
+            <span class="page-meta">Page {{ currentPage() }} of {{ totalPages() }}</span>
+          </div>
+        } @else {
+          <span class="page-meta">Showing all {{ count() }} transactions</span>
+        }
+
+        <span class="tally-note" [class.is-complete]="allTicked()">
+          {{ allTicked() ? 'All filtered transactions tallied' : 'Tick transactions to confirm tally' }}
+        </span>
+      </footer>
+    </section>
+  </div>
+
+  @if (selectedTransaction(); as txn) {
+    <div class="details-backdrop" (click)="closeDetails()" role="presentation">
+      <div
+        class="details-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transactionDetailsTitle"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="details-header">
+          <div class="heading-block">
+            <h2 id="transactionDetailsTitle">Transaction Details</h2>
+            <p class="modal-caption">Full details for {{ txn.transNo }}.</p>
+          </div>
+          <button type="button" class="close-icon-btn" (click)="closeDetails()" aria-label="Close" title="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+          </button>
+        </header>
+
+        <div class="details-tools" aria-label="Transaction tools">
+          <button type="button" class="tool-card" (click)="openVoucherPanel()">
+            <span class="tool-icon is-voucher" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm1 7V3.5L18.5 9H15zM8 13h8v2H8v-2zm0 4h8v2H8v-2zm0-8h5v2H8V9z"/></svg>
+            </span>
+            <span class="tool-copy">
+              <span class="tool-title">View Voucher</span>
+              <span class="tool-desc">Open printed voucher preview</span>
+            </span>
+            <span class="tool-go" aria-hidden="true">›</span>
+          </button>
+
+          <button type="button" class="tool-card" (click)="openSignaturePanel()">
+            <span class="tool-icon is-signature" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </span>
+            <span class="tool-copy">
+              <span class="tool-title">Verify Signature</span>
+              <span class="tool-desc">Compare specimen against voucher</span>
+            </span>
+            <span class="tool-go" aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div class="details-body">
+          <div class="details-grid">
+            <div class="detail-row">
+              <label>Value Date</label>
+              <input class="field field-readonly" [value]="txn.valueDate" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Posting Date</label>
+              <input class="field field-readonly" [value]="txn.postingDate" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Voucher Number</label>
+              <input class="field field-readonly" [value]="txn.voucherNumber" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Voucher Date</label>
+              <input class="field field-readonly" [value]="txn.voucherDate" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Trans No</label>
+              <input class="field field-readonly" [value]="txn.transNo" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Posting Sys Time</label>
+              <input class="field field-readonly" [value]="txn.postingSysTime" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Customer No</label>
+              <input class="field field-readonly" [value]="txn.customerNo" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Amount</label>
+              <input class="field field-readonly field-amount" [value]="txn.amount | number: '1.2-2'" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Account Number</label>
+              <input class="field field-readonly" [value]="txn.accountNumber" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Approved By</label>
+              <input class="field field-readonly" [value]="txn.approvedBy" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Fc Amount Db</label>
+              <input class="field field-readonly field-amount" [value]="txn.fcAmountDb || '—'" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Account Link</label>
+              <input class="field field-readonly" [value]="txn.acctLink" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Exchange Rate</label>
+              <input class="field field-readonly" [value]="txn.exchangeRate" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Fc Amount Cr</label>
+              <input class="field field-readonly field-amount" [value]="txn.fcAmountCr || '—'" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Local Equivalent Db</label>
+              <input class="field field-readonly field-amount" [value]="txn.localEquivalentDb || '—'" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Document Ref</label>
+              <input class="field field-readonly" [value]="txn.documentRef" readonly />
+            </div>
+
+            <div class="detail-row">
+              <label>Local Equivalent Cr</label>
+              <input class="field field-readonly field-amount" [value]="txn.localEquivalentCr || '—'" readonly />
+            </div>
+            <div class="detail-row">
+              <label>Batch No</label>
+              <input class="field field-readonly" [value]="txn.batchNo" readonly />
+            </div>
+
+            <div class="detail-row is-full">
+              <label>Transaction Details</label>
+              <input class="field field-readonly" [value]="txn.transactionDetails" readonly />
+            </div>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn btn-primary" (click)="closeDetails()">
+            Return
+          </button>
+        </footer>
+
+        @if (detailsPanel() === 'voucher') {
+          <div class="panel-overlay" role="dialog" aria-modal="true" aria-labelledby="voucherPanelTitle">
+            <header class="panel-header">
+              <button type="button" class="back-icon-btn panel-back" (click)="closeDetailsPanel()" aria-label="Back to details">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+              </button>
+              <div class="heading-block">
+                <h2 id="voucherPanelTitle">Voucher Preview</h2>
+                <p class="modal-caption">{{ txn.voucherNumber }} · {{ txn.transNo }}</p>
+              </div>
+            </header>
+
+            <div class="panel-body">
+              <article class="voucher-slip">
+                <header class="voucher-slip-head">
+                  <div>
+                    <p class="voucher-bank">Front Office Banking</p>
+                    <h3>Transaction Voucher</h3>
+                  </div>
+                  <span class="voucher-badge">{{ txn.documentRef }}</span>
+                </header>
+
+                <dl class="voucher-meta">
+                  <div>
+                    <dt>Batch</dt>
+                    <dd>{{ txn.batchNo }}</dd>
+                  </div>
+                  <div>
+                    <dt>Value Date</dt>
+                    <dd>{{ txn.valueDate }}</dd>
+                  </div>
+                  <div>
+                    <dt>Posted</dt>
+                    <dd>{{ txn.postingDate }} {{ txn.postingSysTime }}</dd>
+                  </div>
+                  <div>
+                    <dt>Approved By</dt>
+                    <dd>{{ txn.approvedBy }}</dd>
+                  </div>
+                </dl>
+
+                <div class="voucher-main">
+                  <div>
+                    <span class="voucher-label">Account</span>
+                    <strong>{{ txn.accountNumber }}</strong>
+                    <p>{{ txn.accountDescription }}</p>
+                  </div>
+                  <div class="voucher-amount-block">
+                    <span class="voucher-label">Amount</span>
+                    <strong class="voucher-amount">{{ txn.amount | number: '1.2-2' }}</strong>
+                  </div>
+                </div>
+
+                <p class="voucher-narration">
+                  <span class="voucher-label">Narration</span>
+                  {{ txn.transactionDetails }}
+                </p>
+
+                <footer class="voucher-sign-line">
+                  <div>
+                    <span class="sign-rule"></span>
+                    <span>Customer / Teller</span>
+                  </div>
+                  <div>
+                    <span class="sign-rule"></span>
+                    <span>Authorised Signature</span>
+                  </div>
+                </footer>
+              </article>
+            </div>
+          </div>
+        }
+
+        @if (detailsPanel() === 'signature') {
+          <div class="panel-overlay" role="dialog" aria-modal="true" aria-labelledby="signaturePanelTitle">
+            <header class="panel-header">
+              <button type="button" class="back-icon-btn panel-back" (click)="closeDetailsPanel()" aria-label="Back to details">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+              </button>
+              <div class="heading-block">
+                <h2 id="signaturePanelTitle">Signature Verification</h2>
+                <p class="modal-caption">{{ txn.accountDescription }} · {{ txn.customerNo }}</p>
+              </div>
+            </header>
+
+            <div class="panel-body">
+              <div class="signature-compare">
+                <article class="signature-card">
+                  <header>
+                    <h3>Specimen on File</h3>
+                    <span class="sig-tag">Master</span>
+                  </header>
+                  <div class="signature-canvas specimen" aria-hidden="true">
+                    <svg viewBox="0 0 280 90">
+                      <path d="M18 58 C42 18, 70 78, 96 42 C112 22, 128 70, 152 48 C170 34, 188 62, 214 40 C232 28, 248 52, 262 46" fill="none" stroke="#1b2a3d" stroke-width="2.4" stroke-linecap="round"/>
+                      <path d="M34 68 H248" fill="none" stroke="#c5d2df" stroke-width="1"/>
+                    </svg>
+                  </div>
+                  <p class="sig-note">Captured at account opening · Customer {{ txn.customerNo }}</p>
+                </article>
+
+                <article class="signature-card">
+                  <header>
+                    <h3>Voucher Signature</h3>
+                    <span class="sig-tag is-live">Presented</span>
+                  </header>
+                  <div class="signature-canvas presented" aria-hidden="true">
+                    <svg viewBox="0 0 280 90">
+                      <path d="M22 56 C48 20, 74 76, 100 44 C118 24, 134 68, 156 50 C174 36, 190 60, 216 42 C234 30, 250 50, 264 48" fill="none" stroke="#1565a8" stroke-width="2.4" stroke-linecap="round"/>
+                      <path d="M34 68 H248" fill="none" stroke="#c5d2df" stroke-width="1"/>
+                    </svg>
+                  </div>
+                  <p class="sig-note">From voucher {{ txn.voucherNumber }} · {{ txn.valueDate }}</p>
+                </article>
+              </div>
+
+              <div class="signature-result is-match">
+                <strong>Likely match</strong>
+                <span>Stroke pattern and slant align with the specimen on file. Confirm visually before accepting.</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
+</div>

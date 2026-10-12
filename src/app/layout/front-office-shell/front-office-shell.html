@@ -1,0 +1,55 @@
+<div class="app-shell">
+  <aside class="sidebar" aria-label="My Activities">
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
+      </span>
+      <div>
+        <p class="brand-name">Core Banking</p>
+        <p class="brand-caption">Front Office</p>
+      </div>
+    </div>
+
+    <div class="sidebar-section-head">
+      <h2>My Activity</h2>
+      <span class="count-pill">{{ activityStore.filteredActivities().length }}</span>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </span>
+      <input
+        type="search"
+        class="field"
+        placeholder="Search activity"
+        [value]="activityStore.query()"
+        (input)="onActivitySearch($any($event.target).value)"
+      />
+    </div>
+
+    <nav class="activity-nav" aria-label="Teller activities">
+      <ul class="activity-list" role="listbox">
+        @for (item of activityStore.filteredActivities(); track item.code) {
+          <li>
+            <button
+              type="button"
+              class="activity-item"
+              [class.is-active]="item.code === activityStore.selectedCode()"
+              (click)="selectActivity(item.code)"
+            >
+              <span class="activity-code">{{ item.code }}</span>
+              <span class="activity-label">{{ item.label }}</span>
+            </button>
+          </li>
+        } @empty {
+          <li class="activity-empty">No activities match your search.</li>
+        }
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

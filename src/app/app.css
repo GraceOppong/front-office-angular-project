@@ -1,0 +1,5 @@
+/* Root host stays minimal; layout lives in the shell. */
+:host {
+  display: block;
+  min-height: 100%;
+}

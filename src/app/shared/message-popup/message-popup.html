@@ -1,0 +1,20 @@
+@if (message()) {
+  <div class="message-popup-backdrop" (click)="onBackdropClick()" role="presentation">
+    <div
+      class="message-popup-dialog"
+      [class.is-info]="resolvedVariant() === 'info'"
+      [class.is-warn]="resolvedVariant() === 'warn'"
+      [class.is-success]="resolvedVariant() === 'success'"
+      role="alertdialog"
+      aria-modal="true"
+      [attr.aria-labelledby]="'messagePopupTitle'"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="messagePopupTitle" class="message-popup-title">{{ resolvedTitle() }}</h2>
+      <p class="message-popup-body">{{ message() }}</p>
+      <div class="message-popup-actions">
+        <button type="button" class="btn-primary" (click)="dismiss()">OK</button>
+      </div>
+    </div>
+  </div>
+}

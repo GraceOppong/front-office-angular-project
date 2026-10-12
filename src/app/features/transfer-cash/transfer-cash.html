@@ -1,0 +1,122 @@
+<div class="modal-backdrop" (click)="onBackdropClick()" role="presentation">
+  <div
+    class="modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="transferCashTitle"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="modal-header">
+      <div class="heading-block">
+        <h2 id="transferCashTitle">Transfer Cash</h2>
+        <p class="modal-caption">Select currency and vault, then choose denominations to transfer out.</p>
+      </div>
+      <button type="button" class="close-icon-btn" (click)="onClose()" aria-label="Close" title="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </header>
+
+    <div class="modal-body">
+
+      <section class="details-block">
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="transferCurrency">Currency</label>
+            <select
+              id="transferCurrency"
+              class="field select-field"
+              [class.is-placeholder]="!currency()"
+              [value]="currency()"
+              (change)="onCurrencyChange($any($event.target).value)"
+            >
+              <option value="" disabled hidden>Tap to select currency</option>
+              @for (item of currencies; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-row">
+            <label for="transferVault">Vault</label>
+            <select
+              id="transferVault"
+              class="field select-field"
+              [value]="vault()"
+              (change)="onVaultChange($any($event.target).value)"
+            >
+              <option value="" disabled>Select vault</option>
+              @for (item of vaults; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+        </div>
+      </section>
+
+      @if (showTable()) {
+        <section class="table-panel">
+          <header class="table-head">
+            <h3>Denomination Selection</h3>
+            <span class="total-pill">Total {{ transferTotal() | number: '1.2-2' }}</span>
+          </header>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="col-check"></th>
+                  <th class="col-denom">Denomination</th>
+                  <th class="col-qty">Quantity</th>
+                  <th class="col-amount">Amount</th>
+                  <th class="col-avail">Available</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of rows(); track row.denomination) {
+                  <tr [class.is-selected]="row.selected">
+                    <td class="col-check">
+                      <input
+                        type="checkbox"
+                        [checked]="row.selected"
+                        (change)="toggleSelected(row.denomination, $any($event.target).checked)"
+                        [attr.aria-label]="'Select denomination ' + row.denomination"
+                      />
+                    </td>
+                    <td class="col-denom mono">{{ row.denomination }}</td>
+                    <td class="col-qty">
+                      <input
+                        type="number"
+                        min="0"
+                        step="1"
+                        class="qty-field"
+                        [disabled]="!row.selected"
+                        [value]="row.selected ? row.quantity : ''"
+                        (input)="onQuantityInput(row.denomination, $any($event.target).value)"
+                        placeholder="0"
+                      />
+                    </td>
+                    <td class="col-amount">{{ rowAmount(row) | number: '1.2-2' }}</td>
+                    <td class="col-avail">{{ availableFor(row.denomination) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    </div>
+
+    <footer class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-primary submit-btn"
+        [disabled]="!showTable() || transferTotal() <= 0"
+        (click)="onSubmit()"
+      >
+        Submit
+      </button>
+    </footer>
+  </div>
+</div>
+
+<app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
