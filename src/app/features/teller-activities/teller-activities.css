@@ -221,6 +221,361 @@
   color: #6b7f94;
 }
 
+.perf-layout-picker {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  min-width: 11.5rem;
+}
+
+.perf-layout-picker-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7f94;
+}
+
+.perf-layout-select {
+  width: 100%;
+  min-width: 11.5rem;
+  height: 2.35rem;
+  font-size: 0.84rem;
+}
+
+/* —— Layout: Compact table —— */
+.perf-strip.perf-layout-classic .card.perf-card {
+  background: #fff;
+  border: 1px solid #e2eaf2;
+  border-left-width: 3px;
+  box-shadow: 0 4px 18px rgba(15, 40, 70, 0.05);
+}
+
+/* —— Layout: Hero KPI (compact) —— */
+.perf-strip.perf-layout-tinted .card.perf-card,
+.perf-strip.perf-layout-elevated .card.perf-card {
+  background: #fff;
+  border: 1px solid #e2eaf2;
+  border-left-width: 3px;
+  box-shadow: 0 4px 18px rgba(15, 40, 70, 0.05);
+}
+
+.perf-strip.perf-layout-tinted .perf-hero.is-deposit,
+.perf-strip.perf-layout-elevated .perf-bento-card.is-deposit {
+  border-left-color: #12b76a;
+}
+
+.perf-strip.perf-layout-tinted .perf-hero.is-withdrawn,
+.perf-strip.perf-layout-elevated .perf-bento-card.is-withdrawn {
+  border-left-color: #f79009;
+}
+
+.perf-strip.perf-layout-tinted .perf-hero.is-vault,
+.perf-strip.perf-layout-elevated .perf-bento-card.is-vault {
+  border-left-color: #1565a8;
+}
+
+.perf-hero-stage {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.perf-hero-stage.is-vault {
+  padding: 0.5rem 0.55rem;
+}
+
+.perf-hero-dial {
+  --dial-track: #e2eaf2;
+  --dial-color: #12b76a;
+  position: relative;
+  flex-shrink: 0;
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 50%;
+  background: conic-gradient(var(--dial-color) calc(var(--pct, 0) * 1%), var(--dial-track) 0);
+  display: grid;
+  place-items: center;
+}
+
+.perf-hero-dial.is-green {
+  --dial-color: #12b76a;
+}
+
+.perf-hero-dial.is-amber {
+  --dial-color: #f79009;
+}
+
+.perf-hero-dial.is-amber.is-over {
+  --dial-color: #f04438;
+}
+
+.perf-hero-dial-core {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #4a6785;
+  font-variant-numeric: tabular-nums;
+}
+
+.perf-hero-stack {
+  flex: 1;
+  min-width: 0;
+}
+
+.perf-hero-stack.is-wide {
+  flex: 1;
+}
+
+.perf-hero-stack-kicker {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8aa0b5;
+}
+
+.perf-hero-stack-amt {
+  margin: 0.08rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f2d4d;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.perf-hero-stack-amt.is-good {
+  color: #067647;
+}
+
+.perf-hero-stack-amt.is-bad {
+  color: #b42318;
+}
+
+.perf-hero-stack-note {
+  margin: 0.15rem 0 0;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #6b7f94;
+}
+
+.perf-hero-txn-pill {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.1rem;
+  padding: 0.28rem 0.35rem;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e2eaf2;
+  text-align: center;
+}
+
+.perf-hero-txn-pill-val {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #0f2d4d;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.perf-hero-txn-pill-lbl {
+  margin-top: 0.06rem;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #8aa0b5;
+  line-height: 1.1;
+}
+
+.perf-hero-chipset {
+  list-style: none;
+  margin: 0.42rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+}
+
+.perf-hero-chip {
+  font-size: 0.67rem;
+  font-weight: 650;
+  line-height: 1.2;
+  padding: 0.26rem 0.48rem;
+  border-radius: 999px;
+  background: #eef2f6;
+  color: #344054;
+  font-variant-numeric: tabular-nums;
+}
+
+.perf-hero-chip.is-good {
+  background: #e7f6ee;
+  color: #067647;
+}
+
+.perf-hero-chip.is-bad {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.perf-hero-chip.is-in {
+  background: #e7f6ee;
+  color: #067647;
+}
+
+.perf-hero-chip.is-out {
+  background: #fff6e8;
+  color: #b54708;
+}
+
+/* —— Layout: Bento tiles —— */
+.perf-bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.perf-bento.is-vault {
+  grid-template-columns: 1fr 1fr;
+}
+
+.perf-bento-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  min-width: 0;
+  padding: 0.4rem 0.45rem;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.perf-bento-cell.is-spot {
+  background: #fafcfe;
+  box-shadow: inset 0 0 0 1px #d5dee8;
+}
+
+.perf-bento-cell.is-spot.is-side {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e2eaf2;
+}
+
+.perf-bento-cell.is-soft {
+  background: #eef2f6;
+}
+
+.perf-bento-cell.is-good {
+  background: #e7f6ee;
+}
+
+.perf-bento-cell.is-bad {
+  background: #fef3f2;
+}
+
+.perf-bento-cell.is-in {
+  background: #e7f6ee;
+}
+
+.perf-bento-cell.is-out {
+  background: #fff6e8;
+}
+
+.perf-bento-cell.is-net {
+  grid-column: 1 / -1;
+  align-items: center;
+  text-align: center;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e2eaf2;
+}
+
+.perf-bento-cell.is-net.is-good {
+  box-shadow: inset 0 0 0 1px #abefc6;
+}
+
+.perf-bento-cell.is-net.is-bad {
+  box-shadow: inset 0 0 0 1px #fecdca;
+}
+
+.perf-bento-tag {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #8aa0b5;
+  line-height: 1.2;
+}
+
+.perf-bento-value {
+  font-size: 0.88rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f2d4d;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.perf-bento-cell.is-good .perf-bento-value,
+.perf-bento-cell.is-net.is-good .perf-bento-value {
+  color: #067647;
+}
+
+.perf-bento-cell.is-bad .perf-bento-value,
+.perf-bento-cell.is-net.is-bad .perf-bento-value {
+  color: #b42318;
+}
+
+.perf-bento-duo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.28rem;
+  font-size: 0.76rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: #122536;
+  line-height: 1.25;
+}
+
+.perf-bento-cell.is-good .perf-bento-duo {
+  color: #067647;
+}
+
+.perf-bento-cell.is-bad .perf-bento-duo {
+  color: #b42318;
+}
+
+.perf-bento-sep {
+  color: #98a8b8;
+  font-weight: 700;
+}
+
+.perf-bento-meta {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #6b7f94;
+  line-height: 1.2;
+}
+
 .screen-feedback {
   margin: 0;
   padding: 0.65rem 1rem;

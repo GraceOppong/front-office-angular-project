@@ -40,12 +40,12 @@
                 <select
                   id="transferCurrency"
                   class="field select-field"
-                  [class.is-placeholder]="!currency()"
-                  [value]="currency()"
+                  [class.is-placeholder]="!currencyStore.selectedCurrency()"
+                  [value]="currencyStore.selectedCurrency()"
                   (change)="onCurrencyChange($any($event.target).value)"
                 >
                   <option value="" disabled hidden>Tap to select currency</option>
-                  @for (item of currencies; track item) {
+                  @for (item of currencyStore.currencies; track item) {
                     <option [value]="item">{{ item }}</option>
                   }
                 </select>
@@ -70,13 +70,14 @@
           </div>
 
           <div class="table-wrap">
-            <table class="data-table">
+            <table class="batch-table has-select has-avail">
               <thead>
                 <tr>
                   <th class="col-check"></th>
                   <th class="col-denom">Denomination</th>
-                  <th class="col-qty">Quantity</th>
+                  <th class="col-desc">Description</th>
                   <th class="col-amount">Amount</th>
+                  <th class="col-qty">Quantity</th>
                   <th class="col-avail">Available</th>
                 </tr>
               </thead>
@@ -93,11 +94,13 @@
                         />
                       </td>
                       <td class="col-denom mono">{{ row.denomination }}</td>
+                      <td class="col-desc">{{ row.denomination | denomDescription }}</td>
+                      <td class="col-amount">{{ rowAmount(row) | number: '1.2-2' }}</td>
                       <td class="col-qty">
                         <input
-                          type="number"
-                          min="0"
-                          step="1"
+                          type="text"
+                          inputmode="numeric"
+                          autocomplete="off"
                           class="qty-field"
                           [disabled]="!row.selected"
                           [value]="row.selected ? row.quantity : ''"
@@ -105,16 +108,23 @@
                           placeholder="0"
                         />
                       </td>
-                      <td class="col-amount">{{ rowAmount(row) | number: '1.2-2' }}</td>
-                      <td class="col-avail">{{ availableFor(row.denomination) }}</td>
+                      <td class="col-avail mono">{{ availableFor(row.denomination) }}</td>
                     </tr>
                   }
                 } @else {
                   <tr class="empty-row">
-                    <td colspan="5">Select currency and vault to choose denominations.</td>
+                    <td colspan="6">Select currency and vault to choose denominations.</td>
                   </tr>
                 }
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3">Total</td>
+                  <td class="col-amount">{{ transferTotal() | number: '1.2-2' }}</td>
+                  <td class="col-qty"></td>
+                  <td class="col-avail"></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </section>

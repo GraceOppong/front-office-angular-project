@@ -9,6 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { DenominationDescriptionPipe } from '../denomination-description.pipe';
 import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../till.store';
 
 export type CashDenominationMode = 'receive' | 'pay';
@@ -20,7 +21,7 @@ interface DenominationRow {
 
 @Component({
   selector: 'app-cash-denomination-modal',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, DenominationDescriptionPipe],
   templateUrl: './cash-denomination-modal.html',
   styleUrl: './cash-denomination-modal.css',
 })

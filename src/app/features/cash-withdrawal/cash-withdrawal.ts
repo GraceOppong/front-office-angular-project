@@ -25,6 +25,7 @@ import {
   resolveDenominationTargetAmount,
 } from '../../shared/cash-denomination.helpers';
 import { DenominationLine } from '../../shared/till.store';
+import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
@@ -43,6 +44,7 @@ export class CashWithdrawal {
   private readonly route = inject(ActivatedRoute);
   private readonly calloverStore = inject(CalloverStore);
   private readonly tillStore = inject(TillStore);
+  readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly sourceOfFundsOptions = ['Cash', 'Cheque', 'Transfer', 'Other'];
   readonly formatAmount = formatCashAmount;
@@ -77,17 +79,13 @@ export class CashWithdrawal {
   readonly narration2 = signal('');
   readonly feedbackMessage = signal('');
   readonly showSignaturePanel = signal(false);
-  readonly workspaceCurrency = signal('GHANA CEDIS');
   readonly showDenominationModal = signal(false);
   readonly denominationModalAmount = signal(0);
   readonly capturedDenominationLines = signal<DenominationLine[] | null>(null);
 
   constructor() {
     this.route.queryParamMap.subscribe((params) => {
-      const currency = params.get('currency');
-      if (currency) {
-        this.workspaceCurrency.set(currency);
-      }
+      this.currencyStore.applyFromQueryParam(params.get('currency'));
     });
   }
 

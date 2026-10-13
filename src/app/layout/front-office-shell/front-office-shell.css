@@ -26,13 +26,14 @@
 .sidebar {
   grid-area: sidebar;
   grid-row: 1 / -1;
-  background: #fff;
-  color: #1b2a3d;
+  background: linear-gradient(180deg, #134a7a 0%, #0f3d6b 38%, #0c2f54 100%);
+  color: #e8f2fb;
   padding: 1.15rem 0.75rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px rgba(9, 30, 55, 0.12);
   min-height: 0;
   overflow: hidden;
 }
@@ -48,12 +49,13 @@
   width: 2.35rem;
   height: 2.35rem;
   border-radius: 10px;
-  background: #1565a8;
+  background: linear-gradient(145deg, #3d8fd4 0%, #1565a8 100%);
   color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .brand-mark svg {
@@ -65,14 +67,14 @@
   margin: 0;
   font-size: 0.95rem;
   font-weight: 750;
-  color: #0f2d4d;
+  color: #fff;
   letter-spacing: -0.02em;
 }
 
 .brand-caption {
   margin: 0.1rem 0 0;
   font-size: 0.72rem;
-  color: #7a8fa3;
+  color: rgba(232, 242, 251, 0.72);
   font-weight: 600;
 }
 
@@ -88,15 +90,15 @@
   margin: 0;
   font-size: 0.92rem;
   font-weight: 750;
-  color: #122536;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .count-pill {
   font-size: 0.72rem;
   font-weight: 750;
-  color: #1565a8;
-  background: #e8f1fb;
-  border: 1px solid #c7daf0;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
   padding: 0.18rem 0.55rem;
   font-variant-numeric: tabular-nums;
@@ -108,19 +110,20 @@
   gap: 0.45rem;
   margin: 0 0.25rem;
   padding: 0 0.65rem;
-  border: 1px solid #d0dbe6;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
-  background: #fff;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  background: rgba(255, 255, 255, 0.1);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .search-wrap:focus-within {
-  border-color: #7eb3e0;
-  box-shadow: 0 0 0 3px rgba(21, 101, 168, 0.12);
+  border-color: rgba(155, 199, 232, 0.85);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(21, 101, 168, 0.25);
 }
 
 .search-ico {
-  color: #7a8fa3;
+  color: rgba(232, 242, 251, 0.75);
   display: inline-flex;
 }
 
@@ -129,17 +132,21 @@
   height: 1rem;
 }
 
-.field {
+.sidebar .field {
   width: 100%;
   height: 2.35rem;
   border: none;
   background: transparent;
   padding: 0;
   font-size: 0.86rem;
-  color: #122536;
+  color: #fff;
 }
 
-.field:focus {
+.sidebar .field::placeholder {
+  color: rgba(232, 242, 251, 0.5);
+}
+
+.sidebar .field:focus {
   outline: none;
 }
 
@@ -173,39 +180,44 @@
 }
 
 .activity-item:hover {
-  background: #f3f7fb;
-  color: #1565a8;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .activity-item.is-active {
-  background: #e8f1fb;
-  color: #1565a8;
-  border-left-color: #1565a8;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-left-color: #7ec4f0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .activity-code {
   font-size: 0.76rem;
   font-weight: 750;
-  color: #1565a8;
+  color: #9bc7e8;
   font-variant-numeric: tabular-nums;
+}
+
+.activity-item.is-active .activity-code {
+  color: #fff;
 }
 
 .activity-label {
   font-size: 0.84rem;
   font-weight: 600;
-  color: #1a2b3c;
+  color: rgba(232, 242, 251, 0.92);
   line-height: 1.3;
 }
 
 .activity-item.is-active .activity-label {
-  color: #0f4d82;
+  color: #fff;
   font-weight: 700;
 }
 
 .activity-empty {
   padding: 1rem 0.75rem;
   text-align: center;
-  color: #6b7f94;
+  color: rgba(232, 242, 251, 0.65);
   font-size: 0.84rem;
 }
 
@@ -230,7 +242,8 @@
     grid-row: auto;
     max-height: none;
     border-right: none;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 16px rgba(9, 30, 55, 0.12);
     overflow: visible;
   }
 

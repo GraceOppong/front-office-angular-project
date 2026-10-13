@@ -35,13 +35,13 @@
                 <select
                   id="currency"
                   class="field select-field"
-                  [class.is-placeholder]="!currency()"
-                  [value]="currency()"
+                  [class.is-placeholder]="!currencyStore.selectedCurrency()"
+                  [value]="currencyStore.selectedCurrency()"
                   (change)="onCurrencyChange($any($event.target).value)"
                 >
                   <option value="" disabled hidden>Tap to select currency</option>
-                  @for (item of currencies; track item.name) {
-                    <option [value]="item.name">{{ item.name }}</option>
+                  @for (item of currencyStore.currencies; track item) {
+                    <option [value]="item">{{ item }}</option>
                   }
                 </select>
               </div>

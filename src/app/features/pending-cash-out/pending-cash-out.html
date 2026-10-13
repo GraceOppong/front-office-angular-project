@@ -41,27 +41,36 @@
           <span class="count-pill">{{ denominationLines().length }}</span>
         </header>
         <div class="table-wrap">
-          <table class="data-table">
+          <table class="batch-table">
             <thead>
               <tr>
                 <th class="col-denom">Denomination</th>
-                <th class="col-qty">Quantity</th>
+                <th class="col-desc">Description</th>
                 <th class="col-amount">Amount</th>
+                <th class="col-qty">Quantity</th>
               </tr>
             </thead>
             <tbody>
               @for (line of denominationLines(); track line.denomination) {
                 <tr>
                   <td class="col-denom mono">{{ line.denomination }}</td>
-                  <td class="col-qty">{{ line.quantity }}</td>
+                  <td class="col-desc">{{ line.denomination | denomDescription }}</td>
                   <td class="col-amount">{{ line.amount | number: '1.2-2' }}</td>
+                  <td class="col-qty">{{ line.quantity }}</td>
                 </tr>
               } @empty {
                 <tr class="empty-row">
-                  <td colspan="3">No pending cash out to verify.</td>
+                  <td colspan="4">No pending cash out to verify.</td>
                 </tr>
               }
             </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">Total</td>
+                <td class="col-amount">{{ breakdownTotal() | number: '1.2-2' }}</td>
+                <td class="col-qty"></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </section>

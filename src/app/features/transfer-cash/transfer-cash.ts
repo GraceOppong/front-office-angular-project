@@ -2,7 +2,9 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { CashTransferStore } from '../../shared/cash-transfer.store';
 import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../../shared/till.store';
+import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 
 interface TransferRow {
   denomination: string;
@@ -12,21 +14,20 @@ interface TransferRow {
 
 @Component({
   selector: 'app-transfer-cash',
-  imports: [DecimalPipe, MessagePopup],
+  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe],
   templateUrl: './transfer-cash.html',
   styleUrl: './transfer-cash.css',
 })
 export class TransferCash {
   private readonly cashTransferStore = inject(CashTransferStore);
   private readonly tillStore = inject(TillStore);
+  readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly closed = output<void>();
   readonly submitted = output<{ currency: string; vault: string; amount: number }>();
 
-  readonly currencies = ['GHANA CEDIS', 'US DOLLAR', 'EURO', 'POUND STERLING'];
   readonly vaults = ['MAIN VAULT', 'BRANCH VAULT', 'HEAD OFFICE VAULT', 'ATM VAULT'];
 
-  readonly currency = signal('');
   readonly vault = signal('');
   readonly feedbackMessage = signal('');
   readonly rows = signal<TransferRow[]>(
@@ -37,7 +38,7 @@ export class TransferCash {
     })),
   );
 
-  readonly showTable = computed(() => !!this.currency() && !!this.vault());
+  readonly showTable = computed(() => !!this.currencyStore.selectedCurrency() && !!this.vault());
 
   readonly selectedLines = computed<DenominationLine[]>(() =>
     this.rows()
@@ -54,7 +55,7 @@ export class TransferCash {
   );
 
   onCurrencyChange(value: string): void {
-    this.currency.set(value);
+    this.currencyStore.setCurrency(value);
   }
 
   onVaultChange(value: string): void {
@@ -117,7 +118,7 @@ export class TransferCash {
   }
 
   onSubmit(): void {
-    if (!this.currency()) {
+    if (!this.currencyStore.selectedCurrency()) {
       this.feedbackMessage.set('Tap to select currency.');
       return;
     }
@@ -139,7 +140,7 @@ export class TransferCash {
     }
 
     const transfer = this.cashTransferStore.addAwaitingVault({
-      currency: this.currency(),
+      currency: this.currencyStore.selectedCurrency(),
       vault: this.vault(),
       lines,
       teller: 'TESTTEL',
@@ -154,10 +155,8 @@ export class TransferCash {
       amount: transfer.total,
     });
 
-    this.feedbackMessage.set(
-      `Transfer ${transfer.batchNo} sent to vault. Amount is in Pending Cash Out until the custodian confirms.`,
-    );
     this.resetRows();
+    this.closed.emit();
   }
 
   private resetRows(): void {

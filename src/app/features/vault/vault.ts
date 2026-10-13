@@ -5,7 +5,9 @@ import { CashRequestRow, CashRequestStore } from '../../shared/cash-request.stor
 import { CashOutTransfer, CashTransferStore } from '../../shared/cash-transfer.store';
 import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../../shared/till.store';
 import { VaultStore } from '../../shared/vault.store';
+import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 
 interface IssueRow {
   denomination: string;
@@ -14,7 +16,7 @@ interface IssueRow {
 
 @Component({
   selector: 'app-vault',
-  imports: [DecimalPipe, MessagePopup],
+  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe],
   templateUrl: './vault.html',
   styleUrl: './vault.css',
 })
@@ -23,6 +25,7 @@ export class Vault {
   readonly cashRequestStore = inject(CashRequestStore);
   readonly cashTransferStore = inject(CashTransferStore);
   private readonly tillStore = inject(TillStore);
+  readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly screenTitle = 'Vault';
   readonly activityCode = 'VVLT';
@@ -32,8 +35,6 @@ export class Vault {
   readonly userId = 'VAULT01';
   readonly branch = 'HEAD OFFICE';
 
-  readonly currencies = ['GHANA CEDIS', 'US DOLLAR', 'EURO', 'POUND STERLING'];
-  readonly selectedCurrency = signal('');
   readonly feedbackMessage = signal('');
   readonly activePanel = signal<'none' | 'issue' | 'receive'>('none');
 
@@ -43,13 +44,27 @@ export class Vault {
 
   readonly reviewingTransfer = signal<CashOutTransfer | null>(null);
 
-  readonly awaitingRequests = this.cashRequestStore.awaitingVaultRequests;
+  /** Cash requests addressed to the vault custodian (not peer teller requests). */
+  readonly vaultCashRequests = computed(() =>
+    this.cashRequestStore
+      .awaitingVaultRequests()
+      .filter((row) => row.transTo.toUpperCase().includes('VAULT')),
+  );
+
   readonly awaitingTransfers = this.cashTransferStore.awaitingVaultTransfers;
 
   readonly pendingWorkAmount = computed(
     () =>
-      this.awaitingRequests().reduce((sum, row) => sum + row.transAmount, 0) +
+      this.vaultCashRequests().reduce((sum, row) => sum + row.transAmount, 0) +
       this.awaitingTransfers().reduce((sum, row) => sum + row.total, 0),
+  );
+
+  readonly awaitingRequestAmount = computed(() =>
+    this.vaultCashRequests().reduce((sum, row) => sum + row.transAmount, 0),
+  );
+
+  readonly awaitingTransferAmount = computed(() =>
+    this.awaitingTransfers().reduce((sum, row) => sum + row.total, 0),
   );
 
   readonly issueLines = computed<DenominationLine[]>(() =>
@@ -72,7 +87,7 @@ export class Vault {
   });
 
   onCurrencyChange(value: string): void {
-    this.selectedCurrency.set(value);
+    this.currencyStore.setCurrency(value);
   }
 
   onAction(label: string): void {
@@ -173,12 +188,10 @@ export class Vault {
     }
 
     this.vaultStore.recordIssue(request.batchNo, request.teller, request.transAmount, lines);
-    this.feedbackMessage.set(
-      `Issued ${request.batchNo} to ${request.teller}. It is now in their Pending Cash In.`,
-    );
+    this.feedbackMessage.set(`Submitted ${request.batchNo} to ${request.teller}.`);
     this.cancelIssue();
 
-    if (this.awaitingRequests().length === 0) {
+    if (this.vaultCashRequests().length === 0) {
       this.closePanel();
     }
   }
@@ -206,7 +219,6 @@ export class Vault {
       return;
     }
 
-    this.tillStore.addCashSent(transfer.total, transfer.lines);
     this.vaultStore.recordReceive(transfer.batchNo, transfer.teller, transfer.total, transfer.lines);
     this.feedbackMessage.set(
       `Transfer ${transfer.batchNo} confirmed. Cash Sent updated for ${transfer.teller}.`,

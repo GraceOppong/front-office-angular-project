@@ -1,10 +1,11 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, output } from '@angular/core';
 import { TillStore } from '../../shared/till.store';
+import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 
 @Component({
   selector: 'app-cash-sent',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, DenominationDescriptionPipe],
   templateUrl: './cash-sent.html',
   styleUrl: './cash-sent.css',
 })

@@ -7,11 +7,8 @@ import {
   restrictAmountTyping,
 } from '../../shared/amount-input';
 import { CashRequestStore } from '../../shared/cash-request.store';
+import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
-
-interface CurrencyOption {
-  name: string;
-}
 
 interface RequestFromOption {
   id: string;
@@ -26,16 +23,10 @@ interface RequestFromOption {
 })
 export class RequestCash {
   private readonly cashRequestStore = inject(CashRequestStore);
+  readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly closed = output<void>();
   readonly submitted = output<{ currency: string; amount: string; requestingFrom: string }>();
-
-  readonly currencies: CurrencyOption[] = [
-    { name: 'GHANA CEDIS' },
-    { name: 'US DOLLAR' },
-    { name: 'EURO' },
-    { name: 'POUND STERLING' },
-  ];
 
   readonly requestFromOptions: RequestFromOption[] = [
     { id: '102893', name: 'VAULT CUSTODIAN' },
@@ -44,7 +35,6 @@ export class RequestCash {
     { id: '102892', name: 'KOFI OWUSU' },
   ];
 
-  readonly currency = signal('');
   readonly amount = signal('');
   readonly requestingFromId = signal(this.requestFromOptions[0].id);
   readonly feedbackMessage = signal('');
@@ -55,7 +45,7 @@ export class RequestCash {
   readonly showRejectedTable = computed(() => this.rejectedRequests().length > 0);
 
   onCurrencyChange(value: string): void {
-    this.currency.set(value);
+    this.currencyStore.setCurrency(value);
   }
 
   onRequestingFromChange(value: string): void {
@@ -87,7 +77,7 @@ export class RequestCash {
   }
 
   onSubmit(): void {
-    if (!this.currency()) {
+    if (!this.currencyStore.selectedCurrency()) {
       this.feedbackMessage.set('Tap to select currency.');
       return;
     }
@@ -107,20 +97,20 @@ export class RequestCash {
     const from =
       this.requestFromOptions.find((item) => item.id === this.requestingFromId())?.name ?? '';
 
-    const row = this.cashRequestStore.addAwaitingVault({
+    this.cashRequestStore.addAwaitingVault({
       amount: amountNumber,
-      currency: this.currency(),
+      currency: this.currencyStore.selectedCurrency(),
       requestingFrom: from,
       teller: 'TESTTEL',
     });
 
     this.submitted.emit({
-      currency: this.currency(),
+      currency: this.currencyStore.selectedCurrency(),
       amount: formatAmountInput(amountNumber),
       requestingFrom: from,
     });
 
-    this.feedbackMessage.set(`Cash request ${row.batchNo} sent to vault for issue.`);
     this.amount.set('');
+    this.closed.emit();
   }
 }

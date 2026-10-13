@@ -2,10 +2,11 @@ import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, output } from '@angular/core';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { TillStore } from '../../shared/till.store';
+import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 
 @Component({
   selector: 'app-pending-cash-in',
-  imports: [DecimalPipe],
+  imports: [DecimalPipe, DenominationDescriptionPipe],
   templateUrl: './pending-cash-in.html',
   styleUrl: './pending-cash-in.css',
 })

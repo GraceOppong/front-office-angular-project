@@ -57,22 +57,25 @@
           <h3>Denominations</h3>
         </header>
         <div class="table-wrap">
-          <table class="data-table">
+          <table class="batch-table" [class.has-avail]="mode() === 'pay'">
             <thead>
               <tr>
-                <th>Denomination</th>
-                <th>Quantity</th>
-                <th class="is-amount">Amount</th>
+                <th class="col-denom">Denomination</th>
+                <th class="col-desc">Description</th>
+                <th class="col-amount">Amount</th>
+                <th class="col-qty">Quantity</th>
                 @if (mode() === 'pay') {
-                  <th>Available</th>
+                  <th class="col-avail">Available</th>
                 }
               </tr>
             </thead>
             <tbody>
               @for (row of rows(); track row.denomination) {
                 <tr>
-                  <td class="mono">{{ row.denomination }}</td>
-                  <td>
+                  <td class="col-denom mono">{{ row.denomination }}</td>
+                  <td class="col-desc">{{ row.denomination | denomDescription }}</td>
+                  <td class="col-amount">{{ lineAmount(row) | number: '1.2-2' }}</td>
+                  <td class="col-qty">
                     <input
                       type="text"
                       inputmode="numeric"
@@ -83,13 +86,22 @@
                       (input)="onQuantityInput(row.denomination, $any($event.target).value)"
                     />
                   </td>
-                  <td class="mono is-amount">{{ lineAmount(row) | number: '1.2-2' }}</td>
                   @if (mode() === 'pay') {
-                    <td class="mono">{{ availableFor(row.denomination) }}</td>
+                    <td class="col-avail mono">{{ availableFor(row.denomination) }}</td>
                   }
                 </tr>
               }
             </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2">Total</td>
+                <td class="col-amount">{{ entryTotal() | number: '1.2-2' }}</td>
+                <td class="col-qty"></td>
+                @if (mode() === 'pay') {
+                  <td class="col-avail"></td>
+                }
+              </tr>
+            </tfoot>
           </table>
         </div>
       </section>

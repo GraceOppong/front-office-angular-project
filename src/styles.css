@@ -71,6 +71,9 @@ input {
 .batch-table thead th.col-amount,
 .batch-table tbody td.col-amount,
 .batch-table tfoot td.col-amount,
+.batch-table thead th.col-qty,
+.batch-table tbody td.col-qty,
+.batch-table tfoot td.col-qty,
 .data-table thead th.col-amount,
 .data-table tbody td.col-amount,
 .data-table thead th.is-amount,
@@ -121,4 +124,156 @@ input[type='number'].field-filter-amount::-webkit-outer-spin-button,
 input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Quantity fields — plain numeric entry, no stepper arrows */
+.qty-field[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.qty-field[type='number']::-webkit-outer-spin-button,
+.qty-field[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.batch-table .col-desc,
+.data-table .col-desc {
+  font-weight: 550;
+  color: var(--text-secondary);
+}
+
+/* Denomination grids — match Teller Activities Till Position */
+.batch-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.84rem;
+}
+
+.batch-table thead th,
+.batch-table tbody td,
+.batch-table tfoot td {
+  padding: 0.7rem 0.85rem;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 1px solid #d7e4f0;
+}
+
+.batch-table thead th:last-child,
+.batch-table tbody td:last-child,
+.batch-table tfoot td:last-child {
+  border-right: none;
+}
+
+.batch-table thead th {
+  text-align: left;
+  background: #eef5fb;
+  border-bottom: 1px solid #d7e4f0;
+  font-weight: 650;
+  color: #3d5a78;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+.batch-table tbody td {
+  border-bottom: 1px solid #eef1f5;
+  background: #fff;
+  color: #1a2b3c;
+}
+
+.batch-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.batch-table tbody tr:hover td {
+  background: #f3f8fd;
+}
+
+.batch-table tbody tr.empty-row td {
+  text-align: center;
+  color: #7a8fa3;
+  font-weight: 500;
+  padding: 1.35rem 0.85rem;
+  background: #fafbfc;
+}
+
+.batch-table tbody tr.empty-row:hover td {
+  background: #fafbfc;
+}
+
+.batch-table tfoot td {
+  background: #eef5fb;
+  border-top: 2px solid #d7e4f0;
+  font-weight: 750;
+  color: #0f2d4d;
+}
+
+.batch-table .mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.batch-table .col-denom {
+  width: 18%;
+  white-space: nowrap;
+}
+
+.batch-table .col-desc {
+  width: 34%;
+}
+
+.batch-table .col-amount,
+.batch-table .col-qty {
+  width: 24%;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.batch-table tbody td.col-qty .qty-field {
+  margin-left: auto;
+  display: block;
+  text-align: right;
+}
+
+.batch-table.has-select .col-check {
+  width: 3rem;
+  text-align: center;
+}
+
+.batch-table.has-avail .col-avail {
+  width: 16%;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.batch-table.has-select.has-avail,
+.batch-table.has-avail:not(:has(.col-check)) {
+  table-layout: auto;
+}
+
+.batch-table.has-select.has-avail .col-denom {
+  width: 12%;
+}
+
+.batch-table.has-select.has-avail .col-desc {
+  width: 24%;
+}
+
+.batch-table.has-select.has-avail .col-amount,
+.batch-table.has-select.has-avail .col-qty {
+  width: 18%;
+}
+
+.batch-table.has-avail:not(.has-select) .col-desc {
+  width: 28%;
+}
+
+.batch-table.has-avail:not(.has-select) .col-amount,
+.batch-table.has-avail:not(.has-select) .col-qty {
+  width: 20%;
 }
