@@ -1,6 +1,11 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import {
+  formatAmountOnBlur,
+  parseAmountInput,
+  restrictAmountTyping,
+} from '../../shared/amount-input';
 import {
   CalloverRow,
   CalloverStore,
@@ -54,6 +59,14 @@ export class TellerCallover {
   readonly pageTitle = TELLER_CALLOVER_JOURNAL_TITLE;
   readonly calloverStore = inject(CalloverStore);
 
+  constructor() {
+    effect(() => {
+      if (!this.calloverStore.calloverInitiated() && this.calloverView() === 'called-over') {
+        this.calloverView.set('pending');
+      }
+    });
+  }
+
   readonly transactionTypeOptions = TRANSACTION_TYPE_OPTIONS;
   readonly transStatusOptions = TRANS_STATUS_OPTIONS;
   readonly batchNumber = signal('');
@@ -64,6 +77,7 @@ export class TellerCallover {
   readonly transactionDateTo = signal('');
   readonly transactionTypeFilter = signal<CalloverTransactionFilter>('all');
   readonly transStatusFilter = signal<CalloverTransStatusFilter>('all');
+  private transStatusFilterBeforeInitiate: CalloverTransStatusFilter | null = null;
   readonly feedbackMessage = signal('');
   readonly selectedTransaction = signal<CalloverRow | null>(null);
   readonly detailsPanel = signal<'none' | 'voucher' | 'signature'>('none');
@@ -129,7 +143,9 @@ export class TellerCallover {
     () => this.filteredRows().length > 0 && this.pendingCount() === 0,
   );
 
-  readonly canSubmitCallover = computed(() => this.calledOverCount() > 0);
+  readonly canInitiateCallover = computed(
+    () => !this.calloverStore.calloverInitiated() && this.count() > 0,
+  );
 
   readonly pendingTotalDebit = computed(() => this.sumDebit(this.pendingRows()));
   readonly pendingTotalCredit = computed(() => this.sumCredit(this.pendingRows()));
@@ -145,11 +161,19 @@ export class TellerCallover {
   }
 
   onAmountMinInput(value: string): void {
-    this.amountMin.set(value);
+    this.amountMin.set(restrictAmountTyping(value));
   }
 
   onAmountMaxInput(value: string): void {
-    this.amountMax.set(value);
+    this.amountMax.set(restrictAmountTyping(value));
+  }
+
+  onAmountMinBlur(): void {
+    this.amountMin.set(formatAmountOnBlur(this.amountMin()));
+  }
+
+  onAmountMaxBlur(): void {
+    this.amountMax.set(formatAmountOnBlur(this.amountMax()));
   }
 
   onTransactionDateFromInput(value: string): void {
@@ -165,6 +189,9 @@ export class TellerCallover {
   }
 
   setTransStatusFilter(value: CalloverTransStatusFilter): void {
+    if (this.calloverStore.calloverInitiated()) {
+      return;
+    }
     this.transStatusFilter.set(value);
   }
 
@@ -176,6 +203,9 @@ export class TellerCallover {
   }
 
   showCalledOverScreen(): void {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
     this.calloverView.set('called-over');
   }
 
@@ -206,7 +236,14 @@ export class TellerCallover {
   }
 
   toggleTick(id: string, checked: boolean): void {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
     this.calloverStore.setTick(id, checked);
+  }
+
+  reverseTransaction(id: string): void {
+    this.calloverStore.reverseTransaction(id);
   }
 
   private transactionCategory(row: CalloverRow): Exclude<CalloverTransactionFilter, 'all'> {
@@ -315,12 +352,7 @@ export class TellerCallover {
   }
 
   private parseFilterAmount(value: string): number | null {
-    const trimmed = value.trim();
-    if (!trimmed) {
-      return null;
-    }
-    const parsed = Number(trimmed.replace(/,/g, ''));
-    return Number.isFinite(parsed) ? parsed : null;
+    return parseAmountInput(value);
   }
 
   private filterableAmount(row: CalloverRow): number | null {
@@ -359,6 +391,10 @@ export class TellerCallover {
   }
 
   tickAllPending(checked: boolean): void {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
+
     if (checked) {
       for (const row of this.pendingRows()) {
         this.toggleTick(row.id, true);
@@ -381,28 +417,41 @@ export class TellerCallover {
     }
   }
 
-  onSubmit(): void {
+  onCancelCalloverInitiation(): void {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
+
+    this.calloverStore.cancelCalloverInitiation();
+    this.calloverView.set('pending');
+    if (this.transStatusFilterBeforeInitiate !== null) {
+      this.transStatusFilter.set(this.transStatusFilterBeforeInitiate);
+      this.transStatusFilterBeforeInitiate = null;
+    }
+  }
+
+  onInitiateCallover(): void {
     const total = this.filteredRows().length;
-    const calledOver = this.calledOverCount();
+
+    if (this.calloverStore.calloverInitiated()) {
+      return;
+    }
 
     if (total === 0) {
       this.feedbackMessage.set('No transactions available for callover.');
       return;
     }
 
-    if (calledOver === 0) {
-      this.feedbackMessage.set('Call over at least one transaction to continue.');
-      return;
-    }
-
-    this.feedbackMessage.set(
-      calledOver === total
-        ? 'All visible transactions tallied and submitted for callover.'
-        : `${calledOver} of ${total} transactions submitted for callover.`,
-    );
+    this.transStatusFilterBeforeInitiate = this.transStatusFilter();
+    this.transStatusFilter.set('applied');
+    this.calloverStore.initiateCallover();
   }
 
   async downloadExcel(): Promise<void> {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
+
     const rows = this.exportRows();
     if (!rows) {
       return;
@@ -413,10 +462,13 @@ export class TellerCallover {
     const book = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(book, sheet, TELLER_CALLOVER_JOURNAL_TITLE);
     XLSX.writeFile(book, 'teller-callover-journal.xlsx');
-    this.feedbackMessage.set(`Downloaded ${rows.length} transactions as Excel.`);
   }
 
   async downloadPdf(): Promise<void> {
+    if (!this.calloverStore.calloverInitiated()) {
+      return;
+    }
+
     const rows = this.exportRows();
     if (!rows) {
       return;
@@ -436,7 +488,6 @@ export class TellerCallover {
       columnStyles: { 8: { halign: 'right' }, 9: { halign: 'right' } },
     });
     doc.save('teller-callover-journal.pdf');
-    this.feedbackMessage.set(`Downloaded ${rows.length} transactions as PDF.`);
   }
 
   private exportRows(): Record<string, string>[] | null {

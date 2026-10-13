@@ -132,6 +132,12 @@ export class CalloverStore {
   private readonly sequence = signal(1);
 
   readonly rows = signal<CalloverRow[]>(buildSampleRows());
+  readonly calloverInitiated = signal(false);
+
+  private preInitiateSnapshot: Map<
+    string,
+    Pick<CalloverRow, 'transStatus' | 'ticked' | 'calloverBy' | 'calloverDateTime'>
+  > | null = null;
 
   addCashDeposit(input: CashCalloverInput): CalloverRow {
     return this.prependRow(this.buildCashRow('deposit', input));
@@ -145,7 +151,78 @@ export class CalloverStore {
     this.rows.update((rows) => rows.filter((row) => row.id !== id));
   }
 
+  initiateCallover(): void {
+    this.preInitiateSnapshot = new Map(
+      this.rows().map((row) => [
+        row.id,
+        {
+          transStatus: row.transStatus,
+          ticked: row.ticked,
+          calloverBy: row.calloverBy,
+          calloverDateTime: row.calloverDateTime,
+        },
+      ]),
+    );
+
+    this.rows.update((rows) =>
+      rows.map((row) => ({
+        ...row,
+        transStatus: 'applied' as CalloverTransStatus,
+      })),
+    );
+    this.calloverInitiated.set(true);
+  }
+
+  cancelCalloverInitiation(): void {
+    const snapshot = this.preInitiateSnapshot;
+
+    if (snapshot) {
+      this.rows.update((rows) =>
+        rows.map((row) => {
+          const previous = snapshot.get(row.id);
+          if (!previous) {
+            return {
+              ...row,
+              ticked: false,
+              calloverBy: '',
+              calloverDateTime: '',
+            };
+          }
+
+          return {
+            ...row,
+            transStatus: previous.transStatus,
+            ticked: previous.ticked,
+            calloverBy: previous.calloverBy,
+            calloverDateTime: previous.calloverDateTime,
+          };
+        }),
+      );
+    }
+
+    this.preInitiateSnapshot = null;
+    this.calloverInitiated.set(false);
+  }
+
+  reverseTransaction(id: string): void {
+    if (!this.calloverInitiated()) {
+      return;
+    }
+
+    this.rows.update((rows) =>
+      rows.map((row) =>
+        row.id === id && row.transStatus !== 'reversed'
+          ? { ...row, transStatus: 'reversed' as CalloverTransStatus }
+          : row,
+      ),
+    );
+  }
+
   setTick(id: string, checked: boolean): void {
+    if (!this.calloverInitiated()) {
+      return;
+    }
+
     const now = new Date();
     const stamp = now.toLocaleString('en-GB', {
       day: '2-digit',

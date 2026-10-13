@@ -73,9 +73,6 @@ export class Vault {
 
   onCurrencyChange(value: string): void {
     this.selectedCurrency.set(value);
-    this.feedbackMessage.set(
-      value ? `Vault currency set to ${value}.` : 'Tap to select currency.',
-    );
   }
 
   onAction(label: string): void {
@@ -89,7 +86,6 @@ export class Vault {
       return;
     }
 
-    this.feedbackMessage.set(`${label} opened.`);
   }
 
   openIssueQueue(): void {

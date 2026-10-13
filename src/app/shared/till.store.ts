@@ -32,6 +32,21 @@ export class TillStore {
   readonly cashReceivedTarget = signal(180000);
   readonly cashSentTarget = signal(60000);
   readonly cashLimit = signal(150000);
+
+  readonly cashDeposited = signal(156345);
+  readonly cashDepositedCount = signal(42);
+  readonly cashDepositedTarget = signal(180000);
+  readonly cashDepositedCountTarget = signal(50);
+
+  readonly cashWithdrawn = signal(38200);
+  readonly cashWithdrawnCount = signal(35);
+  readonly cashWithdrawnTarget = signal(60000);
+  readonly cashWithdrawnCountTarget = signal(40);
+
+  readonly vaultCashReceived = signal(45200);
+  readonly vaultCashReceivedCount = signal(2);
+  readonly vaultCashSent = signal(7000);
+  readonly vaultCashSentCount = signal(1);
   readonly cashReceivedLines = signal<DenominationLine[]>([]);
   readonly cashSentLines = signal<DenominationLine[]>([]);
 
@@ -135,6 +150,42 @@ export class TillStore {
     if (lines.length) {
       this.cashSentLines.update((current) => this.mergeLines(current, lines));
     }
+  }
+
+  recordCustomerDeposit(amount: number): void {
+    const value = Math.abs(amount);
+    if (!Number.isFinite(value) || value <= 0) {
+      return;
+    }
+    this.cashDeposited.update((current) => current + value);
+    this.cashDepositedCount.update((current) => current + 1);
+  }
+
+  recordCustomerWithdrawal(amount: number): void {
+    const value = Math.abs(amount);
+    if (!Number.isFinite(value) || value <= 0) {
+      return;
+    }
+    this.cashWithdrawn.update((current) => current + value);
+    this.cashWithdrawnCount.update((current) => current + 1);
+  }
+
+  recordVaultCashReceived(amount: number): void {
+    const value = Math.abs(amount);
+    if (!Number.isFinite(value) || value <= 0) {
+      return;
+    }
+    this.vaultCashReceived.update((current) => current + value);
+    this.vaultCashReceivedCount.update((current) => current + 1);
+  }
+
+  recordVaultCashSent(amount: number): void {
+    const value = Math.abs(amount);
+    if (!Number.isFinite(value) || value <= 0) {
+      return;
+    }
+    this.vaultCashSent.update((current) => current + value);
+    this.vaultCashSentCount.update((current) => current + 1);
   }
 
   removeDenominationLines(lines: DenominationLine[]): void {

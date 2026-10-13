@@ -1,5 +1,11 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
+import {
+  formatAmountOnBlur,
+  formatAmountInput,
+  parseAmountInput,
+  restrictAmountTyping,
+} from '../../shared/amount-input';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 
@@ -57,17 +63,19 @@ export class RequestCash {
   }
 
   onAmountInput(value: string): void {
-    this.amount.set(value);
+    this.amount.set(restrictAmountTyping(value));
+  }
+
+  onAmountBlur(): void {
+    this.amount.set(formatAmountOnBlur(this.amount()));
   }
 
   deletePending(id: string): void {
     this.cashRequestStore.delete(id);
-    this.feedbackMessage.set('Pending request deleted.');
   }
 
   acknowledgeRejected(id: string): void {
     this.cashRequestStore.acknowledgeRejected(id);
-    this.feedbackMessage.set('Rejected request acknowledged.');
   }
 
   onClose(): void {
@@ -90,8 +98,8 @@ export class RequestCash {
       return;
     }
 
-    const amountNumber = Number(value);
-    if (Number.isNaN(amountNumber) || amountNumber <= 0) {
+    const amountNumber = parseAmountInput(value);
+    if (amountNumber === null || amountNumber <= 0) {
       this.feedbackMessage.set('Enter a valid amount greater than zero.');
       return;
     }
@@ -108,7 +116,7 @@ export class RequestCash {
 
     this.submitted.emit({
       currency: this.currency(),
-      amount: value,
+      amount: formatAmountInput(amountNumber),
       requestingFrom: from,
     });
 

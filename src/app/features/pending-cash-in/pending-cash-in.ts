@@ -44,6 +44,7 @@ export class PendingCashIn {
     const { total, lines } = this.cashRequestStore.acceptAllPending();
     this.tillStore.applyDenominationLines(lines);
     this.tillStore.addCashReceived(total, lines);
+    this.tillStore.recordVaultCashReceived(total);
     this.accepted.emit(total);
     this.closed.emit();
   }

@@ -69,6 +69,19 @@
   min-width: 0;
   overflow: hidden;
   background: #fff;
+  border-left: 3px solid #d5dee8;
+}
+
+.perf-card.is-deposit {
+  border-left-color: #12b76a;
+}
+
+.perf-card.is-withdrawn {
+  border-left-color: #f79009;
+}
+
+.perf-card.is-vault {
+  border-left-color: #1565a8;
 }
 
 .perf-head {
@@ -128,97 +141,84 @@
   color: #b42318;
 }
 
-.perf-kicker {
-  margin: 0.5rem 0 0;
-  font-size: 0.66rem;
+.perf-table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.78rem;
+}
+
+.perf-table th,
+.perf-table td {
+  padding: 0.38rem 0.35rem;
+  border-bottom: 1px solid #eef2f6;
+  vertical-align: middle;
+}
+
+.perf-table thead th {
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #7a8fa3;
-}
-
-.perf-actual {
-  margin: 0.08rem 0 0;
-  font-size: 1.28rem;
-  font-weight: 750;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: #0f2d4d;
-  line-height: 1.15;
-}
-
-.perf-split {
-  margin-top: 0.55rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #fff;
-  border: 1px solid #e4edf5;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.perf-split div {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-  padding: 0.4rem 0.65rem 0.45rem;
-}
-
-.perf-split div + div {
-  border-left: 1px solid #e4edf5;
-}
-
-.perf-split span {
-  font-size: 0.7rem;
-  font-weight: 650;
   color: #6b7f94;
+  border-bottom: 1px solid #e2eaf2;
+  padding-bottom: 0.42rem;
 }
 
-.perf-split strong {
-  font-size: 0.92rem;
-  font-weight: 750;
+.perf-table tbody tr:last-child th,
+.perf-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.perf-table tbody th {
+  width: 38%;
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 650;
+  color: #4a6785;
+  line-height: 1.25;
+}
+
+.perf-table .is-num {
+  text-align: right;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
   color: #122536;
+  font-weight: 650;
 }
 
-.perf-split strong.is-good {
+.perf-table .is-emphasis {
+  font-size: 0.88rem;
+  font-weight: 750;
+  color: #0f2d4d;
+}
+
+.perf-table tr.is-today th,
+.perf-table tr.is-today td {
+  background: #fafcfe;
+}
+
+.perf-table tr.is-net td {
+  font-weight: 750;
+  padding-top: 0.45rem;
+}
+
+.perf-table td.is-good,
+.perf-table .is-good {
   color: #067647;
 }
 
-.perf-split strong.is-bad {
+.perf-table td.is-bad,
+.perf-table .is-bad {
   color: #b42318;
 }
 
-.perf-track {
-  margin-top: 0.5rem;
-  height: 0.32rem;
-  border-radius: 999px;
-  background: #e7eef6;
-  overflow: hidden;
-}
-
-.perf-fill {
+.perf-net-note {
   display: block;
-  height: 100%;
-  border-radius: inherit;
-}
-
-.perf-fill.is-in {
-  background: #12b76a;
-}
-
-.perf-fill.is-out {
-  background: #f79009;
-}
-
-.perf-fill.is-limit {
-  background: #1565a8;
-}
-
-.perf-fill.is-over {
-  background: #f04438;
+  margin-top: 0.08rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6b7f94;
 }
 
 .screen-feedback {

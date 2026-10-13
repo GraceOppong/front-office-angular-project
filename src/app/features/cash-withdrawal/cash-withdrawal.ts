@@ -1,21 +1,41 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { formatBusinessDate } from '../../shared/business-date';
+import {
+  businessDateFromIsoDateInput,
+  toIsoDateInputValue,
+} from '../../shared/business-date';
 import { CalloverStore, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 import { TillStore } from '../../shared/till.store';
-import { formatCashAmount, resolveCashTransactionAccount } from '../../shared/cash-transaction.mock';
+import {
+  formatAmountOnBlur,
+  parseAmountInput,
+  restrictAmountTyping,
+} from '../../shared/amount-input';
+import {
+  createCashAccountLookupHandlers,
+  createCashAccountLookupSignals,
+} from '../../shared/cash-account-lookup.mixin';
+import { ACCOUNT_NUMBER_LENGTH } from '../../shared/cash-account-lookup';
+import { formatCashAmount } from '../../shared/cash-transaction.mock';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { AmlThirdPartyModal } from '../../shared/aml-third-party-modal/aml-third-party-modal';
+import { CashDenominationModal } from '../../shared/cash-denomination-modal/cash-denomination-modal';
+import {
+  denominationLinesMatchAmount,
+  resolveDenominationTargetAmount,
+} from '../../shared/cash-denomination.helpers';
+import { DenominationLine } from '../../shared/till.store';
 import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
 } from '../../shared/aml-third-party.model';
 
 const DEFAULT_NARRATION = 'CASH WITHDRAWAL';
+const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-withdrawal',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal],
+  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal],
   templateUrl: './cash-withdrawal.html',
   styleUrl: '../cash-deposit/cash-deposit.css',
 })
@@ -28,7 +48,24 @@ export class CashWithdrawal {
   readonly formatAmount = formatCashAmount;
 
   readonly debitAccount = signal('');
-  readonly voucherDate = signal(formatBusinessDate());
+  readonly accountNumberMaxLength = ACCOUNT_NUMBER_LENGTH;
+  private readonly accountLookup = createCashAccountLookupSignals();
+  readonly accountLookupLoading = this.accountLookup.accountLookupLoading;
+  readonly showAccountInformation = this.accountLookup.showAccountInformation;
+  private readonly accountLookupHandlers = createCashAccountLookupHandlers(
+    this.debitAccount,
+    this.accountLookup,
+    {
+      onNarrationPrefill: (name) => this.narration2.set(name),
+      onClearNarration: () => this.narration2.set(''),
+      setFeedback: (message) => this.feedbackMessage.set(message),
+    },
+  );
+  readonly accountSnapshot = this.accountLookupHandlers.accountSnapshot;
+  readonly accountName = this.accountLookupHandlers.accountName;
+  readonly maxVoucherDateIso = toIsoDateInputValue();
+  readonly voucherDateIso = signal(this.maxVoucherDateIso);
+  readonly voucherDate = computed(() => businessDateFromIsoDateInput(this.voucherDateIso()));
   readonly amount = signal('');
   readonly voucherRef = signal('');
   readonly sourceOfFunds = signal('');
@@ -41,6 +78,9 @@ export class CashWithdrawal {
   readonly feedbackMessage = signal('');
   readonly showSignaturePanel = signal(false);
   readonly workspaceCurrency = signal('GHANA CEDIS');
+  readonly showDenominationModal = signal(false);
+  readonly denominationModalAmount = signal(0);
+  readonly capturedDenominationLines = signal<DenominationLine[] | null>(null);
 
   constructor() {
     this.route.queryParamMap.subscribe((params) => {
@@ -51,38 +91,70 @@ export class CashWithdrawal {
     });
   }
 
-  readonly accountSnapshot = computed(() => {
-    const key = this.debitAccount().trim();
-    if (!key) {
-      return null;
-    }
-    return resolveCashTransactionAccount(key);
+  readonly sourceOfFundsEnabled = computed(() => {
+    const amount = parseAmountInput(this.amount());
+    return amount !== null && amount > SOURCE_OF_FUNDS_THRESHOLD;
   });
 
-  readonly accountName = computed(() => this.accountSnapshot()?.accountName ?? '');
-
-  readonly displayCurrency = computed(
-    () => this.accountSnapshot()?.currency ?? this.workspaceCurrency(),
-  );
-
   onDebitAccountInput(value: string): void {
-    this.debitAccount.set(value);
+    this.accountLookupHandlers.onAccountNumberInput(value);
+  }
+
+  onVoucherDateChange(value: string): void {
+    if (!value || value > this.maxVoucherDateIso) {
+      this.voucherDateIso.set(this.maxVoucherDateIso);
+      return;
+    }
+    this.voucherDateIso.set(value);
   }
 
   onDebitAccountBlur(): void {
-    const key = this.debitAccount().trim();
-    if (!key) {
-      return;
-    }
-    if (!resolveCashTransactionAccount(key)) {
-      this.feedbackMessage.set('Enter a valid 10-digit account number.');
-      return;
-    }
-    this.feedbackMessage.set('');
+    this.accountLookupHandlers.onAccountNumberBlur();
   }
 
   onAmountInput(value: string): void {
-    this.amount.set(value);
+    this.amount.set(restrictAmountTyping(value));
+    this.capturedDenominationLines.set(null);
+  }
+
+  onAmountBlur(): void {
+    this.amount.set(formatAmountOnBlur(this.amount()));
+    if (!this.sourceOfFundsEnabled()) {
+      this.sourceOfFunds.set('');
+    }
+  }
+
+  onAmountEnter(event: Event): void {
+    event.preventDefault();
+    this.onAmountBlur();
+    this.tryOpenDenominationModal();
+  }
+
+  tryOpenDenominationModal(): boolean {
+    const amountValue = parseAmountInput(this.amount());
+    const target = resolveDenominationTargetAmount(amountValue);
+    if (target === null) {
+      if (amountValue !== null && amountValue > 0) {
+        this.feedbackMessage.set('Use a whole cash amount for denomination entry.');
+      } else {
+        this.feedbackMessage.set('Enter an amount before declaring denominations.');
+      }
+      return false;
+    }
+
+    this.denominationModalAmount.set(target);
+    this.showDenominationModal.set(true);
+    this.feedbackMessage.set('');
+    return true;
+  }
+
+  onDenominationConfirmed(lines: DenominationLine[]): void {
+    this.capturedDenominationLines.set(lines);
+    this.showDenominationModal.set(false);
+  }
+
+  onDenominationCancelled(): void {
+    this.showDenominationModal.set(false);
   }
 
   onVoucherRefInput(value: string): void {
@@ -90,6 +162,9 @@ export class CashWithdrawal {
   }
 
   onSourceOfFundsChange(value: string): void {
+    if (!this.sourceOfFundsEnabled()) {
+      return;
+    }
     this.sourceOfFunds.set(value);
   }
 
@@ -134,7 +209,7 @@ export class CashWithdrawal {
 
   onSubmit(): void {
     const account = this.debitAccount().trim();
-    const amountValue = Number(this.amount());
+    const amountValue = parseAmountInput(this.amount());
     const narration = this.narration1().trim();
 
     if (!account) {
@@ -152,8 +227,8 @@ export class CashWithdrawal {
       return;
     }
 
-    if (!this.sourceOfFunds()) {
-      this.feedbackMessage.set('Select a source of funds.');
+    if (this.sourceOfFundsEnabled() && !this.sourceOfFunds()) {
+      this.feedbackMessage.set('Select a source of funds for amounts over 1,000,000.');
       return;
     }
 
@@ -168,6 +243,20 @@ export class CashWithdrawal {
       return;
     }
 
+    const denominationTarget = resolveDenominationTargetAmount(amountValue);
+    let lines = this.capturedDenominationLines();
+    if (this.thirdParty() !== 'yes') {
+      if (denominationTarget === null) {
+        this.feedbackMessage.set('Use a whole cash amount for denomination entry.');
+        return;
+      }
+      if (!denominationLinesMatchAmount(lines, denominationTarget)) {
+        this.feedbackMessage.set('Press Enter on Amount to enter denominations that match the transaction.');
+        this.tryOpenDenominationModal();
+        return;
+      }
+    }
+
     const snapshot = this.accountSnapshot()!;
     const calloverInput = {
       accountNumber: account,
@@ -179,17 +268,17 @@ export class CashWithdrawal {
       thirdParty: this.thirdParty() === 'yes',
     };
 
-    const lines = this.tillStore.breakIntoDenominations(amountValue);
-    if (this.thirdParty() !== 'yes' && !this.tillStore.canRemoveLines(lines)) {
+    if (this.thirdParty() !== 'yes' && lines && !this.tillStore.canRemoveLines(lines)) {
       this.feedbackMessage.set('Till does not have enough cash for this withdrawal.');
       return;
     }
 
     const row = this.calloverStore.addCashWithdrawal(calloverInput);
 
-    if (this.thirdParty() !== 'yes') {
+    if (this.thirdParty() !== 'yes' && lines) {
       this.tillStore.removeDenominationLines(lines);
       this.tillStore.addCashSent(amountValue, lines);
+      this.tillStore.recordCustomerWithdrawal(amountValue);
     }
 
     if (this.thirdParty() === 'yes') {
@@ -212,16 +301,13 @@ export class CashWithdrawal {
 
   openSignature(): void {
     this.showSignaturePanel.update((open) => !open);
-    this.feedbackMessage.set(
-      this.showSignaturePanel() ? 'Signature capture opened.' : 'Signature capture closed.',
-    );
   }
 
   openUnclearedDetail(): void {
-    this.feedbackMessage.set('Uncleared balance detail is not available in this demo.');
+    // Detail view not implemented in demo.
   }
 
   openBlockDetail(): void {
-    this.feedbackMessage.set('Block amount detail is not available in this demo.');
+    // Detail view not implemented in demo.
   }
 }

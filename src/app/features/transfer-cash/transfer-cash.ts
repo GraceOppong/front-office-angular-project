@@ -146,6 +146,7 @@ export class TransferCash {
     });
 
     this.tillStore.removeDenominationLines(lines);
+    this.tillStore.recordVaultCashSent(transfer.total);
 
     this.submitted.emit({
       currency: transfer.currency,

@@ -20,7 +20,6 @@ export class UngrantedCashRequest {
 
   deleteRequest(id: string): void {
     this.cashRequestStore.delete(id);
-    this.feedbackMessage.set('Ungranted request cancelled.');
   }
 
   onClose(): void {

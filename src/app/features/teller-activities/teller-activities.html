@@ -9,100 +9,162 @@
     </header>
 
     <section class="perf-strip" aria-label="Teller performance">
-      <article class="card perf-card">
+      <article class="card perf-card is-deposit">
         <header class="perf-head">
           <span class="card-icon is-green" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11.17V7h-2v6.17l-2.59-2.58L7 12l5 5 5-5-1.41-1.41L13 13.17z"/></svg>
           </span>
-          <h2>Cash Received</h2>
-          <span class="perf-status" [class.is-good]="receivedVariance() >= 0" [class.is-bad]="receivedVariance() < 0">
-            {{ receivedVariance() >= 0 ? 'Ahead' : 'Short' }}
+          <h2>Cash Deposited</h2>
+          <span
+            class="perf-status"
+            [class.is-good]="depositedAmountVariance() >= 0 && depositedCountVariance() >= 0"
+            [class.is-bad]="depositedAmountVariance() < 0 || depositedCountVariance() < 0"
+          >
+            {{
+              depositedAmountVariance() >= 0 && depositedCountVariance() >= 0 ? 'On track' : 'Below target'
+            }}
           </span>
         </header>
 
-        <p class="perf-kicker">Actual</p>
-        <p class="perf-actual">{{ tillStore.cashReceived() | number: '1.2-2' }}</p>
-
-        <div class="perf-track" aria-hidden="true">
-          <span class="perf-fill is-in" [style.width.%]="receivedProgress()"></span>
-        </div>
-
-        <div class="perf-split">
-          <div>
-            <span>Target</span>
-            <strong>{{ tillStore.cashReceivedTarget() | number: '1.2-2' }}</strong>
-          </div>
-          <div>
-            <span>Variance</span>
-            <strong [class.is-good]="receivedVariance() >= 0" [class.is-bad]="receivedVariance() < 0">
-              {{ receivedVariance() > 0 ? '+' : '' }}{{ receivedVariance() | number: '1.2-2' }}
-            </strong>
-          </div>
-        </div>
+        <table class="perf-table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col" class="is-num">Amount</th>
+              <th scope="col" class="is-num">Transactions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-today">
+              <th scope="row">Today</th>
+              <td class="is-num is-emphasis">{{ tillStore.cashDeposited() | number: '1.2-2' }}</td>
+              <td class="is-num is-emphasis">{{ tillStore.cashDepositedCount() | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Target</th>
+              <td class="is-num">{{ tillStore.cashDepositedTarget() | number: '1.2-2' }}</td>
+              <td class="is-num">{{ tillStore.cashDepositedCountTarget() | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Variance</th>
+              <td
+                class="is-num"
+                [class.is-good]="depositedAmountVariance() >= 0"
+                [class.is-bad]="depositedAmountVariance() < 0"
+              >
+                {{ depositedAmountVariance() > 0 ? '+' : '' }}{{ depositedAmountVariance() | number: '1.2-2' }}
+              </td>
+              <td
+                class="is-num"
+                [class.is-good]="depositedCountVariance() >= 0"
+                [class.is-bad]="depositedCountVariance() < 0"
+              >
+                {{ depositedCountVariance() > 0 ? '+' : '' }}{{ depositedCountVariance() | number: '1.0-0' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </article>
 
-      <article class="card perf-card">
+      <article class="card perf-card is-withdrawn">
         <header class="perf-head">
           <span class="card-icon is-amber" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 8.83L15.59 13.41 17 12l-5-5-5 5 1.41 1.41L11 10.83V17h2v-6.17z"/></svg>
           </span>
-          <h2>Cash Sent</h2>
-          <span class="perf-status" [class.is-good]="sentVariance() <= 0" [class.is-bad]="sentVariance() > 0">
-            {{ sentVariance() <= 0 ? 'Within target' : 'Over target' }}
+          <h2>Cash Withdrawn</h2>
+          <span
+            class="perf-status"
+            [class.is-good]="withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0"
+            [class.is-bad]="withdrawnAmountVariance() > 0 || withdrawnCountVariance() > 0"
+          >
+            {{
+              withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0 ? 'Within target' : 'Over target'
+            }}
           </span>
         </header>
 
-        <p class="perf-kicker">Actual</p>
-        <p class="perf-actual">{{ tillStore.cashSent() | number: '1.2-2' }}</p>
-
-        <div class="perf-track" aria-hidden="true">
-          <span class="perf-fill is-out" [style.width.%]="sentProgress()"></span>
-        </div>
-
-        <div class="perf-split">
-          <div>
-            <span>Target</span>
-            <strong>{{ tillStore.cashSentTarget() | number: '1.2-2' }}</strong>
-          </div>
-          <div>
-            <span>Variance</span>
-            <strong [class.is-good]="sentVariance() <= 0" [class.is-bad]="sentVariance() > 0">
-              {{ sentVariance() > 0 ? '+' : '' }}{{ sentVariance() | number: '1.2-2' }}
-            </strong>
-          </div>
-        </div>
+        <table class="perf-table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col" class="is-num">Amount</th>
+              <th scope="col" class="is-num">Transactions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-today">
+              <th scope="row">Today</th>
+              <td class="is-num is-emphasis">{{ tillStore.cashWithdrawn() | number: '1.2-2' }}</td>
+              <td class="is-num is-emphasis">{{ tillStore.cashWithdrawnCount() | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Target</th>
+              <td class="is-num">{{ tillStore.cashWithdrawnTarget() | number: '1.2-2' }}</td>
+              <td class="is-num">{{ tillStore.cashWithdrawnCountTarget() | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Variance</th>
+              <td
+                class="is-num"
+                [class.is-good]="withdrawnAmountVariance() <= 0"
+                [class.is-bad]="withdrawnAmountVariance() > 0"
+              >
+                {{ withdrawnAmountVariance() > 0 ? '+' : '' }}{{ withdrawnAmountVariance() | number: '1.2-2' }}
+              </td>
+              <td
+                class="is-num"
+                [class.is-good]="withdrawnCountVariance() <= 0"
+                [class.is-bad]="withdrawnCountVariance() > 0"
+              >
+                {{ withdrawnCountVariance() > 0 ? '+' : '' }}{{ withdrawnCountVariance() | number: '1.0-0' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </article>
 
-      <article class="card perf-card">
+      <article class="card perf-card is-vault">
         <header class="perf-head">
           <span class="card-icon is-blue" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 10h3V7H4v3zm0 7h3v-3H4v3zm5-10v3h3V7H9zm0 10h3v-3H9v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3z"/></svg>
           </span>
-          <h2>Till Limit</h2>
-          <span class="perf-status" [class.is-good]="tillHeadroom() >= 0" [class.is-bad]="tillHeadroom() < 0">
-            {{ tillHeadroom() >= 0 ? 'Within limit' : 'Over limit' }}
-          </span>
+          <h2>Vault movements</h2>
+          <span class="perf-status is-good">Today</span>
         </header>
 
-        <p class="perf-kicker">Actual</p>
-        <p class="perf-actual">{{ tillStore.tillTotal() | number: '1.2-2' }}</p>
-
-        <div class="perf-track" aria-hidden="true">
-          <span class="perf-fill is-limit" [class.is-over]="tillHeadroom() < 0" [style.width.%]="tillProgress()"></span>
-        </div>
-
-        <div class="perf-split">
-          <div>
-            <span>Limit</span>
-            <strong>{{ tillStore.cashLimit() | number: '1.2-2' }}</strong>
-          </div>
-          <div>
-            <span>Headroom</span>
-            <strong [class.is-good]="tillHeadroom() >= 0" [class.is-bad]="tillHeadroom() < 0">
-              {{ tillHeadroom() > 0 ? '+' : '' }}{{ tillHeadroom() | number: '1.2-2' }}
-            </strong>
-          </div>
-        </div>
+        <table class="perf-table">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              <th scope="col" class="is-num">Amount</th>
+              <th scope="col" class="is-num">Transactions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Received from vault</th>
+              <td class="is-num is-emphasis">{{ tillStore.vaultCashReceived() | number: '1.2-2' }}</td>
+              <td class="is-num">{{ tillStore.vaultCashReceivedCount() | number: '1.0-0' }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Sent to vault</th>
+              <td class="is-num is-emphasis">{{ tillStore.vaultCashSent() | number: '1.2-2' }}</td>
+              <td class="is-num">{{ tillStore.vaultCashSentCount() | number: '1.0-0' }}</td>
+            </tr>
+            <tr class="is-net">
+              <th scope="row">Net</th>
+              <td
+                class="is-num"
+                colspan="2"
+                [class.is-good]="vaultNetFlow() >= 0"
+                [class.is-bad]="vaultNetFlow() < 0"
+              >
+                {{ vaultNetFlow() > 0 ? '+' : '' }}{{ vaultNetFlow() | number: '1.2-2' }}
+                <span class="perf-net-note">received minus sent</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </article>
     </section>
 

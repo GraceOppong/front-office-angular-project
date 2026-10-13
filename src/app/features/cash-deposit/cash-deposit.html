@@ -22,44 +22,102 @@
               <input
                 id="creditAccount"
                 type="text"
+                inputmode="numeric"
+                autocomplete="off"
                 class="field"
-                placeholder="Account number"
+                [class.is-loading]="accountLookupLoading()"
+                placeholder="10-digit account number"
+                [attr.maxlength]="accountNumberMaxLength"
                 [value]="creditAccount()"
                 (input)="onCreditAccountInput($any($event.target).value)"
                 (blur)="onCreditAccountBlur()"
               />
             </div>
 
-            <div class="form-field span-2">
+            <div class="form-field">
               <label for="accountName">Account Name</label>
               <input
                 id="accountName"
                 type="text"
                 class="field field-readonly"
-                [value]="accountName()"
+                [class.is-loading]="accountLookupLoading()"
+                [value]="showAccountInformation() ? accountName() : ''"
                 readonly
-                placeholder="—"
+                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="accountBranch">Account Branch</label>
+              <input
+                id="accountBranch"
+                type="text"
+                class="field field-readonly"
+                [class.is-loading]="accountLookupLoading()"
+                [value]="showAccountInformation() ? (accountSnapshot()?.branch ?? '') : ''"
+                readonly
+                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="accountProduct">Account Product</label>
+              <input
+                id="accountProduct"
+                type="text"
+                class="field field-readonly"
+                [class.is-loading]="accountLookupLoading()"
+                [value]="showAccountInformation() ? (accountSnapshot()?.product ?? '') : ''"
+                readonly
+                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+              />
+            </div>
+
+            <div class="form-field">
+              <label for="accountCurrency">Currency</label>
+              <input
+                id="accountCurrency"
+                type="text"
+                class="field field-readonly"
+                [class.is-loading]="accountLookupLoading()"
+                [value]="showAccountInformation() ? (accountSnapshot()?.currency ?? '') : ''"
+                readonly
+                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
               />
             </div>
 
             <h2 class="section-title span-full">Transaction Details</h2>
 
             <div class="form-field">
-              <label for="voucherDate">Voucher Date</label>
-              <input id="voucherDate" type="text" class="field field-readonly" [value]="voucherDate()" readonly />
-            </div>
-
-            <div class="form-field">
               <label for="amount"><span class="req">*</span> Amount</label>
               <input
                 id="amount"
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
                 class="field field-amount"
                 placeholder="0.00"
                 [value]="amount()"
                 (input)="onAmountInput($any($event.target).value)"
+                (blur)="onAmountBlur()"
+                (keydown.enter)="onAmountEnter($event)"
+              />
+              @if (capturedDenominationLines()) {
+                <p class="field-hint is-success">Denominations confirmed for this amount.</p>
+              } @else {
+                <p class="field-hint">Press Enter after amount to declare denominations.</p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label for="voucherDate">Voucher Date</label>
+              <input
+                id="voucherDate"
+                type="date"
+                class="field field-date"
+                [value]="voucherDateIso()"
+                [max]="maxVoucherDateIso"
+                (input)="onVoucherDateChange($any($event.target).value)"
               />
             </div>
 
@@ -81,6 +139,7 @@
                 class="field select-field"
                 [class.is-placeholder]="!sourceOfFunds()"
                 [value]="sourceOfFunds()"
+                [disabled]="!sourceOfFundsEnabled()"
                 (change)="onSourceOfFundsChange($any($event.target).value)"
               >
                 <option value="" disabled hidden>Select</option>
@@ -157,51 +216,53 @@
               </span>
               <h3>Account Information</h3>
             </div>
-            <button type="button" class="btn btn-outline signature-btn" (click)="openSignature()">
+            <button
+              type="button"
+              class="btn btn-outline signature-btn"
+              [disabled]="!showAccountInformation()"
+              (click)="openSignature()"
+            >
               Signature
             </button>
           </header>
 
-          <dl class="info-grid">
-            <div class="info-tile is-monetary">
-              <dt>Available Balance</dt>
-              <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
+          @if (accountLookupLoading()) {
+            <div class="account-info-loading" role="status" aria-live="polite">
+              <span class="account-info-spinner" aria-hidden="true"></span>
+              <span>Fetching account details…</span>
             </div>
-            <div class="info-tile is-monetary">
-              <dt>Cleared Balance</dt>
-              <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
-            </div>
-            <div class="info-tile is-monetary">
-              <dt>Uncleared Balance</dt>
-              <dd>
-                <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
-                <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
-              </dd>
-            </div>
-            <div class="info-tile is-monetary">
-              <dt>Overdraft Amount</dt>
-              <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
-            </div>
-            <div class="info-tile is-monetary">
-              <dt>Block Amount</dt>
-              <dd>
-                <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
-                <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>
-              </dd>
-            </div>
-            <div class="info-tile">
-              <dt>Account Branch</dt>
-              <dd>{{ accountSnapshot()?.branch ?? '—' }}</dd>
-            </div>
-            <div class="info-tile">
-              <dt>Account Product</dt>
-              <dd>{{ accountSnapshot()?.product ?? '—' }}</dd>
-            </div>
-            <div class="info-tile">
-              <dt>Currency</dt>
-              <dd>{{ displayCurrency() }}</dd>
-            </div>
-          </dl>
+          } @else if (showAccountInformation()) {
+            <dl class="info-grid">
+              <div class="info-tile is-monetary">
+                <dt>Available Balance</dt>
+                <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
+              </div>
+              <div class="info-tile is-monetary">
+                <dt>Cleared Balance</dt>
+                <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
+              </div>
+              <div class="info-tile is-monetary">
+                <dt>Uncleared Balance</dt>
+                <dd>
+                  <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
+                  <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
+                </dd>
+              </div>
+              <div class="info-tile is-monetary">
+                <dt>Overdraft Amount</dt>
+                <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
+              </div>
+              <div class="info-tile is-monetary">
+                <dt>Block Amount</dt>
+                <dd>
+                  <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
+                  <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>
+                </dd>
+              </div>
+            </dl>
+          } @else {
+            <p class="account-info-placeholder">Enter a valid account number to view balances.</p>
+          }
         </article>
       </div>
 
@@ -228,6 +289,16 @@
       [initialValue]="amlThirdPartyDetails()"
       (saved)="onAmlThirdPartySaved($event)"
       (cancelled)="onAmlThirdPartyCancelled()"
+    />
+  }
+
+  @if (showDenominationModal()) {
+    <app-cash-denomination-modal
+      [targetAmount]="denominationModalAmount()"
+      mode="receive"
+      [initialLines]="capturedDenominationLines()"
+      (confirmed)="onDenominationConfirmed($event)"
+      (cancelled)="onDenominationCancelled()"
     />
   }
 

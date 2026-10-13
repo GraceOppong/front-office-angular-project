@@ -1,7 +1,6 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActivityStore } from '../../shared/activity.store';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { CashTransferStore } from '../../shared/cash-transfer.store';
 import { TillStore } from '../../shared/till.store';
@@ -34,7 +33,6 @@ import { TELLER_CALLOVER_JOURNAL_PATH, TELLER_CALLOVER_JOURNAL_TITLE } from '../
 export class TellerActivities {
   readonly tellerCalloverJournalTitle = TELLER_CALLOVER_JOURNAL_TITLE;
 
-  private readonly activityStore = inject(ActivityStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly cashRequestStore = inject(CashRequestStore);
@@ -59,33 +57,24 @@ export class TellerActivities {
   readonly showCashSentModal = signal(false);
   readonly showUngrantedCashModal = signal(false);
 
-  readonly receivedVariance = computed(
-    () => this.tillStore.cashReceived() - this.tillStore.cashReceivedTarget(),
+  readonly depositedAmountVariance = computed(
+    () => this.tillStore.cashDeposited() - this.tillStore.cashDepositedTarget(),
   );
-  readonly sentVariance = computed(
-    () => this.tillStore.cashSent() - this.tillStore.cashSentTarget(),
+  readonly depositedCountVariance = computed(
+    () => this.tillStore.cashDepositedCount() - this.tillStore.cashDepositedCountTarget(),
   );
-  readonly tillHeadroom = computed(
-    () => this.tillStore.cashLimit() - this.tillStore.tillTotal(),
+  readonly withdrawnAmountVariance = computed(
+    () => this.tillStore.cashWithdrawn() - this.tillStore.cashWithdrawnTarget(),
   );
-  readonly receivedProgress = computed(() =>
-    this.progressShare(this.tillStore.cashReceived(), this.tillStore.cashReceivedTarget()),
+  readonly withdrawnCountVariance = computed(
+    () => this.tillStore.cashWithdrawnCount() - this.tillStore.cashWithdrawnCountTarget(),
   );
-  readonly sentProgress = computed(() =>
-    this.progressShare(this.tillStore.cashSent(), this.tillStore.cashSentTarget()),
-  );
-  readonly tillProgress = computed(() =>
-    this.progressShare(this.tillStore.tillTotal(), this.tillStore.cashLimit()),
+
+  readonly vaultNetFlow = computed(
+    () => this.tillStore.vaultCashReceived() - this.tillStore.vaultCashSent(),
   );
 
   constructor() {
-    effect(() => {
-      const selected = this.activityStore.selectedActivity();
-      if (selected) {
-        this.feedbackMessage.set(`Selected ${selected.code} — ${selected.label}`);
-      }
-    });
-
     this.route.queryParamMap.subscribe((params) => {
       const modal = params.get('modal');
       if (!modal) {
@@ -107,13 +96,6 @@ export class TellerActivities {
       '1': 'One Cedi',
     };
     return labels[value] ?? value;
-  }
-
-  private progressShare(actual: number, target: number): number {
-    if (target <= 0) {
-      return 0;
-    }
-    return Math.min(100, Math.max(0, (actual / target) * 100));
   }
 
   private openModalFromQuery(modal: string): void {
@@ -257,7 +239,6 @@ export class TellerActivities {
       return;
     }
 
-    this.feedbackMessage.set(`${label} opened.`);
   }
 
   closeRequestCashModal(): void {
@@ -310,7 +291,7 @@ export class TellerActivities {
   }
 
   onPendingCashRejected(): void {
-    this.feedbackMessage.set('Pending cash in rejected.');
+    // Modal closed; no toast needed.
   }
 
   onPendingCashOutCancelled(amount: number): void {

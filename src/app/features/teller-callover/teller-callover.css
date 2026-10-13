@@ -210,6 +210,13 @@
   appearance: auto;
 }
 
+.field-filter-type.is-filter-locked {
+  cursor: not-allowed;
+  background: #f0f4f8;
+  color: #1565a8;
+  border-color: #c7daf0;
+}
+
 .details-block input[type='date'].field-filter-date {
   padding: 0 0.35rem;
   font-size: 0.82rem;
@@ -515,6 +522,65 @@
   font-weight: 650;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.col-reversal {
+  width: 3.25rem;
+  min-width: 3.25rem;
+  text-align: center !important;
+  padding-left: 0.35rem !important;
+  padding-right: 0.2rem !important;
+}
+
+.row-reversal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid #e4d7ff;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #faf8ff 0%, #f4f0ff 100%);
+  color: #5925dc;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.12s ease;
+}
+
+.row-reversal-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.row-reversal-btn:hover:not(:disabled) {
+  background: #f4f0ff;
+  border-color: #c4b5fd;
+  box-shadow: 0 2px 8px rgba(89, 37, 220, 0.14);
+  transform: translateY(-1px);
+}
+
+.row-reversal-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
 .col-batch { width: 10%; }
 .col-trans { width: 8%; }
 .col-account { width: 8%; }
@@ -590,10 +656,11 @@
 }
 
 .col-check {
-  width: 3%;
+  width: 3.75rem;
+  min-width: 3.75rem;
   text-align: center !important;
-  padding-left: 0.06rem !important;
-  padding-right: 0.06rem !important;
+  padding-left: 0.35rem !important;
+  padding-right: 0.35rem !important;
 }
 
 .data-table thead th.col-check,
@@ -602,12 +669,17 @@
 }
 
 .col-check input[type='checkbox'] {
-  width: 0.72rem;
-  height: 0.72rem;
+  width: 1.15rem;
+  height: 1.15rem;
   margin: 0;
   cursor: pointer;
   vertical-align: middle;
   accent-color: #1565a8;
+}
+
+.col-check input[type='checkbox']:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .empty-row td {
@@ -693,6 +765,17 @@
   justify-content: flex-end;
   align-items: center;
   gap: 0.65rem;
+  margin-left: auto;
+}
+
+.back-to-status-btn {
+  min-width: 6.75rem;
+  height: 2rem;
+  padding: 0 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  border-width: 1.5px;
+  box-shadow: 0 1px 4px rgba(21, 101, 168, 0.1);
 }
 
 .export-btn {

@@ -102,3 +102,23 @@ input {
 .summary-item .summary-value {
   align-self: flex-end;
 }
+
+.field-amount[type='number'],
+.field-filter-amount[type='number'],
+input[type='number'].field-amount,
+input[type='number'].field-filter-amount {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.field-amount[type='number']::-webkit-outer-spin-button,
+.field-amount[type='number']::-webkit-inner-spin-button,
+.field-filter-amount[type='number']::-webkit-outer-spin-button,
+.field-filter-amount[type='number']::-webkit-inner-spin-button,
+input[type='number'].field-amount::-webkit-outer-spin-button,
+input[type='number'].field-amount::-webkit-inner-spin-button,
+input[type='number'].field-filter-amount::-webkit-outer-spin-button,
+input[type='number'].field-filter-amount::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
