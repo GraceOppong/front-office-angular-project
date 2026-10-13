@@ -13,7 +13,13 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'teller-activities' },
       { path: 'teller-activities', component: TellerActivities },
-      { path: 'teller-callover', component: TellerCallover },
+      {
+        path: 'teller-callover',
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'journal' },
+          { path: 'journal', component: TellerCallover },
+        ],
+      },
       { path: 'cash-deposit', component: CashDeposit },
       { path: 'cash-withdrawal', component: CashWithdrawal },
       { path: 'vault', component: Vault },

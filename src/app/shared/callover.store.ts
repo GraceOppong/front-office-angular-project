@@ -1,6 +1,19 @@
 import { Injectable, signal } from '@angular/core';
 import { formatBusinessDate } from './business-date';
 
+export type CalloverTransStatus = 'reversed' | 'applied' | 'rejected' | 'unapproved' | 'approved';
+
+export const TELLER_CALLOVER_JOURNAL_TITLE = 'Teller callover/journal';
+export const TELLER_CALLOVER_JOURNAL_PATH = '/teller-callover/journal';
+
+const SAMPLE_TRANS_STATUSES: CalloverTransStatus[] = [
+  'applied',
+  'approved',
+  'unapproved',
+  'rejected',
+  'reversed',
+];
+
 export interface CalloverRow {
   id: string;
   batchNo: string;
@@ -8,6 +21,7 @@ export interface CalloverRow {
   accountDescription: string;
   amount: number;
   transactionDetails: string;
+  transStatus: CalloverTransStatus;
   transNo: string;
   calloverBy: string;
   calloverDateTime: string;
@@ -16,6 +30,7 @@ export interface CalloverRow {
   voucherNumber: string;
   customerNo: string;
   accountNumber: string;
+  currency: string;
   fcAmountDb: string;
   exchangeRate: string;
   localEquivalentDb: string;
@@ -55,12 +70,18 @@ const SAMPLE_DETAILS = [
   'CASH DEPOSIT',
   'CASH WITHDRAWAL',
   'CHEQUE DEPOSIT',
+  'CHEQUE WITHDRAWAL',
   'CASH REQUEST ACCEPTED',
   'CASH TRANSFER OUT',
   'FX SALE',
   'FX PURCHASE',
   'DENOMINATION EXCHANGE',
 ];
+
+function pickSampleTransStatus(index: number): CalloverTransStatus {
+  const spread = (index * 3 + Math.floor(index / 7) * 2) % SAMPLE_TRANS_STATUSES.length;
+  return SAMPLE_TRANS_STATUSES[spread];
+}
 
 function buildSampleRows(): CalloverRow[] {
   return Array.from({ length: 120 }, (_, index) => {
@@ -77,6 +98,7 @@ function buildSampleRows(): CalloverRow[] {
       accountDescription: SAMPLE_NAMES[index % SAMPLE_NAMES.length],
       amount,
       transactionDetails: details,
+      transStatus: pickSampleTransStatus(index),
       transNo: `TXN-${88010 + n}`,
       calloverBy: '',
       calloverDateTime: '',
@@ -85,6 +107,7 @@ function buildSampleRows(): CalloverRow[] {
       voucherNumber: voucher,
       customerNo: `0050${String(10 + (n % 40)).padStart(2, '0')}`,
       accountNumber: `001${String(300000000 + n * 911).padStart(9, '0')}`,
+      currency: details.includes('FX') ? 'USD' : 'GHS',
       fcAmountDb: '',
       exchangeRate: '1',
       localEquivalentDb: isDebit ? String(Math.abs(amount)) : '',
@@ -171,6 +194,7 @@ export class CalloverStore {
       accountDescription: input.accountName,
       amount: signedAmount,
       transactionDetails,
+      transStatus: SAMPLE_TRANS_STATUSES[seq % SAMPLE_TRANS_STATUSES.length],
       transNo: `TXN-${99000 + seq}`,
       calloverBy: '',
       calloverDateTime: '',
@@ -179,6 +203,7 @@ export class CalloverStore {
       voucherNumber,
       customerNo: input.accountNumber.slice(0, 8),
       accountNumber: input.accountNumber,
+      currency: 'GHS',
       fcAmountDb: '',
       exchangeRate: '1',
       localEquivalentDb: isDebit ? amountText : '',

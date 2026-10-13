@@ -1,0 +1,352 @@
+<div class="modal-backdrop" (click)="onBackdropClick()" role="presentation">
+  <div
+    class="modal-dialog is-aml"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="amlThirdPartyTitle"
+    (click)="onDialogClick($event)"
+  >
+    <header class="modal-header">
+      <div class="heading-block">
+        <h2 id="amlThirdPartyTitle">AML Third Party</h2>
+        <p class="modal-caption">Third-party customer information</p>
+      </div>
+      <button type="button" class="close-icon-btn" (click)="onCancel()" aria-label="Close" title="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
+          />
+        </svg>
+      </button>
+    </header>
+
+    <div class="modal-body aml-body-grid">
+      @if (formError()) {
+        <p class="form-error" role="alert">{{ formError() }}</p>
+      }
+
+      <section class="aml-section">
+        <h3 class="section-heading">Personal Details</h3>
+        <div class="aml-grid">
+          <div class="aml-field">
+            <label for="amlTitle">Title</label>
+            <select
+              id="amlTitle"
+              class="field select-field"
+              [class.is-placeholder]="!draft().title"
+              [value]="draft().title"
+              (change)="patchField('title', $any($event.target).value)"
+            >
+              <option value="" disabled hidden>Select</option>
+              @for (item of titleOptions; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+          <div class="aml-field">
+            <label for="amlFirstName"><span class="req">*</span> First Name</label>
+            <input
+              id="amlFirstName"
+              type="text"
+              class="field"
+              [value]="draft().firstName"
+              (input)="patchField('firstName', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlSurname"><span class="req">*</span> Surname</label>
+            <input
+              id="amlSurname"
+              type="text"
+              class="field"
+              [value]="draft().surname"
+              (input)="patchField('surname', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlMiddleName">Middle Name</label>
+            <input
+              id="amlMiddleName"
+              type="text"
+              class="field"
+              [value]="draft().middleName"
+              (input)="patchField('middleName', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlAlias">Alias</label>
+            <input
+              id="amlAlias"
+              type="text"
+              class="field"
+              [value]="draft().alias"
+              (input)="patchField('alias', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlGender">Gender</label>
+            <select
+              id="amlGender"
+              class="field select-field"
+              [class.is-placeholder]="!draft().gender"
+              [value]="draft().gender"
+              (change)="patchField('gender', $any($event.target).value)"
+            >
+              <option value="" disabled hidden>Select</option>
+              @for (item of genderOptions; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+          <div class="aml-field">
+            <label for="amlDob">Date of Birth</label>
+            <input
+              id="amlDob"
+              type="date"
+              class="field"
+              [value]="draft().dateOfBirth"
+              (input)="patchField('dateOfBirth', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlPob">Place of Birth</label>
+            <input
+              id="amlPob"
+              type="text"
+              class="field"
+              [value]="draft().placeOfBirth"
+              (input)="patchField('placeOfBirth', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlMothersName">Mother's Name</label>
+            <input
+              id="amlMothersName"
+              type="text"
+              class="field"
+              [value]="draft().mothersName"
+              (input)="patchField('mothersName', $any($event.target).value)"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="aml-section">
+        <h3 class="section-heading">Other Details</h3>
+        <div class="aml-grid">
+          <div class="aml-field">
+            <label for="amlOccupation">Occupation</label>
+            <input
+              id="amlOccupation"
+              type="text"
+              class="field"
+              [value]="draft().occupation"
+              (input)="patchField('occupation', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlSourceOfWealth">Source of Wealth</label>
+            <input
+              id="amlSourceOfWealth"
+              type="text"
+              class="field"
+              [value]="draft().sourceOfWealth"
+              (input)="patchField('sourceOfWealth', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlPhone">Phone</label>
+            <input
+              id="amlPhone"
+              type="tel"
+              class="field"
+              [value]="draft().phone"
+              (input)="patchField('phone', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlEmail">Email</label>
+            <input
+              id="amlEmail"
+              type="email"
+              class="field"
+              [value]="draft().email"
+              (input)="patchField('email', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlResidence">Residence</label>
+            <input
+              id="amlResidence"
+              type="text"
+              class="field"
+              [value]="draft().residence"
+              (input)="patchField('residence', $any($event.target).value)"
+            />
+          </div>
+          @for (nationality of draft().nationalities; track $index) {
+            <div class="aml-field nationality-field">
+              <label [for]="'amlNationality' + $index">
+                Nationality {{ draft().nationalities.length > 1 ? $index + 1 : '' }}
+              </label>
+              <div class="nationality-row">
+                <input
+                  [id]="'amlNationality' + $index"
+                  type="text"
+                  class="field"
+                  placeholder="Country"
+                  [value]="nationality"
+                  (input)="onNationalityInput($index, $any($event.target).value)"
+                />
+                @if (draft().nationalities.length > 1) {
+                  <button
+                    type="button"
+                    class="btn-icon-remove"
+                    aria-label="Remove nationality"
+                    title="Remove"
+                    (click)="removeNationality($index)"
+                  >
+                    ×
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          <div class="aml-field aml-field-action">
+            <span class="field-label-spacer" aria-hidden="true">&nbsp;</span>
+            <button type="button" class="btn btn-soft btn-add" (click)="addNationality()">
+              + Add nationality
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="aml-section is-lower-row">
+        <h3 class="section-heading">ID Details</h3>
+        <div class="aml-grid">
+          <div class="aml-field">
+            <label for="amlIdType">ID Type</label>
+            <select
+              id="amlIdType"
+              class="field select-field"
+              [class.is-placeholder]="!draft().idType"
+              [value]="draft().idType"
+              (change)="patchField('idType', $any($event.target).value)"
+            >
+              <option value="" disabled hidden>Select</option>
+              @for (item of idTypeOptions; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+          <div class="aml-field">
+            <label for="amlIdNumber"><span class="req">*</span> ID Number</label>
+            <input
+              id="amlIdNumber"
+              type="text"
+              class="field"
+              [value]="draft().idNumber"
+              (input)="patchField('idNumber', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlIdIssue">Date of Issue</label>
+            <input
+              id="amlIdIssue"
+              type="date"
+              class="field"
+              [value]="draft().idIssueDate"
+              (input)="patchField('idIssueDate', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlIdExpiry">Expiry Date</label>
+            <input
+              id="amlIdExpiry"
+              type="date"
+              class="field"
+              [value]="draft().idExpiryDate"
+              (input)="patchField('idExpiryDate', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlIdCountry">Issuing Country</label>
+            <input
+              id="amlIdCountry"
+              type="text"
+              class="field"
+              [value]="draft().idIssuingCountry"
+              (input)="patchField('idIssuingCountry', $any($event.target).value)"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="aml-section is-lower-row">
+        <h3 class="section-heading">Employer Details</h3>
+        <div class="aml-grid">
+          <div class="aml-field">
+            <label for="amlEmployerName">Employer Name</label>
+            <input
+              id="amlEmployerName"
+              type="text"
+              class="field"
+              [value]="draft().employerName"
+              (input)="patchField('employerName', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlJobTitle">Job Title</label>
+            <input
+              id="amlJobTitle"
+              type="text"
+              class="field"
+              [value]="draft().jobTitle"
+              (input)="patchField('jobTitle', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlEmploymentStatus">Employment Status</label>
+            <select
+              id="amlEmploymentStatus"
+              class="field select-field"
+              [class.is-placeholder]="!draft().employmentStatus"
+              [value]="draft().employmentStatus"
+              (change)="patchField('employmentStatus', $any($event.target).value)"
+            >
+              <option value="" disabled hidden>Select</option>
+              @for (item of employmentStatusOptions; track item) {
+                <option [value]="item">{{ item }}</option>
+              }
+            </select>
+          </div>
+          <div class="aml-field">
+            <label for="amlEmployerPhone">Employer Phone</label>
+            <input
+              id="amlEmployerPhone"
+              type="tel"
+              class="field"
+              [value]="draft().employerPhone"
+              (input)="patchField('employerPhone', $any($event.target).value)"
+            />
+          </div>
+          <div class="aml-field">
+            <label for="amlEmployerAddress">Employer Address</label>
+            <input
+              id="amlEmployerAddress"
+              type="text"
+              class="field"
+              [value]="draft().employerAddress"
+              (input)="patchField('employerAddress', $any($event.target).value)"
+            />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="onSave()">Save</button>
+    </footer>
+  </div>
+</div>

@@ -10,7 +10,7 @@
 }
 
 .message-popup-dialog {
-  width: min(420px, 100%);
+  width: var(--modal-width-compact);
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);

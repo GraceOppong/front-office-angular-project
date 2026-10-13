@@ -1,0 +1,267 @@
+:host {
+  display: block;
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 3.5rem;
+  padding: 0.45rem 1rem 0.45rem 1.15rem;
+  background: #fff;
+  border-bottom: 1px solid #e2eaf2;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.topbar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.help-icon-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid #d5dee8;
+  border-radius: 10px;
+  background: #fff;
+  color: #5a6d80;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(15, 40, 70, 0.04);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.help-icon-btn:hover {
+  background: #f3f8fd;
+  border-color: #b7cce0;
+  color: #1565a8;
+  box-shadow: 0 2px 6px rgba(21, 101, 168, 0.1);
+}
+
+.help-icon-btn svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.session-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+  min-width: 0;
+  padding: 0.45rem 0.85rem 0.45rem 0.55rem;
+  background: #fff;
+  border: 1px solid #e2eaf2;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(15, 40, 70, 0.04),
+    0 4px 14px rgba(15, 40, 70, 0.04);
+}
+
+.session-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.profile-avatar {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #1a75b8 0%, #1565a8 55%, #0f4d82 100%);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.session-user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.session-kicker {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #7a8fa3;
+  line-height: 1.1;
+}
+
+.session-name {
+  font-size: 0.88rem;
+  font-weight: 750;
+  color: #0f2d4d;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 11rem;
+}
+
+.panel-sep {
+  width: 1px;
+  align-self: stretch;
+  min-height: 2.25rem;
+  background: linear-gradient(180deg, transparent, #d5e0ea 15%, #d5e0ea 85%, transparent);
+  flex-shrink: 0;
+}
+
+.session-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+  min-width: 0;
+}
+
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.15rem 0.1rem;
+}
+
+.meta-chip.is-highlight {
+  padding: 0.2rem 0.55rem 0.2rem 0.35rem;
+  margin: -0.05rem 0;
+  border-radius: 9px;
+  background: #eff8ff;
+  border: 1px solid #cce5ff;
+}
+
+.chip-icon {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chip-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.chip-icon.is-branch {
+  background: #f3f6fa;
+  color: #5a6d80;
+}
+
+.chip-icon.is-date {
+  background: #f5f8fb;
+  color: #6b7f94;
+}
+
+.chip-icon.is-business {
+  background: #e8f1fb;
+  color: #1565a8;
+}
+
+.chip-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.06rem;
+  min-width: 0;
+}
+
+.chip-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6b7f94;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.chip-value {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #122536;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10.5rem;
+}
+
+.meta-chip.is-highlight .chip-value {
+  color: #0f4d82;
+}
+
+.meta-sep {
+  width: 1px;
+  height: 1.35rem;
+  background: #d5e0ea;
+  flex-shrink: 0;
+}
+
+@media (max-width: 980px) {
+  .panel-sep {
+    display: none;
+  }
+
+  .session-panel {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .session-meta {
+    width: 100%;
+    padding-top: 0.15rem;
+    border-top: 1px solid #eef2f6;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar-toolbar {
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    width: 100%;
+  }
+
+  .session-panel {
+    width: 100%;
+  }
+
+  .meta-sep {
+    display: none;
+  }
+
+  .session-meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+  }
+
+  .meta-chip.is-highlight {
+    grid-column: 1 / -1;
+  }
+
+  .session-name,
+  .chip-value {
+    max-width: 100%;
+  }
+}

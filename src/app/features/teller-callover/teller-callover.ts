@@ -1,124 +1,186 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { LucideFileSpreadsheet, LucideFileType, LucideTrash } from '@lucide/angular';
-import { CalloverRow, CalloverStore } from '../../shared/callover.store';
+import { RouterLink } from '@angular/router';
+import {
+  CalloverRow,
+  CalloverStore,
+  TELLER_CALLOVER_JOURNAL_TITLE,
+} from '../../shared/callover.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 
-const PAGE_SIZE_OPTIONS = [
-  { label: '10', value: 10 },
-  { label: '25', value: 25 },
-  { label: '50', value: 50 },
-  { label: '100', value: 100 },
-  { label: 'All', value: 0 },
-] as const;
+export type CalloverTransactionFilter =
+  | 'all'
+  | 'cheque-withdrawals'
+  | 'cash-withdrawals'
+  | 'cash-deposit'
+  | 'cheque-deposits'
+  | 'others';
+
+const BUSINESS_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const TRANSACTION_TYPE_OPTIONS: { id: CalloverTransactionFilter; label: string }[] = [
+  { id: 'all', label: 'All transactions' },
+  { id: 'cheque-withdrawals', label: 'Cheque withdrawals' },
+  { id: 'cash-withdrawals', label: 'Cash withdrawals' },
+  { id: 'cash-deposit', label: 'Cash deposit' },
+  { id: 'cheque-deposits', label: 'Cheque deposits' },
+  { id: 'others', label: 'Others' },
+];
+
+export type CalloverTransStatusFilter =
+  | 'all'
+  | 'reversed'
+  | 'applied'
+  | 'rejected'
+  | 'unapproved'
+  | 'approved';
+
+const TRANS_STATUS_OPTIONS: { id: CalloverTransStatusFilter; label: string }[] = [
+  { id: 'all', label: 'All statuses' },
+  { id: 'reversed', label: 'Reversed' },
+  { id: 'applied', label: 'Applied' },
+  { id: 'rejected', label: 'Rejected' },
+  { id: 'unapproved', label: 'Unapproved' },
+  { id: 'approved', label: 'Approved' },
+];
 
 @Component({
   selector: 'app-teller-callover',
-  imports: [DecimalPipe, RouterLink, LucideFileSpreadsheet, LucideFileType, LucideTrash, MessagePopup],
+  imports: [DecimalPipe, RouterLink, MessagePopup],
   templateUrl: './teller-callover.html',
   styleUrl: './teller-callover.css',
 })
 export class TellerCallover {
-  private readonly router = inject(Router);
+  readonly pageTitle = TELLER_CALLOVER_JOURNAL_TITLE;
   readonly calloverStore = inject(CalloverStore);
 
-  readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
-  readonly pageSize = signal(10);
+  readonly transactionTypeOptions = TRANSACTION_TYPE_OPTIONS;
+  readonly transStatusOptions = TRANS_STATUS_OPTIONS;
+  readonly batchNumber = signal('');
   readonly accountNumber = signal('');
-  readonly transactionNumber = signal('');
-  readonly transactionDetails = signal('');
+  readonly amountMin = signal('');
+  readonly amountMax = signal('');
+  readonly transactionDateFrom = signal('');
+  readonly transactionDateTo = signal('');
+  readonly transactionTypeFilter = signal<CalloverTransactionFilter>('all');
+  readonly transStatusFilter = signal<CalloverTransStatusFilter>('all');
   readonly feedbackMessage = signal('');
   readonly selectedTransaction = signal<CalloverRow | null>(null);
   readonly detailsPanel = signal<'none' | 'voucher' | 'signature'>('none');
-  readonly currentPage = signal(1);
+  readonly calloverView = signal<'pending' | 'called-over'>('pending');
 
   readonly filteredRows = computed(() => {
+    const batch = this.batchNumber().trim().toLowerCase();
     const account = this.accountNumber().trim().toLowerCase();
-    const transNo = this.transactionNumber().trim().toLowerCase();
-    const details = this.transactionDetails().trim().toLowerCase();
+    const min = this.parseFilterAmount(this.amountMin());
+    const max = this.parseFilterAmount(this.amountMax());
+    const typeFilter = this.transactionTypeFilter();
+    const statusFilter = this.transStatusFilter();
 
     return this.calloverStore.rows().filter((row) => {
+      const matchBatch = !batch || row.batchNo.toLowerCase().includes(batch);
+      if (!matchBatch) {
+        return false;
+      }
+
       const matchAccount =
-        !account ||
-        row.acctLink.toLowerCase().includes(account) ||
-        row.accountNumber.toLowerCase().includes(account) ||
-        row.accountDescription.toLowerCase().includes(account);
-      const matchTrans =
-        !transNo ||
-        row.transNo.toLowerCase().includes(transNo) ||
-        row.batchNo.toLowerCase().includes(transNo);
-      const matchDetails = !details || row.transactionDetails.toLowerCase().includes(details);
-      return matchAccount && matchTrans && matchDetails;
+        !account || row.accountNumber.toLowerCase().includes(account);
+      if (!matchAccount) {
+        return false;
+      }
+
+      if (!this.matchesTransactionType(row, typeFilter)) {
+        return false;
+      }
+
+      if (!this.matchesTransStatus(row, statusFilter)) {
+        return false;
+      }
+
+      if (!this.matchesTransactionDate(row)) {
+        return false;
+      }
+
+      if (min !== null || max !== null) {
+        const amount = this.filterableAmount(row);
+        if (amount === null) {
+          return false;
+        }
+        if (min !== null && amount < min) {
+          return false;
+        }
+        if (max !== null && amount > max) {
+          return false;
+        }
+      }
+
+      return true;
     });
   });
 
-  readonly effectivePageSize = computed(() => {
-    const size = this.pageSize();
-    const total = this.filteredRows().length;
-    return size === 0 ? Math.max(total, 1) : size;
-  });
-
-  readonly showPagination = computed(() => this.pageSize() !== 0 && this.filteredRows().length > this.pageSize());
-
-  readonly totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.filteredRows().length / this.effectivePageSize())),
-  );
-
-  readonly pagedRows = computed(() => {
-    const page = Math.min(this.currentPage(), this.totalPages());
-    const size = this.effectivePageSize();
-    const start = (page - 1) * size;
-    return this.filteredRows().slice(start, start + size);
-  });
-
-  readonly pageNumbers = computed(() =>
-    Array.from({ length: this.totalPages() }, (_, i) => i + 1),
-  );
+  readonly pendingRows = computed(() => this.filteredRows().filter((row) => !row.ticked));
+  readonly calledOverRows = computed(() => this.filteredRows().filter((row) => row.ticked));
 
   readonly count = computed(() => this.filteredRows().length);
-  readonly tickedCount = computed(() => this.filteredRows().filter((row) => row.ticked).length);
+  readonly pendingCount = computed(() => this.pendingRows().length);
+  readonly calledOverCount = computed(() => this.calledOverRows().length);
+
   readonly allTicked = computed(
-    () => this.filteredRows().length > 0 && this.tickedCount() === this.filteredRows().length,
+    () => this.filteredRows().length > 0 && this.pendingCount() === 0,
   );
 
-  readonly pageAllTicked = computed(
-    () => this.pagedRows().length > 0 && this.pagedRows().every((row) => row.ticked),
-  );
+  readonly canSubmitCallover = computed(() => this.calledOverCount() > 0);
 
-  onAccountInput(value: string): void {
+  readonly pendingTotalDebit = computed(() => this.sumDebit(this.pendingRows()));
+  readonly pendingTotalCredit = computed(() => this.sumCredit(this.pendingRows()));
+  readonly calledOverTotalDebit = computed(() => this.sumDebit(this.calledOverRows()));
+  readonly calledOverTotalCredit = computed(() => this.sumCredit(this.calledOverRows()));
+
+  onBatchNumberInput(value: string): void {
+    this.batchNumber.set(value);
+  }
+
+  onAccountNumberInput(value: string): void {
     this.accountNumber.set(value);
-    this.currentPage.set(1);
   }
 
-  onTransactionNumberInput(value: string): void {
-    this.transactionNumber.set(value);
-    this.currentPage.set(1);
+  onAmountMinInput(value: string): void {
+    this.amountMin.set(value);
   }
 
-  onTransactionDetailsInput(value: string): void {
-    this.transactionDetails.set(value);
-    this.currentPage.set(1);
+  onAmountMaxInput(value: string): void {
+    this.amountMax.set(value);
   }
 
-  onPageSizeChange(value: string): void {
-    this.pageSize.set(Number(value));
-    this.currentPage.set(1);
+  onTransactionDateFromInput(value: string): void {
+    this.transactionDateFrom.set(value);
   }
 
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages()) {
-      return;
-    }
-    this.currentPage.set(page);
+  onTransactionDateToInput(value: string): void {
+    this.transactionDateTo.set(value);
   }
 
-  previousPage(): void {
-    this.goToPage(this.currentPage() - 1);
+  setTransactionTypeFilter(value: CalloverTransactionFilter): void {
+    this.transactionTypeFilter.set(value);
   }
 
-  nextPage(): void {
-    this.goToPage(this.currentPage() + 1);
+  setTransStatusFilter(value: CalloverTransStatusFilter): void {
+    this.transStatusFilter.set(value);
+  }
+
+  transStatusLabel(row: CalloverRow): string {
+    return (
+      this.transStatusOptions.find((option) => option.id === row.transStatus)?.label ??
+      row.transStatus
+    );
+  }
+
+  showCalledOverScreen(): void {
+    this.calloverView.set('called-over');
+  }
+
+  showPendingScreen(): void {
+    this.calloverView.set('pending');
   }
 
   openDetails(row: CalloverRow): void {
@@ -143,51 +205,200 @@ export class TellerCallover {
     this.detailsPanel.set('none');
   }
 
-  deleteRow(id: string): void {
-    const row = this.calloverStore.rows().find((item) => item.id === id);
-    this.calloverStore.deleteRow(id);
-
-    if (this.selectedTransaction()?.id === id) {
-      this.closeDetails();
-    }
-
-    if (this.currentPage() > this.totalPages()) {
-      this.currentPage.set(this.totalPages());
-    }
-
-    this.feedbackMessage.set(
-      row ? `Deleted transaction ${row.transNo}.` : 'Transaction deleted.',
-    );
-  }
-
   toggleTick(id: string, checked: boolean): void {
     this.calloverStore.setTick(id, checked);
   }
 
-  toggleAll(checked: boolean): void {
-    for (const row of this.pagedRows()) {
-      this.toggleTick(row.id, checked);
+  private transactionCategory(row: CalloverRow): Exclude<CalloverTransactionFilter, 'all'> {
+    const details = row.transactionDetails.toUpperCase();
+
+    if (details.includes('CHEQUE') && details.includes('WITHDRAW')) {
+      return 'cheque-withdrawals';
+    }
+    if (details.includes('CHEQUE') && details.includes('DEPOSIT')) {
+      return 'cheque-deposits';
+    }
+    if (details.includes('CASH') && details.includes('WITHDRAW')) {
+      return 'cash-withdrawals';
+    }
+    if (details.includes('CASH') && details.includes('DEPOSIT')) {
+      return 'cash-deposit';
+    }
+
+    return 'others';
+  }
+
+  private matchesTransactionType(row: CalloverRow, filter: CalloverTransactionFilter): boolean {
+    if (filter === 'all') {
+      return true;
+    }
+    return this.transactionCategory(row) === filter;
+  }
+
+  private matchesTransStatus(row: CalloverRow, filter: CalloverTransStatusFilter): boolean {
+    if (filter === 'all') {
+      return true;
+    }
+    return row.transStatus === filter;
+  }
+
+  private matchesTransactionDate(row: CalloverRow): boolean {
+    const from = this.parseIsoDateInput(this.transactionDateFrom());
+    const to = this.parseIsoDateInput(this.transactionDateTo());
+    if (from === null && to === null) {
+      return true;
+    }
+
+    const rowDay = this.rowTransactionDay(row);
+    if (rowDay === null) {
+      return false;
+    }
+    if (from !== null && rowDay < from) {
+      return false;
+    }
+    if (to !== null && rowDay > to) {
+      return false;
+    }
+    return true;
+  }
+
+  private rowTransactionDay(row: CalloverRow): number | null {
+    return (
+      this.parseBusinessDateString(row.valueDate) ??
+      this.parseBusinessDateString(row.postingDate) ??
+      this.parseBusinessDateString(row.voucherDate)
+    );
+  }
+
+  private parseBusinessDateString(value: string): number | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    const match = trimmed.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+    if (!match) {
+      return null;
+    }
+
+    const day = Number(match[1]);
+    const monthIndex = BUSINESS_MONTHS.findIndex(
+      (month) => month.toLowerCase() === match[2].toLowerCase(),
+    );
+    const year = Number(match[3]);
+    if (monthIndex < 0 || !Number.isFinite(day) || !Number.isFinite(year)) {
+      return null;
+    }
+
+    return Date.UTC(year, monthIndex, day);
+  }
+
+  private parseIsoDateInput(value: string): number | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return null;
+    }
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+      return null;
+    }
+
+    return Date.UTC(year, month - 1, day);
+  }
+
+  private parseFilterAmount(value: string): number | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+    const parsed = Number(trimmed.replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private filterableAmount(row: CalloverRow): number | null {
+    const debit = this.debitAmount(row);
+    const credit = this.creditAmount(row);
+    if (debit !== null && credit !== null) {
+      return Math.max(debit, credit);
+    }
+    return debit ?? credit ?? (Number.isFinite(row.amount) ? Math.abs(row.amount) : null);
+  }
+
+  private sumDebit(rows: CalloverRow[]): number {
+    return rows.reduce((total, row) => total + (this.debitAmount(row) ?? 0), 0);
+  }
+
+  private sumCredit(rows: CalloverRow[]): number {
+    return rows.reduce((total, row) => total + (this.creditAmount(row) ?? 0), 0);
+  }
+
+  debitAmount(row: CalloverRow): number | null {
+    const fromDb = row.localEquivalentDb.trim();
+    if (fromDb) {
+      const parsed = Number(fromDb);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+    return row.amount < 0 ? Math.abs(row.amount) : null;
+  }
+
+  creditAmount(row: CalloverRow): number | null {
+    const fromCr = row.localEquivalentCr.trim();
+    if (fromCr) {
+      const parsed = Number(fromCr);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+    return row.amount > 0 ? row.amount : null;
+  }
+
+  tickAllPending(checked: boolean): void {
+    if (checked) {
+      for (const row of this.pendingRows()) {
+        this.toggleTick(row.id, true);
+      }
+      return;
+    }
+
+    this.uncheckAllCalledOver();
+  }
+
+  uncheckAllCalledOver(): void {
+    for (const row of this.calledOverRows()) {
+      this.toggleTick(row.id, false);
+    }
+  }
+
+  onCalledOverCheckAll(checked: boolean): void {
+    if (!checked) {
+      this.uncheckAllCalledOver();
     }
   }
 
   onSubmit(): void {
     const total = this.filteredRows().length;
-    const ticked = this.tickedCount();
+    const calledOver = this.calledOverCount();
 
     if (total === 0) {
       this.feedbackMessage.set('No transactions available for callover.');
       return;
     }
 
-    if (ticked === 0) {
-      this.feedbackMessage.set('Tick at least one transaction to continue.');
+    if (calledOver === 0) {
+      this.feedbackMessage.set('Call over at least one transaction to continue.');
       return;
     }
 
     this.feedbackMessage.set(
-      ticked === total
+      calledOver === total
         ? 'All visible transactions tallied and submitted for callover.'
-        : `${ticked} of ${total} transactions submitted for callover.`,
+        : `${calledOver} of ${total} transactions submitted for callover.`,
     );
   }
 
@@ -200,8 +411,8 @@ export class TellerCallover {
     const XLSX = await import('xlsx');
     const sheet = XLSX.utils.json_to_sheet(rows);
     const book = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book, sheet, 'Teller Callover');
-    XLSX.writeFile(book, 'teller-callover.xlsx');
+    XLSX.utils.book_append_sheet(book, sheet, TELLER_CALLOVER_JOURNAL_TITLE);
+    XLSX.writeFile(book, 'teller-callover-journal.xlsx');
     this.feedbackMessage.set(`Downloaded ${rows.length} transactions as Excel.`);
   }
 
@@ -215,16 +426,16 @@ export class TellerCallover {
     const { autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
     doc.setFontSize(14);
-    doc.text('Teller Callover', 40, 36);
+    doc.text(TELLER_CALLOVER_JOURNAL_TITLE, 40, 36);
     autoTable(doc, {
       startY: 52,
       head: [Object.keys(rows[0])],
       body: rows.map((row) => Object.values(row)),
       styles: { fontSize: 8, cellPadding: 4 },
       headStyles: { fillColor: [21, 101, 168] },
-      columnStyles: { 3: { halign: 'right' } },
+      columnStyles: { 8: { halign: 'right' }, 9: { halign: 'right' } },
     });
-    doc.save('teller-callover.pdf');
+    doc.save('teller-callover-journal.pdf');
     this.feedbackMessage.set(`Downloaded ${rows.length} transactions as PDF.`);
   }
 
@@ -235,23 +446,38 @@ export class TellerCallover {
       return null;
     }
 
-    return rows.map((row) => ({
-      'Batch No': row.batchNo,
-      'Acct Link': row.acctLink,
-      'Account Description': row.accountDescription,
-      Amount: row.amount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
-      'Transaction Details': row.transactionDetails,
-      'Trans No': row.transNo,
-      'Callover By': row.calloverBy || '—',
-      'Callover Date/Time': row.calloverDateTime || '—',
-      Ticked: row.ticked ? 'Yes' : 'No',
-    }));
+    return rows.map((row) => {
+      const debit = this.debitAmount(row);
+      const credit = this.creditAmount(row);
+      return {
+        'Batch No': row.batchNo,
+        'Trans No': row.transNo,
+        'Account No': row.accountNumber,
+        'Account Description': row.accountDescription,
+        Currency: row.currency,
+        'Transaction Details': row.transactionDetails,
+        'Trans Status':
+          this.transStatusOptions.find((option) => option.id === row.transStatus)?.label ??
+          row.transStatus,
+        Debit:
+          debit === null
+            ? '—'
+            : debit.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }),
+        Credit:
+          credit === null
+            ? '—'
+            : credit.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }),
+        'Value Date': row.valueDate,
+        Status: row.ticked ? 'Called over' : 'Pending',
+        Ticked: row.ticked ? 'Yes' : 'No',
+      };
+    });
   }
 
-  goBack(): void {
-    void this.router.navigateByUrl('/teller-activities');
-  }
 }

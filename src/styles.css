@@ -1,5 +1,5 @@
 :root {
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --app-bg: #e4ebf3;
   --surface: #ffffff;
   --header-bg: #f4f8fc;
@@ -16,6 +16,16 @@
   --radius-md: 14px;
   --shadow-sm: 0 2px 8px rgba(15, 40, 70, 0.06);
   --shadow-panel: 0 12px 40px rgba(15, 40, 70, 0.1);
+  --modal-width-compact: min(27.5rem, 100%);
+  --modal-width-wide: min(57.5rem, 100%);
+}
+
+.modal-dialog {
+  width: var(--modal-width-compact);
+}
+
+.modal-dialog.is-wide {
+  width: var(--modal-width-wide);
 }
 
 *,
@@ -34,10 +44,61 @@ body {
   background: #eef2f7;
   color: var(--text-primary);
   font-family: var(--font-sans);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 button,
 input {
   font: inherit;
+}
+
+/* Balances and monetary amounts — right-aligned across the app */
+.field-amount,
+.field-filter-amount,
+.col-amount,
+.col-debit,
+.col-credit,
+.is-amount,
+.summary-value,
+.summary-card strong,
+.perf-actual,
+.perf-split strong,
+.pending-value,
+.balance-row dd,
+.batch-table thead th.col-amount,
+.batch-table tbody td.col-amount,
+.batch-table tfoot td.col-amount,
+.data-table thead th.col-amount,
+.data-table tbody td.col-amount,
+.data-table thead th.is-amount,
+.data-table tbody td.is-amount,
+.data-table thead th.col-debit,
+.data-table tbody td.col-debit,
+.data-table thead th.col-credit,
+.data-table tbody td.col-credit,
+.data-table-totals td.col-debit,
+.data-table-totals td.col-credit {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-row dd,
+.summary-value,
+.summary-value.is-amount {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.info-tile.is-monetary dd {
+  width: 100%;
+  justify-content: flex-end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-item .summary-value {
+  align-self: flex-end;
 }

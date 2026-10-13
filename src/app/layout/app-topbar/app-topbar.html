@@ -1,0 +1,60 @@
+<header class="app-topbar">
+  <div class="topbar-toolbar">
+    <button type="button" class="help-icon-btn" aria-label="Help" title="Help">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"
+        />
+      </svg>
+    </button>
+
+    <div class="session-panel" aria-label="Session information">
+      <div class="session-user">
+        <span class="profile-avatar" aria-hidden="true">{{ initials() }}</span>
+        <div class="session-user-text">
+          <span class="session-kicker">Signed in</span>
+          <span class="session-name">{{ session.displayName() }}</span>
+        </div>
+      </div>
+
+      <span class="panel-sep" aria-hidden="true"></span>
+
+      <div class="session-meta">
+        <div class="meta-chip">
+          <span class="chip-icon is-branch" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
+          </span>
+          <div class="chip-copy">
+            <span class="chip-label">Branch</span>
+            <span class="chip-value">{{ session.branch() }}</span>
+          </div>
+        </div>
+
+        <span class="meta-sep" aria-hidden="true"></span>
+
+        <div class="meta-chip">
+          <span class="chip-icon is-date" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+          </span>
+          <div class="chip-copy">
+            <span class="chip-label">Current date</span>
+            <span class="chip-value">{{ session.currentDate() }}</span>
+          </div>
+        </div>
+
+        <span class="meta-sep" aria-hidden="true"></span>
+
+        <div class="meta-chip is-highlight">
+          <span class="chip-icon is-business" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+          </span>
+          <div class="chip-copy">
+            <span class="chip-label">Business date</span>
+            <span class="chip-value">{{ session.businessDate() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

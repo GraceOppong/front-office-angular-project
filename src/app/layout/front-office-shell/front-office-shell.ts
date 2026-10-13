@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { ActivityStore } from '../../shared/activity.store';
+import { AppTopbar } from '../app-topbar/app-topbar';
 
 @Component({
   selector: 'app-front-office-shell',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AppTopbar],
   templateUrl: './front-office-shell.html',
   styleUrl: './front-office-shell.css',
 })

@@ -1,89 +1,229 @@
 <div class="page">
   <div class="screen">
-    <header class="page-header">
-      <div class="header-main">
-        <a routerLink="/teller-activities" class="back-icon-btn" aria-label="Back to Teller Activities" title="Back">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-          </svg>
-        </a>
-        <div class="heading-block">
-          <h1>Teller Callover</h1>
-          <p class="screen-caption">
-            Review today’s teller transactions and tick each one to confirm it tallies.
-          </p>
+    @if (calloverView() === 'pending') {
+      <header class="page-header">
+        <div class="header-main">
+          <a routerLink="/teller-activities" class="back-icon-btn" aria-label="Back to Teller Activities" title="Back">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </a>
+          <div class="heading-block">
+            <h1>{{ pageTitle }}</h1>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    } @else {
+      <header class="page-header">
+        <div class="header-main">
+          <button
+            type="button"
+            class="back-icon-btn"
+            (click)="showPendingScreen()"
+            aria-label="Back to pending callover"
+            title="Back to pending"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </button>
+          <div class="heading-block">
+            <h1>Called over</h1>
+          </div>
+        </div>
+      </header>
+    }
 
     <section class="card details-block">
-      <div class="form-grid">
-        <div class="form-row">
-          <label for="accountNumber">Account Number</label>
-          <input
-            id="accountNumber"
-            type="text"
-            class="field"
-            placeholder="Search account"
-            [value]="accountNumber()"
-            (input)="onAccountInput($any($event.target).value)"
-          />
-        </div>
+      <div class="filters-inline">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="batchNumber">Batch Number</label>
+            <input
+              id="batchNumber"
+              type="text"
+              class="field field-filter-batch"
+              placeholder="Batch"
+              [value]="batchNumber()"
+              (input)="onBatchNumberInput($any($event.target).value)"
+            />
+          </div>
 
-        <div class="form-row">
-          <label for="transactionNumber">Transaction Number</label>
-          <input
-            id="transactionNumber"
-            type="text"
-            class="field"
-            placeholder="Search transaction / batch"
-            [value]="transactionNumber()"
-            (input)="onTransactionNumberInput($any($event.target).value)"
-          />
-        </div>
+          <div class="filter-group">
+            <label for="accountNumberFilter">Account Number</label>
+            <input
+              id="accountNumberFilter"
+              type="text"
+              class="field field-filter-batch"
+              placeholder="Account"
+              [value]="accountNumber()"
+              (input)="onAccountNumberInput($any($event.target).value)"
+            />
+          </div>
 
-        <div class="form-row">
-          <label for="transactionDetails">Transaction Details</label>
-          <input
-            id="transactionDetails"
-            type="text"
-            class="field"
-            placeholder="Search details"
-            [value]="transactionDetails()"
-            (input)="onTransactionDetailsInput($any($event.target).value)"
-          />
+          <div class="filter-group">
+            <label for="amountMin">Amount between</label>
+            <div class="amount-range is-compact">
+              <input
+                id="amountMin"
+                type="number"
+                class="field field-filter-amount"
+                placeholder="Min"
+                min="0"
+                step="0.01"
+                [value]="amountMin()"
+                (input)="onAmountMinInput($any($event.target).value)"
+              />
+              <span class="range-sep" aria-hidden="true">–</span>
+              <input
+                id="amountMax"
+                type="number"
+                class="field field-filter-amount"
+                placeholder="Max"
+                min="0"
+                step="0.01"
+                [value]="amountMax()"
+                (input)="onAmountMaxInput($any($event.target).value)"
+              />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="transactionDateFrom">Transaction date</label>
+            <div class="amount-range is-compact">
+              <input
+                id="transactionDateFrom"
+                type="date"
+                class="field field-date field-filter-date"
+                [value]="transactionDateFrom()"
+                (input)="onTransactionDateFromInput($any($event.target).value)"
+              />
+              <span class="range-sep" aria-hidden="true">–</span>
+              <input
+                id="transactionDateTo"
+                type="date"
+                class="field field-date field-filter-date"
+                [value]="transactionDateTo()"
+                (input)="onTransactionDateToInput($any($event.target).value)"
+              />
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label for="transactionType">Trans type</label>
+            <select
+              id="transactionType"
+              class="field field-filter-type"
+              [value]="transactionTypeFilter()"
+              (change)="setTransactionTypeFilter($any($event.target).value)"
+            >
+              @for (option of transactionTypeOptions; track option.id) {
+                <option [value]="option.id">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="transStatus">Trans status</label>
+            <select
+              id="transStatus"
+              class="field field-filter-type"
+              [value]="transStatusFilter()"
+              (change)="setTransStatusFilter($any($event.target).value)"
+            >
+              @for (option of transStatusOptions; track option.id) {
+                <option [value]="option.id">{{ option.label }}</option>
+              }
+            </select>
+          </div>
         </div>
       </div>
     </section>
 
-    <div class="callover-actions">
-      <button
-        type="button"
-        class="export-icon is-excel"
-        (click)="downloadExcel()"
-        aria-label="Download Excel"
-        title="Excel"
-      >
-        <svg lucideFileSpreadsheet size="22"></svg>
-      </button>
-      <button
-        type="button"
-        class="export-icon is-pdf"
-        (click)="downloadPdf()"
-        aria-label="Download PDF"
-        title="PDF"
-      >
-        <svg lucideFileType size="22"></svg>
-      </button>
-      <button type="button" class="btn btn-primary submit-btn" (click)="onSubmit()">
-        Submit
-      </button>
+    <div class="screen-toolbar">
+      @if (calloverView() === 'pending') {
+        <button type="button" class="called-over-btn" (click)="showCalledOverScreen()">
+          <span class="called-over-btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1.25 14.2-3.54-3.54 1.41-1.41L10.75 13l5.34-5.34 1.41 1.41Z"
+              />
+            </svg>
+          </span>
+          <span class="called-over-btn-text">Called over</span>
+          <span class="called-over-badge" [class.is-empty]="calledOverCount() === 0">
+            {{ calledOverCount() }}
+          </span>
+        </button>
+      } @else {
+        <button type="button" class="btn btn-soft back-pending-btn" (click)="showPendingScreen()">
+          Back to pending
+        </button>
+      }
+
+      <div class="callover-actions">
+        <button
+          type="button"
+          class="export-btn"
+          (click)="downloadPdf()"
+          aria-label="Download PDF"
+          title="PDF"
+        >
+          <span class="export-btn-mark export-btn-mark--pdf" aria-hidden="true">
+            <svg viewBox="0 0 18 18" width="18" height="18" focusable="false">
+              <path fill="#E31E24" d="M2 0h9l5 5v13H2V0z" />
+              <path fill="#FF6961" d="M11 0v5h5L11 0z" />
+              <text
+                x="9"
+                y="13.5"
+                text-anchor="middle"
+                fill="#fff"
+                font-size="5.25"
+                font-weight="700"
+                font-family="Arial, Helvetica, sans-serif"
+              >
+                PDF
+              </text>
+            </svg>
+          </span>
+          <span class="export-btn-label">PDF</span>
+        </button>
+        <button
+          type="button"
+          class="export-btn"
+          (click)="downloadExcel()"
+          aria-label="Download Excel"
+          title="Excel"
+        >
+          <span class="export-btn-mark export-btn-mark--excel" aria-hidden="true">
+            <svg viewBox="0 0 18 18" width="18" height="18" focusable="false">
+              <path fill="#217346" d="M2 0h9l5 5v13H2V0z" />
+              <path fill="#33A852" d="M11 0v5h5L11 0z" />
+              <path
+                fill="#fff"
+                d="M4.2 6.2 7 9l-2.8 2.8 1.1 1.1L8.1 10.1l2.8 2.8 1.1-1.1L9.2 9l2.8-2.8-1.1-1.1L8.1 7.9 5.3 5.1z"
+              />
+            </svg>
+          </span>
+          <span class="export-btn-label">Excel</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary submit-btn"
+          [disabled]="!canSubmitCallover()"
+          (click)="onSubmit()"
+        >
+          Submit callover
+        </button>
+      </div>
     </div>
 
-    <section class="card table-panel">
+    @if (calloverView() === 'pending') {
+      <section class="card table-panel">
       <header class="table-head">
-        <h2>Teller Transactions</h2>
-        <span class="count-pill">{{ tickedCount() }} / {{ count() }} ticked</span>
+        <h2>Pending callover</h2>
+        <span class="count-pill">{{ pendingCount() }} remaining</span>
       </header>
 
       <div class="table-wrap">
@@ -91,126 +231,218 @@
           <thead>
             <tr>
               <th class="col-batch">Batch No</th>
-              <th class="col-acct">Acct Link</th>
-              <th class="col-desc">Account Description</th>
-              <th class="col-amount">Amount</th>
-              <th class="col-details">Transaction Details</th>
               <th class="col-trans">Trans No</th>
-              <th class="col-by">Callover By</th>
-              <th class="col-when">Callover Date/Time</th>
-              <th class="col-actions">Action</th>
+              <th class="col-account">Account No</th>
+              <th class="col-desc">Account Description</th>
+              <th class="col-currency">Currency</th>
+              <th class="col-details">Transaction Details</th>
+              <th class="col-debit">Debit</th>
+              <th class="col-credit">Credit</th>
+              <th class="col-value-date">Value Date</th>
+              <th class="col-status">Status</th>
               <th class="col-check">
                 <input
                   type="checkbox"
-                  [checked]="pageAllTicked()"
-                  (change)="toggleAll($any($event.target).checked)"
-                  aria-label="Tick all visible transactions"
-                  title="Tick all on page"
+                  [checked]="allTicked()"
+                  [disabled]="count() === 0"
+                  (change)="tickAllPending($any($event.target).checked)"
+                  [attr.aria-label]="
+                    allTicked() ? 'Uncheck all filtered transactions' : 'Call over all pending transactions'
+                  "
+                  [title]="allTicked() ? 'Uncheck all' : 'Check all'"
                 />
               </th>
             </tr>
           </thead>
           <tbody>
-            @for (row of pagedRows(); track row.id) {
-              <tr
-                class="is-clickable"
-                [class.is-ticked]="row.ticked"
-                (click)="openDetails(row)"
-              >
+            @for (row of pendingRows(); track row.id) {
+              <tr class="is-clickable" (click)="openDetails(row)">
                 <td class="col-batch mono">{{ row.batchNo }}</td>
-                <td class="col-acct mono">{{ row.acctLink }}</td>
-                <td class="col-desc">{{ row.accountDescription }}</td>
-                <td class="col-amount">{{ row.amount | number: '1.2-2' }}</td>
-                <td class="col-details">{{ row.transactionDetails }}</td>
                 <td class="col-trans mono">{{ row.transNo }}</td>
-                <td class="col-by">{{ row.calloverBy || '—' }}</td>
-                <td class="col-when">{{ row.calloverDateTime || '—' }}</td>
-                <td class="col-actions" (click)="$event.stopPropagation()">
-                  <button
-                    type="button"
-                    class="icon-action is-delete"
-                    title="Delete transaction"
-                    [attr.aria-label]="'Delete ' + row.transNo"
-                    (click)="deleteRow(row.id)"
-                  >
-                    <svg lucideTrash size="16"></svg>
-                  </button>
+                <td class="col-account mono">{{ row.accountNumber }}</td>
+                <td class="col-desc">{{ row.accountDescription }}</td>
+                <td class="col-currency mono">{{ row.currency }}</td>
+                <td class="col-details">{{ row.transactionDetails }}</td>
+                <td class="col-debit">
+                  @if (debitAmount(row); as debit) {
+                    {{ debit | number: '1.2-2' }}
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="col-credit">
+                  @if (creditAmount(row); as credit) {
+                    {{ credit | number: '1.2-2' }}
+                  } @else {
+                    —
+                  }
+                </td>
+                <td class="col-value-date">{{ row.valueDate }}</td>
+                <td class="col-status">
+                  <span class="status-pill" [attr.data-trans-status]="row.transStatus">
+                    {{ transStatusLabel(row) }}
+                  </span>
                 </td>
                 <td class="col-check" (click)="$event.stopPropagation()">
                   <input
                     type="checkbox"
-                    [checked]="row.ticked"
+                    [checked]="false"
                     (change)="toggleTick(row.id, $any($event.target).checked)"
-                    [attr.aria-label]="'Tick ' + row.transNo"
+                    [attr.aria-label]="'Call over ' + row.transNo"
                   />
                 </td>
               </tr>
             } @empty {
               <tr class="empty-row">
-                <td colspan="10">No teller transactions match your search.</td>
+                <td colspan="11">
+                  @if (count() === 0) {
+                    No teller transactions match your search.
+                  } @else {
+                    All matching transactions have been called over.
+                  }
+                </td>
               </tr>
             }
           </tbody>
+          @if (pendingCount() > 0) {
+            <tfoot class="data-table-totals">
+              <tr>
+                <td class="totals-label" colspan="6">Totals</td>
+                <td class="col-debit">{{ pendingTotalDebit() | number: '1.2-2' }}</td>
+                <td class="col-credit">{{ pendingTotalCredit() | number: '1.2-2' }}</td>
+                <td colspan="3"></td>
+              </tr>
+            </tfoot>
+          }
         </table>
       </div>
 
-      <footer class="table-footer">
+      <footer class="table-footer table-footer-compact">
         <div class="footer-left">
           <div class="count-field">
-            <label for="calloverCount">Count</label>
-            <input id="calloverCount" class="field field-readonly" [value]="count()" readonly />
-          </div>
-
-          <div class="page-size-field">
-            <label for="pageSize">Show</label>
-            <select
-              id="pageSize"
-              class="field page-size-select"
-              [value]="pageSize()"
-              (change)="onPageSizeChange($any($event.target).value)"
-            >
-              @for (option of pageSizeOptions; track option.label) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
+            <label for="pendingCount">Pending</label>
+            <input id="pendingCount" class="field field-readonly" [value]="pendingCount()" readonly />
           </div>
         </div>
-
-        @if (showPagination()) {
-          <div class="pagination">
-            <button type="button" class="btn btn-soft page-btn" [disabled]="currentPage() <= 1" (click)="previousPage()">
-              Prev
-            </button>
-            @for (page of pageNumbers(); track page) {
-              <button
-                type="button"
-                class="btn page-btn"
-                [class.btn-primary]="page === currentPage()"
-                [class.btn-soft]="page !== currentPage()"
-                (click)="goToPage(page)"
-              >
-                {{ page }}
-              </button>
-            }
-            <button
-              type="button"
-              class="btn btn-soft page-btn"
-              [disabled]="currentPage() >= totalPages()"
-              (click)="nextPage()"
-            >
-              Next
-            </button>
-            <span class="page-meta">Page {{ currentPage() }} of {{ totalPages() }}</span>
-          </div>
-        } @else {
-          <span class="page-meta">Showing all {{ count() }} transactions</span>
-        }
-
         <span class="tally-note" [class.is-complete]="allTicked()">
-          {{ allTicked() ? 'All filtered transactions tallied' : 'Tick transactions to confirm tally' }}
+          @if (count() === 0) {
+            Adjust filters to see transactions
+          } @else if (allTicked()) {
+            All filtered transactions called over
+          } @else {
+            Tick to call over — open Called over to review tallied rows
+          }
         </span>
       </footer>
-    </section>
+      </section>
+    } @else {
+      <section class="card table-panel called-over-screen">
+        <header class="table-head">
+          <h2>Tallied transactions</h2>
+          <span class="count-pill is-success">{{ calledOverCount() }} called over</span>
+        </header>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="col-batch">Batch No</th>
+                <th class="col-trans">Trans No</th>
+                <th class="col-account">Account No</th>
+                <th class="col-desc">Account Description</th>
+                <th class="col-currency">Currency</th>
+                <th class="col-details">Transaction Details</th>
+                <th class="col-debit">Debit</th>
+                <th class="col-credit">Credit</th>
+                <th class="col-value-date">Value Date</th>
+                <th class="col-status">Status</th>
+                <th class="col-check">
+                  <input
+                    type="checkbox"
+                    [checked]="calledOverCount() > 0"
+                    [disabled]="calledOverCount() === 0"
+                    (change)="onCalledOverCheckAll($any($event.target).checked)"
+                    aria-label="Uncheck all called over transactions"
+                    title="Uncheck all"
+                  />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of calledOverRows(); track row.id) {
+                <tr class="is-clickable is-ticked" (click)="openDetails(row)">
+                  <td class="col-batch mono">{{ row.batchNo }}</td>
+                  <td class="col-trans mono">{{ row.transNo }}</td>
+                  <td class="col-account mono">{{ row.accountNumber }}</td>
+                  <td class="col-desc">{{ row.accountDescription }}</td>
+                  <td class="col-currency mono">{{ row.currency }}</td>
+                  <td class="col-details">{{ row.transactionDetails }}</td>
+                  <td class="col-debit">
+                    @if (debitAmount(row); as debit) {
+                      {{ debit | number: '1.2-2' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="col-credit">
+                    @if (creditAmount(row); as credit) {
+                      {{ credit | number: '1.2-2' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="col-value-date">{{ row.valueDate }}</td>
+                  <td class="col-status">
+                    <span class="status-pill" [attr.data-trans-status]="row.transStatus">
+                      {{ transStatusLabel(row) }}
+                    </span>
+                  </td>
+                  <td class="col-check" (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="true"
+                      (change)="toggleTick(row.id, $any($event.target).checked)"
+                      [attr.aria-label]="'Undo callover for ' + row.transNo"
+                    />
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="empty-row">
+                  <td colspan="11">
+                    Nothing called over yet. Go back to pending and tick transactions to add them here.
+                  </td>
+                </tr>
+              }
+            </tbody>
+            @if (calledOverCount() > 0) {
+              <tfoot class="data-table-totals">
+                <tr>
+                  <td class="totals-label" colspan="6">Totals</td>
+                  <td class="col-debit">{{ calledOverTotalDebit() | number: '1.2-2' }}</td>
+                  <td class="col-credit">{{ calledOverTotalCredit() | number: '1.2-2' }}</td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            }
+          </table>
+        </div>
+
+        <footer class="table-footer table-footer-compact">
+          <div class="footer-left">
+            <div class="count-field">
+              <label for="calledOverCountField">Called over</label>
+              <input
+                id="calledOverCountField"
+                class="field field-readonly"
+                [value]="calledOverCount()"
+                readonly
+              />
+            </div>
+          </div>
+          <span class="tally-note is-complete">Uncheck to return a row to pending callover</span>
+        </footer>
+      </section>
+    }
   </div>
 
   @if (selectedTransaction(); as txn) {
@@ -225,7 +457,6 @@
         <header class="details-header">
           <div class="heading-block">
             <h2 id="transactionDetailsTitle">Transaction Details</h2>
-            <p class="modal-caption">Full details for {{ txn.transNo }}.</p>
           </div>
           <button type="button" class="close-icon-btn" (click)="closeDetails()" aria-label="Close" title="Close">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
@@ -346,12 +577,6 @@
           </div>
         </div>
 
-        <footer class="modal-footer">
-          <button type="button" class="btn btn-primary" (click)="closeDetails()">
-            Return
-          </button>
-        </footer>
-
         @if (detailsPanel() === 'voucher') {
           <div class="panel-overlay" role="dialog" aria-modal="true" aria-labelledby="voucherPanelTitle">
             <header class="panel-header">
@@ -362,7 +587,6 @@
               </button>
               <div class="heading-block">
                 <h2 id="voucherPanelTitle">Voucher Preview</h2>
-                <p class="modal-caption">{{ txn.voucherNumber }} · {{ txn.transNo }}</p>
               </div>
             </header>
 
@@ -437,7 +661,6 @@
               </button>
               <div class="heading-block">
                 <h2 id="signaturePanelTitle">Signature Verification</h2>
-                <p class="modal-caption">{{ txn.accountDescription }} · {{ txn.customerNo }}</p>
               </div>
             </header>
 

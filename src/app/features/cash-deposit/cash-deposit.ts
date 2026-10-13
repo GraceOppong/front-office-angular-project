@@ -1,25 +1,28 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { LucidePlus } from '@lucide/angular';
 import { formatBusinessDate } from '../../shared/business-date';
-import { CalloverStore } from '../../shared/callover.store';
-import {
-  CASH_TRANSACTION_MOCK_ACCOUNTS,
-  formatCashAmount,
-} from '../../shared/cash-transaction.mock';
+import { CalloverStore, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
+import { TillStore } from '../../shared/till.store';
+import { formatCashAmount, resolveCashTransactionAccount } from '../../shared/cash-transaction.mock';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import { AmlThirdPartyModal } from '../../shared/aml-third-party-modal/aml-third-party-modal';
+import {
+  AmlThirdPartyDetails,
+  createEmptyAmlThirdParty,
+} from '../../shared/aml-third-party.model';
 
 const DEFAULT_NARRATION = 'CASH DEPOSIT';
 
 @Component({
   selector: 'app-cash-deposit',
-  imports: [RouterLink, LucidePlus, MessagePopup],
+  imports: [RouterLink, MessagePopup, AmlThirdPartyModal],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
 })
 export class CashDeposit {
   private readonly route = inject(ActivatedRoute);
   private readonly calloverStore = inject(CalloverStore);
+  private readonly tillStore = inject(TillStore);
 
   readonly sourceOfFundsOptions = ['Cash', 'Cheque', 'Transfer', 'Other'];
   readonly formatAmount = formatCashAmount;
@@ -30,6 +33,9 @@ export class CashDeposit {
   readonly voucherRef = signal('');
   readonly sourceOfFunds = signal('');
   readonly thirdParty = signal<'yes' | 'no'>('no');
+  readonly showAmlThirdPartyModal = signal(false);
+  readonly amlThirdPartyDetails = signal<AmlThirdPartyDetails>(createEmptyAmlThirdParty());
+  readonly amlThirdPartyCaptured = signal(false);
   readonly narration1 = signal(DEFAULT_NARRATION);
   readonly narration2 = signal('');
   readonly feedbackMessage = signal('');
@@ -50,7 +56,7 @@ export class CashDeposit {
     if (!key) {
       return null;
     }
-    return CASH_TRANSACTION_MOCK_ACCOUNTS[key] ?? null;
+    return resolveCashTransactionAccount(key);
   });
 
   readonly accountName = computed(() => this.accountSnapshot()?.accountName ?? '');
@@ -68,8 +74,8 @@ export class CashDeposit {
     if (!key) {
       return;
     }
-    if (!CASH_TRANSACTION_MOCK_ACCOUNTS[key]) {
-      this.feedbackMessage.set('Account not found. Try 1002003004 or 2003004005.');
+    if (!resolveCashTransactionAccount(key)) {
+      this.feedbackMessage.set('Enter a valid 10-digit account number.');
       return;
     }
     this.feedbackMessage.set('');
@@ -88,7 +94,34 @@ export class CashDeposit {
   }
 
   onThirdPartyChange(value: 'yes' | 'no'): void {
-    this.thirdParty.set(value);
+    if (value === 'yes') {
+      this.thirdParty.set('yes');
+      this.showAmlThirdPartyModal.set(true);
+      return;
+    }
+    this.thirdParty.set('no');
+    this.amlThirdPartyCaptured.set(false);
+    this.amlThirdPartyDetails.set(createEmptyAmlThirdParty());
+    this.showAmlThirdPartyModal.set(false);
+  }
+
+  openAmlThirdPartyModal(): void {
+    this.showAmlThirdPartyModal.set(true);
+  }
+
+  onAmlThirdPartySaved(details: AmlThirdPartyDetails): void {
+    this.amlThirdPartyDetails.set(details);
+    this.amlThirdPartyCaptured.set(true);
+    this.thirdParty.set('yes');
+    this.showAmlThirdPartyModal.set(false);
+    this.feedbackMessage.set('');
+  }
+
+  onAmlThirdPartyCancelled(): void {
+    this.thirdParty.set('no');
+    this.amlThirdPartyCaptured.set(false);
+    this.amlThirdPartyDetails.set(createEmptyAmlThirdParty());
+    this.showAmlThirdPartyModal.set(false);
   }
 
   onNarration1Input(value: string): void {
@@ -97,19 +130,6 @@ export class CashDeposit {
 
   onNarration2Input(value: string): void {
     this.narration2.set(value);
-  }
-
-  onNew(): void {
-    this.creditAccount.set('');
-    this.voucherDate.set(formatBusinessDate());
-    this.amount.set('');
-    this.voucherRef.set('');
-    this.sourceOfFunds.set('');
-    this.thirdParty.set('no');
-    this.narration1.set(DEFAULT_NARRATION);
-    this.narration2.set('');
-    this.showSignaturePanel.set(false);
-    this.feedbackMessage.set('Form cleared for a new cash deposit.');
   }
 
   onSubmit(): void {
@@ -142,6 +162,12 @@ export class CashDeposit {
       return;
     }
 
+    if (this.thirdParty() === 'yes' && !this.amlThirdPartyCaptured()) {
+      this.feedbackMessage.set('Complete AML Third Party details before submitting.');
+      this.showAmlThirdPartyModal.set(true);
+      return;
+    }
+
     const snapshot = this.accountSnapshot()!;
     const calloverInput = {
       accountNumber: account,
@@ -155,12 +181,18 @@ export class CashDeposit {
 
     const row = this.calloverStore.addCashDeposit(calloverInput);
 
+    if (this.thirdParty() !== 'yes') {
+      const lines = this.tillStore.breakIntoDenominations(amountValue);
+      this.tillStore.applyDenominationLines(lines);
+      this.tillStore.addCashReceived(amountValue, lines);
+    }
+
     if (this.thirdParty() === 'yes') {
       this.feedbackMessage.set(
         `Third-party cash deposit of ${amountValue.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        })} submitted for verification. It is listed in Teller Callover as ${row.transNo}.`,
+        })} submitted for verification. It is listed in ${TELLER_CALLOVER_JOURNAL_TITLE} as ${row.transNo}.`,
       );
       return;
     }
@@ -169,7 +201,7 @@ export class CashDeposit {
       `Cash deposit of ${amountValue.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      })} posted to ${account}. It is listed in Teller Callover as ${row.transNo}.`,
+      })} posted to ${account}. It is listed in ${TELLER_CALLOVER_JOURNAL_TITLE} as ${row.transNo}.`,
     );
   }
 

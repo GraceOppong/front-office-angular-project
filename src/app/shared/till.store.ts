@@ -29,6 +29,9 @@ export class TillStore {
 
   readonly cashReceived = signal(201545);
   readonly cashSent = signal(45200);
+  readonly cashReceivedTarget = signal(180000);
+  readonly cashSentTarget = signal(60000);
+  readonly cashLimit = signal(150000);
   readonly cashReceivedLines = signal<DenominationLine[]>([]);
   readonly cashSentLines = signal<DenominationLine[]>([]);
 
@@ -160,6 +163,10 @@ export class TillStore {
 
   availableQuantity(denomination: string): number {
     return this.tillRows().find((row) => row.denomination === denomination)?.quantity ?? 0;
+  }
+
+  canRemoveLines(lines: DenominationLine[]): boolean {
+    return lines.every((line) => this.availableQuantity(line.denomination) >= line.quantity);
   }
 
   private mergeLines(current: DenominationLine[], incoming: DenominationLine[]): DenominationLine[] {

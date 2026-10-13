@@ -25,7 +25,6 @@ export class Vault {
   private readonly tillStore = inject(TillStore);
 
   readonly screenTitle = 'Vault';
-  readonly screenCaption = 'Review teller cash requests, issue denominations, and accept transfers.';
   readonly activityCode = 'VVLT';
 
   readonly currentDate = formatBusinessDate();
@@ -205,15 +204,16 @@ export class Vault {
   }
 
   acceptTransfer(id: string): void {
-    const ok = this.cashTransferStore.acceptFromVault(id);
-    if (!ok) {
+    const transfer = this.cashTransferStore.completeFromVault(id);
+    if (!transfer) {
       this.feedbackMessage.set('Unable to accept this transfer.');
       return;
     }
 
-    const transfer = this.cashTransferStore.pendingTransfers().find((row) => row.id === id);
+    this.tillStore.addCashSent(transfer.total, transfer.lines);
+    this.vaultStore.recordReceive(transfer.batchNo, transfer.teller, transfer.total, transfer.lines);
     this.feedbackMessage.set(
-      `Transfer ${transfer?.batchNo ?? id} accepted. It is now in the teller’s Pending Cash Out.`,
+      `Transfer ${transfer.batchNo} confirmed. Cash Sent updated for ${transfer.teller}.`,
     );
     this.cancelTransferReview();
 
@@ -223,8 +223,11 @@ export class Vault {
   }
 
   rejectTransfer(id: string): void {
-    this.cashTransferStore.rejectFromVault(id);
-    this.feedbackMessage.set('Transfer rejected and returned to the teller.');
+    const transfer = this.cashTransferStore.rejectFromVault(id);
+    if (transfer) {
+      this.tillStore.applyDenominationLines(transfer.lines);
+    }
+    this.feedbackMessage.set('Transfer rejected. Denominations returned to the teller till.');
     if (this.reviewingTransfer()?.id === id) {
       this.cancelTransferReview();
     }

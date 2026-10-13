@@ -46,9 +46,7 @@ export class RequestCash {
   readonly awaitingVaultRequests = this.cashRequestStore.awaitingVaultRequests;
   readonly rejectedRequests = this.cashRequestStore.rejectedRequests;
 
-  readonly showAwaitingTable = computed(() => this.awaitingVaultRequests().length > 0);
   readonly showRejectedTable = computed(() => this.rejectedRequests().length > 0);
-  readonly showTables = computed(() => this.showAwaitingTable() || this.showRejectedTable());
 
   onCurrencyChange(value: string): void {
     this.currency.set(value);

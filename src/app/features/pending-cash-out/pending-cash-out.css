@@ -15,7 +15,6 @@
 }
 
 .modal-dialog {
-  width: min(720px, 100%);
   max-height: min(92vh, 820px);
   background: #fff;
   border-radius: 16px;
@@ -254,6 +253,14 @@
   text-align: center;
   color: #6b7f94;
   padding: 1.1rem 0.85rem;
+}
+
+.modal-hint {
+  margin: 0;
+  padding: 0.65rem 1.15rem 0;
+  font-size: 0.82rem;
+  color: #6b7f94;
+  line-height: 1.45;
 }
 
 .modal-footer {

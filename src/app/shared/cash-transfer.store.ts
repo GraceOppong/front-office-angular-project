@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { DenominationLine } from './till.store';
 
-export type CashOutStatus = 'awaiting_vault' | 'pending' | 'rejected';
+export type CashOutStatus = 'awaiting_vault' | 'rejected';
 
 export interface CashOutTransfer {
   id: string;
@@ -23,21 +23,20 @@ export class CashTransferStore {
     this.transfers().filter((row) => row.status === 'awaiting_vault'),
   );
 
-  readonly pendingTransfers = computed(() =>
-    this.transfers().filter((row) => row.status === 'pending'),
-  );
-
   readonly rejectedTransfers = computed(() =>
     this.transfers().filter((row) => row.status === 'rejected'),
   );
 
+  /** Transfers sent to vault — shown as Pending Cash Out until the custodian confirms. */
+  readonly pendingCashOutTransfers = computed(() => this.awaitingVaultTransfers());
+
   readonly pendingCashOut = computed(() =>
-    this.pendingTransfers().reduce((sum, row) => sum + row.total, 0),
+    this.awaitingVaultTransfers().reduce((sum, row) => sum + row.total, 0),
   );
 
   readonly pendingLines = computed(() => {
     const map = new Map<string, DenominationLine>();
-    for (const transfer of this.pendingTransfers()) {
+    for (const transfer of this.awaitingVaultTransfers()) {
       for (const line of transfer.lines) {
         const existing = map.get(line.denomination);
         if (existing) {
@@ -73,44 +72,50 @@ export class CashTransferStore {
     return row;
   }
 
-  acceptFromVault(id: string): boolean {
+  completeFromVault(id: string): CashOutTransfer | null {
     const transfer = this.transfers().find((row) => row.id === id && row.status === 'awaiting_vault');
     if (!transfer) {
-      return false;
+      return null;
+    }
+
+    this.transfers.update((rows) => rows.filter((row) => row.id !== id));
+    return transfer;
+  }
+
+  findAwaitingVault(id: string): CashOutTransfer | undefined {
+    return this.transfers().find((row) => row.id === id && row.status === 'awaiting_vault');
+  }
+
+  rejectFromVault(id: string): CashOutTransfer | null {
+    const transfer = this.transfers().find((row) => row.id === id && row.status === 'awaiting_vault');
+    if (!transfer) {
+      return null;
     }
 
     this.transfers.update((rows) =>
       rows.map((row) =>
-        row.id === id ? { ...row, status: 'pending' as const } : row,
+        row.id === id ? { ...row, status: 'rejected' as const } : row,
       ),
     );
-    return true;
+    return transfer;
   }
 
-  rejectFromVault(id: string): void {
-    this.transfers.update((rows) =>
-      rows.map((row) =>
-        row.id === id && row.status === 'awaiting_vault'
-          ? { ...row, status: 'rejected' as const }
-          : row,
-      ),
-    );
+  cancelAwaitingVault(id: string): CashOutTransfer | null {
+    const transfer = this.findAwaitingVault(id);
+    if (!transfer) {
+      return null;
+    }
+    this.delete(id);
+    return transfer;
   }
 
   delete(id: string): void {
     this.transfers.update((rows) => rows.filter((row) => row.id !== id));
   }
 
-  acceptAllPending(): { total: number; lines: DenominationLine[] } {
-    const lines = this.pendingLines().map((line) => ({ ...line }));
-    const total = this.pendingCashOut();
-    this.transfers.update((rows) => rows.filter((row) => row.status !== 'pending'));
-    return { total, lines };
-  }
-
-  rejectAllPending(): void {
-    this.transfers.update((rows) =>
-      rows.map((row) => (row.status === 'pending' ? { ...row, status: 'rejected' as const } : row)),
-    );
+  cancelAllAwaitingVault(): CashOutTransfer[] {
+    const awaiting = this.awaitingVaultTransfers();
+    this.transfers.update((rows) => rows.filter((row) => row.status !== 'awaiting_vault'));
+    return awaiting;
   }
 }

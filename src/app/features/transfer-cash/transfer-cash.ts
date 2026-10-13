@@ -133,12 +133,19 @@ export class TransferCash {
       return;
     }
 
+    if (!this.tillStore.canRemoveLines(lines)) {
+      this.feedbackMessage.set('Till does not have enough notes/coins for this transfer.');
+      return;
+    }
+
     const transfer = this.cashTransferStore.addAwaitingVault({
       currency: this.currency(),
       vault: this.vault(),
       lines,
       teller: 'TESTTEL',
     });
+
+    this.tillStore.removeDenominationLines(lines);
 
     this.submitted.emit({
       currency: transfer.currency,
@@ -147,7 +154,7 @@ export class TransferCash {
     });
 
     this.feedbackMessage.set(
-      `Transfer ${transfer.batchNo} sent to vault for acceptance.`,
+      `Transfer ${transfer.batchNo} sent to vault. Amount is in Pending Cash Out until the custodian confirms.`,
     );
     this.resetRows();
   }

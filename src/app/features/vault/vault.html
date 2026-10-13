@@ -4,7 +4,6 @@
       <div class="header-main">
         <div class="heading-block">
           <h1>{{ screenTitle }}</h1>
-          <p class="screen-caption">{{ screenCaption }}</p>
         </div>
       </div>
 
@@ -243,11 +242,10 @@
 
   @if (activePanel() === 'issue') {
     <div class="modal-backdrop" (click)="closePanel()" role="presentation">
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="issueQueueTitle" (click)="$event.stopPropagation()">
+      <div class="modal-dialog is-wide" role="dialog" aria-modal="true" aria-labelledby="issueQueueTitle" (click)="$event.stopPropagation()">
         <header class="modal-header">
           <div class="heading-block">
             <h2 id="issueQueueTitle">Issue to Teller</h2>
-            <p class="modal-caption">Pick a cash request, set denominations that total the amount, then send.</p>
           </div>
           <button type="button" class="close-icon-btn" (click)="closePanel()" aria-label="Close">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
@@ -359,27 +357,24 @@
           }
         </div>
 
-        <footer class="modal-footer">
-          @if (issuingRequest()) {
+        @if (issuingRequest()) {
+          <footer class="modal-footer">
             <button type="button" class="btn btn-soft" (click)="cancelIssue()">Back</button>
             <button type="button" class="btn btn-primary" [disabled]="!issueTallies()" (click)="sendIssue()">
               Send to Pending Cash In
             </button>
-          } @else {
-            <button type="button" class="btn btn-primary" (click)="closePanel()">Close</button>
-          }
-        </footer>
+          </footer>
+        }
       </div>
     </div>
   }
 
   @if (activePanel() === 'receive') {
     <div class="modal-backdrop" (click)="closePanel()" role="presentation">
-      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="receiveQueueTitle" (click)="$event.stopPropagation()">
+      <div class="modal-dialog is-wide" role="dialog" aria-modal="true" aria-labelledby="receiveQueueTitle" (click)="$event.stopPropagation()">
         <header class="modal-header">
           <div class="heading-block">
             <h2 id="receiveQueueTitle">Receive from Teller</h2>
-            <p class="modal-caption">Check the denominations the teller is transferring, then accept or reject.</p>
           </div>
           <button type="button" class="close-icon-btn" (click)="closePanel()" aria-label="Close">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
@@ -476,17 +471,15 @@
           }
         </div>
 
-        <footer class="modal-footer">
-          @if (reviewingTransfer(); as transfer) {
+        @if (reviewingTransfer(); as transfer) {
+          <footer class="modal-footer">
             <button type="button" class="btn btn-soft" (click)="cancelTransferReview()">Back</button>
             <button type="button" class="btn btn-soft" (click)="rejectTransfer(transfer.id)">Reject</button>
             <button type="button" class="btn btn-primary" (click)="acceptTransfer(transfer.id)">
-              Accept → Pending Cash Out
+              Confirm &amp; complete (Cash Sent)
             </button>
-          } @else {
-            <button type="button" class="btn btn-primary" (click)="closePanel()">Close</button>
-          }
-        </footer>
+          </footer>
+        }
       </div>
     </div>
   }

@@ -1,8 +1,7 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActivityStore } from '../../shared/activity.store';
-import { formatBusinessDate } from '../../shared/business-date';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { CashTransferStore } from '../../shared/cash-transfer.store';
 import { TillStore } from '../../shared/till.store';
@@ -14,6 +13,7 @@ import { RequestCash } from '../request-cash/request-cash';
 import { TransferCash } from '../transfer-cash/transfer-cash';
 import { UngrantedCashRequest } from '../ungranted-cash-request/ungranted-cash-request';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import { TELLER_CALLOVER_JOURNAL_PATH, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 
 @Component({
   selector: 'app-teller-activities',
@@ -32,6 +32,8 @@ import { MessagePopup } from '../../shared/message-popup/message-popup';
   styleUrl: './teller-activities.css',
 })
 export class TellerActivities {
+  readonly tellerCalloverJournalTitle = TELLER_CALLOVER_JOURNAL_TITLE;
+
   private readonly activityStore = inject(ActivityStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -40,14 +42,6 @@ export class TellerActivities {
   readonly tillStore = inject(TillStore);
 
   readonly screenTitle = 'Teller Activities';
-  readonly screenCaption = 'Branch operations workspace for till, cash movement, and teller actions.';
-  readonly activityCode = 'TTTI';
-
-  readonly currentDate = formatBusinessDate();
-  readonly businessDate = formatBusinessDate();
-  readonly userId = 'TESTTEL';
-  readonly branch = 'HEAD OFFICE';
-
   readonly currencies = [
     'GHANA CEDIS',
     'US DOLLAR',
@@ -65,6 +59,25 @@ export class TellerActivities {
   readonly showCashSentModal = signal(false);
   readonly showUngrantedCashModal = signal(false);
 
+  readonly receivedVariance = computed(
+    () => this.tillStore.cashReceived() - this.tillStore.cashReceivedTarget(),
+  );
+  readonly sentVariance = computed(
+    () => this.tillStore.cashSent() - this.tillStore.cashSentTarget(),
+  );
+  readonly tillHeadroom = computed(
+    () => this.tillStore.cashLimit() - this.tillStore.tillTotal(),
+  );
+  readonly receivedProgress = computed(() =>
+    this.progressShare(this.tillStore.cashReceived(), this.tillStore.cashReceivedTarget()),
+  );
+  readonly sentProgress = computed(() =>
+    this.progressShare(this.tillStore.cashSent(), this.tillStore.cashSentTarget()),
+  );
+  readonly tillProgress = computed(() =>
+    this.progressShare(this.tillStore.tillTotal(), this.tillStore.cashLimit()),
+  );
+
   constructor() {
     effect(() => {
       const selected = this.activityStore.selectedActivity();
@@ -80,6 +93,27 @@ export class TellerActivities {
       }
       this.openModalFromQuery(modal);
     });
+  }
+
+  denominationDescription(value: string): string {
+    const labels: Record<string, string> = {
+      '200': 'Two Hundred Cedis',
+      '100': 'One Hundred Cedis',
+      '50': 'Fifty Cedis',
+      '20': 'Twenty Cedis',
+      '10': 'Ten Cedis',
+      '5': 'Five Cedis',
+      '2': 'Two Cedis',
+      '1': 'One Cedi',
+    };
+    return labels[value] ?? value;
+  }
+
+  private progressShare(actual: number, target: number): number {
+    if (target <= 0) {
+      return 0;
+    }
+    return Math.min(100, Math.max(0, (actual / target) * 100));
   }
 
   private openModalFromQuery(modal: string): void {
@@ -140,22 +174,22 @@ export class TellerActivities {
     if (this.cashTransferStore.pendingCashOut() > 0) {
       return;
     }
-    const row = this.cashTransferStore.addAwaitingVault({
-      currency: 'GHANA CEDIS',
-      vault: 'MAIN VAULT',
-      lines: [
-        { denomination: '200', quantity: 5, amount: 1000 },
-        { denomination: '100', quantity: 10, amount: 1000 },
-      ],
-    });
-    this.cashTransferStore.acceptFromVault(row.id);
+    const lines = [
+      { denomination: '200', quantity: 5, amount: 1000 },
+      { denomination: '100', quantity: 10, amount: 1000 },
+    ];
+    if (this.tillStore.canRemoveLines(lines)) {
+      this.cashTransferStore.addAwaitingVault({
+        currency: 'GHANA CEDIS',
+        vault: 'MAIN VAULT',
+        lines,
+      });
+      this.tillStore.removeDenominationLines(lines);
+    }
   }
 
   onCurrencyChange(value: string): void {
     this.selectedCurrency.set(value);
-    this.feedbackMessage.set(
-      value ? `Currency set to ${value}.` : 'Tap to select currency.',
-    );
   }
 
   onQuickAction(label: string): void {
@@ -202,8 +236,8 @@ export class TellerActivities {
       return;
     }
 
-    if (label === 'Teller Callover') {
-      void this.router.navigateByUrl('/teller-callover');
+    if (label === TELLER_CALLOVER_JOURNAL_TITLE || label === 'Teller Callover') {
+      void this.router.navigateByUrl(TELLER_CALLOVER_JOURNAL_PATH);
       return;
     }
 
@@ -256,16 +290,16 @@ export class TellerActivities {
 
   onRequestCashSubmitted(payload: { currency: string; amount: string; requestingFrom: string }): void {
     this.feedbackMessage.set(
-      `Cash request sent to vault: ${payload.amount} ${payload.currency} from ${payload.requestingFrom}.`,
+      `Request ${payload.amount} ${payload.currency} from ${payload.requestingFrom} — listed under Ungranted Cash Request until vault issues denominations.`,
     );
   }
 
   onTransferCashSubmitted(payload: { currency: string; vault: string; amount: number }): void {
     this.feedbackMessage.set(
-      `Cash transfer sent to vault for check: ${payload.amount.toLocaleString(undefined, {
+      `Transfer to ${payload.vault} for ${payload.amount.toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      })} ${payload.currency} to ${payload.vault}.`,
+      })} ${payload.currency} — see Pending Cash Out until vault confirms.`,
     );
   }
 
@@ -279,13 +313,9 @@ export class TellerActivities {
     this.feedbackMessage.set('Pending cash in rejected.');
   }
 
-  onPendingCashOutAccepted(amount: number): void {
+  onPendingCashOutCancelled(amount: number): void {
     this.feedbackMessage.set(
-      `Pending cash out of ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} accepted and added to cash sent.`,
+      `Vault transfer cancelled (${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} returned to till).`,
     );
-  }
-
-  onPendingCashOutRejected(): void {
-    this.feedbackMessage.set('Pending cash out rejected.');
   }
 }
