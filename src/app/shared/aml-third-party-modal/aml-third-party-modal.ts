@@ -5,10 +5,11 @@ import {
   cloneAmlThirdParty,
   createEmptyAmlThirdParty,
 } from '../aml-third-party.model';
+import { FieldLabel } from '../field-label/field-label';
 
 @Component({
   selector: 'app-aml-third-party-modal',
-  imports: [],
+  imports: [FieldLabel],
   templateUrl: './aml-third-party-modal.html',
   styleUrl: './aml-third-party-modal.css',
 })

@@ -30,13 +30,14 @@ import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
 } from '../../shared/aml-third-party.model';
+import { FieldLabel } from '../../shared/field-label/field-label';
 
 const DEFAULT_NARRATION = 'CASH DEPOSIT';
 const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-deposit',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal],
+  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
 })

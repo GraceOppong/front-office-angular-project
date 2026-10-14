@@ -9,19 +9,11 @@
   justify-content: flex-end;
   min-height: 3.5rem;
   padding: 0.45rem 1rem 0.45rem 1.15rem;
-  background: linear-gradient(105deg, #1a5f9e 0%, #1565a8 38%, #0f4d82 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 18px rgba(9, 30, 55, 0.18);
+  background: var(--shell-nav-gradient);
+  border-bottom: 1px solid var(--shell-nav-border);
+  box-shadow: 4px 0 24px rgba(9, 30, 55, 0.12);
   overflow-x: hidden;
   overflow-y: hidden;
-}
-
-.app-topbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, transparent 42%);
-  pointer-events: none;
 }
 
 .topbar-toolbar {

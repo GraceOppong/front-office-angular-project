@@ -8,6 +8,7 @@ import {
 } from '../../shared/amount-input';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
+import { FieldLabel } from '../../shared/field-label/field-label';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 
 interface RequestFromOption {
@@ -17,7 +18,7 @@ interface RequestFromOption {
 
 @Component({
   selector: 'app-request-cash',
-  imports: [DecimalPipe, MessagePopup],
+  imports: [DecimalPipe, MessagePopup, FieldLabel],
   templateUrl: './request-cash.html',
   styleUrl: './request-cash.css',
 })

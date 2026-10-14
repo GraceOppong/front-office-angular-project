@@ -5,6 +5,7 @@ import { CashDeposit } from './features/cash-deposit/cash-deposit';
 import { CashWithdrawal } from './features/cash-withdrawal/cash-withdrawal';
 import { TellerCallover } from './features/teller-callover/teller-callover';
 import { Vault } from './features/vault/vault';
+import { SameDayReversal } from './features/same-day-reversal/same-day-reversal';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,7 @@ export const routes: Routes = [
       },
       { path: 'cash-deposit', component: CashDeposit },
       { path: 'cash-withdrawal', component: CashWithdrawal },
+      { path: 'same-day-reversal', component: SameDayReversal },
       { path: 'vault', component: Vault },
     ],
   },

@@ -1,0 +1,432 @@
+<div class="page">
+
+  <div class="screen">
+
+    <header class="page-header">
+
+      <div class="header-main">
+
+        <a routerLink="/teller-activities" class="back-icon-btn" aria-label="Back to Teller Activities" title="Back">
+
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+
+            <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+
+          </svg>
+
+        </a>
+
+        <div class="heading-block">
+
+          <h1>Same Day Reversal</h1>
+
+          <p class="screen-caption">Enter the transaction number — details load when you press Enter or pause typing.</p>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+
+    <div class="reversal-layout" [class.is-fetching]="lookupLoading()">
+
+      <section class="card form-panel">
+
+        <div class="form-grid-compact">
+
+          <div class="form-field span-2">
+
+            <app-field-label forId="transNo" icon="hash" [required]="true" text="Transaction Number" />
+
+            <div class="trans-no-wrap">
+
+              <input
+
+                id="transNo"
+
+                type="text"
+
+                class="field"
+
+                [class.is-loading]="lookupLoading()"
+
+                placeholder="e.g. TXN-88011"
+
+                autocomplete="off"
+
+                [value]="transNo()"
+
+                (input)="onTransNoInput($any($event.target).value)"
+
+                (blur)="onTransNoBlur()"
+
+                (keydown.enter)="onTransNoEnter($event)"
+
+                [attr.aria-busy]="lookupLoading()"
+
+              />
+
+              @if (lookupLoading()) {
+
+                <span class="field-spinner" aria-hidden="true"></span>
+
+              }
+
+            </div>
+
+            @if (lookupLoading()) {
+
+              <p class="field-hint is-loading">Loading transaction…</p>
+
+            }
+
+            @if (lookupHint() && !lookupLoading()) {
+
+              <p class="field-hint is-warn">{{ lookupHint() }}</p>
+
+            }
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="accountNumber" icon="account" text="Account Number" />
+
+            <input
+
+              id="accountNumber"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.accountNumber : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="accountName" icon="user" text="A/C Name" />
+
+            <input
+
+              id="accountName"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.accountName : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="documentRef" icon="doc" text="Document Ref" />
+
+            <input
+
+              id="documentRef"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.documentRef : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="amount" icon="amount" text="Amount" />
+
+            <input
+
+              id="amount"
+
+              type="text"
+
+              class="field field-readonly field-amount"
+
+              readonly
+
+              [value]="hasReversal() ? (reversal()!.amount | number: '1.2-2') : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="postingDate" icon="calendar" text="Posting Date" />
+
+            <input
+
+              id="postingDate"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.postingDate : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="transactionType" icon="type" text="Transaction Type" />
+
+            <input
+
+              id="transactionType"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.transactionType : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="valueDate" icon="value" text="Value Date" />
+
+            <input
+
+              id="valueDate"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.valueDate : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field">
+
+            <app-field-label forId="transactionDetails1" icon="detail" text="Transaction Details 1" />
+
+            <input
+
+              id="transactionDetails1"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.transactionDetails1 : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+
+
+          <div class="form-field span-2">
+
+            <app-field-label forId="transactionDetails2" icon="list" text="Transaction Details 2" />
+
+            <input
+
+              id="transactionDetails2"
+
+              type="text"
+
+              class="field field-readonly"
+
+              readonly
+
+              [value]="hasReversal() ? reversal()!.transactionDetails2 : ''"
+
+              placeholder="—"
+
+            />
+
+          </div>
+
+        </div>
+
+
+
+        <div class="form-actions">
+
+          <button type="button" class="btn btn-primary" [disabled]="!hasReversal()" (click)="onSubmit()">
+
+            Submit reversal
+
+          </button>
+
+        </div>
+
+      </section>
+
+
+
+      <article class="card denom-panel">
+
+        <header class="denom-panel-head">
+
+          <app-field-label [asSpan]="true" icon="denom" text="Denominations" />
+
+        </header>
+
+        <div class="table-wrap">
+
+          <table class="batch-table">
+
+            <thead>
+
+              <tr>
+
+                <th class="col-denom">Denomination</th>
+
+                <th class="col-desc">Description</th>
+
+                <th class="col-amount">Amount</th>
+
+                <th class="col-qty">Qty</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              @if (hasReversal() && reversal()!.denominations.length) {
+
+                @for (line of reversal()!.denominations; track line.denomination) {
+
+                  <tr>
+
+                    <td class="col-denom mono">{{ line.denomination }}</td>
+
+                    <td class="col-desc">{{ denominationDescription(line.denomination) }}</td>
+
+                    <td class="col-amount">{{ line.amount | number: '1.2-2' }}</td>
+
+                    <td class="col-qty mono">{{ line.quantity }}</td>
+
+                  </tr>
+
+                }
+
+              } @else {
+
+                <tr class="empty-row">
+
+                  <td colspan="4">
+
+                    @if (hasReversal()) {
+
+                      No cash denominations for this transaction type.
+
+                    } @else {
+
+                      Enter a transaction number to view denominations.
+
+                    }
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+            @if (hasReversal() && reversal()!.denominations.length) {
+
+              <tfoot>
+
+                <tr>
+
+                  <td colspan="2">Total</td>
+
+                  <td class="col-amount">{{ denominationTotal() | number: '1.2-2' }}</td>
+
+                  <td class="col-qty"></td>
+
+                </tr>
+
+              </tfoot>
+
+            }
+
+          </table>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
+

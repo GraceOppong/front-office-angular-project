@@ -5,6 +5,7 @@ import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../../shared/till.s
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
+import { FieldLabel } from '../../shared/field-label/field-label';
 
 interface TransferRow {
   denomination: string;
@@ -14,7 +15,7 @@ interface TransferRow {
 
 @Component({
   selector: 'app-transfer-cash',
-  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe],
+  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe, FieldLabel],
   templateUrl: './transfer-cash.html',
   styleUrl: './transfer-cash.css',
 })

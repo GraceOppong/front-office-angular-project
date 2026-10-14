@@ -18,7 +18,7 @@
         <section class="card form-panel">
           <div class="form-grid-compact">
             <div class="form-field span-2">
-              <label for="debitAccount"><span class="req">*</span> Debit Account</label>
+              <app-field-label forId="debitAccount" icon="debit" [required]="true" text="Debit Account" />
               <input
                 id="debitAccount"
                 type="text"
@@ -35,7 +35,7 @@
             </div>
 
             <div class="form-field">
-              <label for="accountName">Account Name</label>
+              <app-field-label forId="accountName" icon="user" text="Account Name" />
               <input
                 id="accountName"
                 type="text"
@@ -48,7 +48,7 @@
             </div>
 
             <div class="form-field">
-              <label for="accountBranch">Account Branch</label>
+              <app-field-label forId="accountBranch" icon="branch" text="Account Branch" />
               <input
                 id="accountBranch"
                 type="text"
@@ -61,7 +61,7 @@
             </div>
 
             <div class="form-field">
-              <label for="accountProduct">Account Product</label>
+              <app-field-label forId="accountProduct" icon="product" text="Account Product" />
               <input
                 id="accountProduct"
                 type="text"
@@ -74,7 +74,7 @@
             </div>
 
             <div class="form-field">
-              <label for="accountCurrency">Currency</label>
+              <app-field-label forId="accountCurrency" icon="currency" text="Currency" />
               <input
                 id="accountCurrency"
                 type="text"
@@ -89,7 +89,7 @@
             <h2 class="section-title span-full">Transaction Details</h2>
 
             <div class="form-field">
-              <label for="amount"><span class="req">*</span> Amount</label>
+              <app-field-label forId="amount" icon="amount" [required]="true" text="Amount" />
               <input
                 id="amount"
                 type="text"
@@ -110,7 +110,7 @@
             </div>
 
             <div class="form-field">
-              <label for="voucherDate">Voucher Date</label>
+              <app-field-label forId="voucherDate" icon="calendar" text="Voucher Date" />
               <input
                 id="voucherDate"
                 type="date"
@@ -122,7 +122,7 @@
             </div>
 
             <div class="form-field">
-              <label for="voucherRef">Voucher Reference</label>
+              <app-field-label forId="voucherRef" icon="voucher" text="Voucher Reference" />
               <input
                 id="voucherRef"
                 type="text"
@@ -133,7 +133,7 @@
             </div>
 
             <div class="form-field">
-              <label for="sourceOfFunds">Source of Funds</label>
+              <app-field-label forId="sourceOfFunds" icon="funds" text="Source of Funds" />
               <select
                 id="sourceOfFunds"
                 class="field select-field"
@@ -150,7 +150,7 @@
             </div>
 
             <div class="form-field">
-              <label for="narration1"><span class="req">*</span> Narration 1</label>
+              <app-field-label forId="narration1" icon="narration" [required]="true" text="Narration 1" />
               <input
                 id="narration1"
                 type="text"
@@ -161,7 +161,7 @@
             </div>
 
             <div class="form-field">
-              <label for="narration2">Narration 2</label>
+              <app-field-label forId="narration2" icon="narration" text="Narration 2" />
               <input
                 id="narration2"
                 type="text"
@@ -234,26 +234,26 @@
           } @else if (showAccountInformation()) {
             <dl class="info-grid">
               <div class="info-tile is-monetary">
-                <dt>Available Balance</dt>
+                <dt><app-field-label [asSpan]="true" [compact]="true" icon="amount" text="Available Balance" /></dt>
                 <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
               </div>
               <div class="info-tile is-monetary">
-                <dt>Cleared Balance</dt>
+                <dt><app-field-label [asSpan]="true" [compact]="true" icon="credit" text="Cleared Balance" /></dt>
                 <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
               </div>
               <div class="info-tile is-monetary">
-                <dt>Uncleared Balance</dt>
+                <dt><app-field-label [asSpan]="true" [compact]="true" icon="amount" text="Uncleared Balance" /></dt>
                 <dd>
                   <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
                   <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
                 </dd>
               </div>
               <div class="info-tile is-monetary">
-                <dt>Overdraft Amount</dt>
+                <dt><app-field-label [asSpan]="true" [compact]="true" icon="debit" text="Overdraft Amount" /></dt>
                 <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
               </div>
               <div class="info-tile is-monetary">
-                <dt>Block Amount</dt>
+                <dt><app-field-label [asSpan]="true" [compact]="true" icon="status" text="Block Amount" /></dt>
                 <dd>
                   <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
                   <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>

@@ -11,6 +11,8 @@
   --border-input: #d5dee8;
   --brand-primary: #1565a8;
   --brand-primary-dark: #0f4d82;
+  --shell-nav-gradient: linear-gradient(180deg, #134a7a 0%, #0f3d6b 38%, #0c2f54 100%);
+  --shell-nav-border: rgba(255, 255, 255, 0.12);
   --focus-ring: #9bc7e8;
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -26,6 +28,95 @@
 
 .modal-dialog.is-wide {
   width: var(--modal-width-wide);
+}
+
+/* Modal headers — sidebar blue (all modals) */
+.modal-header,
+.details-header,
+.panel-header,
+.message-popup-header {
+  background: var(--shell-nav-gradient) !important;
+  border-bottom: 1px solid var(--shell-nav-border) !important;
+  color: #e8f2fb;
+}
+
+.modal-header .heading-block h2,
+.modal-header > h2,
+.details-header .heading-block h2,
+.panel-header .heading-block h2,
+.message-popup-header .message-popup-title {
+  color: #f4f9ff !important;
+}
+
+.modal-header .modal-caption,
+.panel-header .modal-caption {
+  color: rgba(232, 242, 251, 0.85) !important;
+}
+
+.modal-header .modal-caption strong,
+.panel-header .modal-caption strong {
+  color: #fff;
+}
+
+.modal-header .close-icon-btn,
+.details-header .close-icon-btn,
+.message-popup-header .close-icon-btn {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+}
+
+.modal-header .close-icon-btn:hover,
+.details-header .close-icon-btn:hover,
+.message-popup-header .close-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: #fff !important;
+  color: #fff !important;
+}
+
+.panel-header .back-icon-btn,
+.panel-header .panel-back {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+}
+
+.panel-header .back-icon-btn:hover,
+.panel-header .panel-back:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: #fff !important;
+  color: #fff !important;
+}
+
+.modal-header,
+.details-header,
+.panel-header,
+.message-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.modal-header .close-icon-btn,
+.details-header .close-icon-btn,
+.message-popup-header .close-icon-btn {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.modal-header .close-icon-btn svg,
+.details-header .close-icon-btn svg,
+.message-popup-header .close-icon-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 *,
@@ -138,8 +229,8 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   margin: 0;
 }
 
-.batch-table .col-desc,
-.data-table .col-desc {
+.batch-table tbody td.col-desc,
+.data-table tbody td.col-desc {
   font-weight: 550;
   color: var(--text-secondary);
 }
@@ -170,12 +261,32 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
 
 .batch-table thead th {
   text-align: left;
-  background: #eef5fb;
-  border-bottom: 1px solid #d7e4f0;
+  background: var(--shell-nav-gradient);
+  border-bottom: 1px solid var(--shell-nav-border);
+  border-right-color: rgba(255, 255, 255, 0.12);
   font-weight: 650;
-  color: #3d5a78;
+  color: #fff;
   white-space: nowrap;
   font-size: 0.78rem;
+}
+
+/* Table column headers app-wide — match sidebar / top bar blue */
+.batch-table thead th,
+.data-table thead th,
+.perf-table thead th {
+  background: var(--shell-nav-gradient) !important;
+  border-bottom: 1px solid var(--shell-nav-border) !important;
+  color: #fff !important;
+}
+
+.data-table thead th,
+.perf-table thead th {
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.data-table thead th:last-child,
+.perf-table thead th:last-child {
+  border-right: none;
 }
 
 .batch-table tbody td {
@@ -276,4 +387,113 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
 .batch-table.has-avail:not(.has-select) .col-amount,
 .batch-table.has-avail:not(.has-select) .col-qty {
   width: 20%;
+}
+
+/* Shared field labels with colored icons */
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.field-label.is-compact {
+  gap: 0.32rem;
+}
+
+.field-label.is-compact .label-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 5px;
+}
+
+.field-label.is-compact .label-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.label-text {
+  font-size: 0.74rem;
+  font-weight: 650;
+  color: #5a6d80;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.label-icon {
+  width: 1.38rem;
+  height: 1.38rem;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(15, 40, 70, 0.12);
+}
+
+.label-icon.is-trans { background: #5925dc; }
+.label-icon.is-account { background: #1565a8; }
+.label-icon.is-name { background: #0f4d82; }
+.label-icon.is-branch { background: #175cd3; }
+.label-icon.is-product { background: #3538cd; }
+.label-icon.is-currency { background: #12b76a; }
+.label-icon.is-amount { background: #067647; }
+.label-icon.is-posting { background: #b54708; }
+.label-icon.is-calendar { background: #b54708; }
+.label-icon.is-voucher { background: #7e22ce; }
+.label-icon.is-doc-ref { background: #7e22ce; }
+.label-icon.is-doc { background: #7e22ce; }
+.label-icon.is-funds { background: #0e7090; }
+.label-icon.is-narration { background: #4e5ba6; }
+.label-icon.is-detail { background: #4e5ba6; }
+.label-icon.is-detail-alt { background: #3e4784; }
+.label-icon.is-users { background: #c11574; }
+.label-icon.is-type { background: #175cd3; }
+.label-icon.is-value { background: #c11574; }
+.label-icon.is-list { background: #3e4784; }
+.label-icon.is-denom { background: #12b76a; }
+.label-icon.is-batch { background: #5925dc; }
+.label-icon.is-filter { background: #0f4d82; }
+.label-icon.is-status { background: #93370d; }
+.label-icon.is-clock { background: #344054; }
+.label-icon.is-customer { background: #1565a8; }
+.label-icon.is-rate { background: #027a48; }
+.label-icon.is-link { background: #3538cd; }
+.label-icon.is-debit { background: #b42318; }
+.label-icon.is-credit { background: #067647; }
+.label-icon.is-title { background: #6941c6; }
+.label-icon.is-gender { background: #d6409f; }
+.label-icon.is-phone { background: #0086c9; }
+.label-icon.is-mail { background: #155eef; }
+.label-icon.is-home { background: #039855; }
+.label-icon.is-globe { background: #0ba5ec; }
+.label-icon.is-id { background: #7a5af8; }
+.label-icon.is-building { background: #444ce7; }
+.label-icon.is-briefcase { background: #1570ef; }
+.label-icon.is-vault { background: #1565a8; }
+.label-icon.is-layout { background: #667085; }
+.label-icon.is-signature { background: #7e22ce; }
+.label-icon.is-default { background: #667085; }
+
+.info-tile dt {
+  margin: 0 0 0.2rem;
+}
+
+.info-tile dt .label-text {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7f94;
+}
+
+.filter-group > app-field-label,
+.form-field > app-field-label,
+.aml-field > app-field-label {
+  display: block;
+  margin-bottom: 0.28rem;
+}
+
+.currency-field > app-field-label {
+  display: block;
 }

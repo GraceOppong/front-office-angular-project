@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { LucideUndo2 } from '@lucide/angular';
 import {
   formatAmountOnBlur,
   parseAmountInput,
@@ -11,7 +12,9 @@ import {
   CalloverStore,
   TELLER_CALLOVER_JOURNAL_TITLE,
 } from '../../shared/callover.store';
+import { FieldLabel } from '../../shared/field-label/field-label';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import { SAME_DAY_REVERSAL_PATH } from '../../shared/same-day-reversal.mock';
 
 export type CalloverTransactionFilter =
   | 'all'
@@ -51,13 +54,14 @@ const TRANS_STATUS_OPTIONS: { id: CalloverTransStatusFilter; label: string }[] =
 
 @Component({
   selector: 'app-teller-callover',
-  imports: [DecimalPipe, RouterLink, MessagePopup],
+  imports: [DecimalPipe, RouterLink, LucideUndo2, MessagePopup, FieldLabel],
   templateUrl: './teller-callover.html',
   styleUrl: './teller-callover.css',
 })
 export class TellerCallover {
   readonly pageTitle = TELLER_CALLOVER_JOURNAL_TITLE;
   readonly calloverStore = inject(CalloverStore);
+  private readonly router = inject(Router);
 
   constructor() {
     effect(() => {
@@ -242,8 +246,14 @@ export class TellerCallover {
     this.calloverStore.setTick(id, checked);
   }
 
-  reverseTransaction(id: string): void {
-    this.calloverStore.reverseTransaction(id);
+  openSameDayReversal(row: CalloverRow, event: Event): void {
+    event.stopPropagation();
+    if (row.transStatus === 'reversed') {
+      return;
+    }
+    void this.router.navigate([SAME_DAY_REVERSAL_PATH], {
+      queryParams: { transNo: row.transNo },
+    });
   }
 
   private transactionCategory(row: CalloverRow): Exclude<CalloverTransactionFilter, 'all'> {

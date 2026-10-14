@@ -42,7 +42,11 @@ export class FrontOfficeShell {
       return;
     }
 
-    if (url.includes('/teller-activities') || url.includes('/teller-callover')) {
+    if (
+      url.includes('/teller-activities') ||
+      url.includes('/teller-callover') ||
+      url.includes('/same-day-reversal')
+    ) {
       this.activityStore.select('TTTI');
     }
   }

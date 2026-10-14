@@ -26,6 +26,7 @@ import {
 } from '../../shared/cash-denomination.helpers';
 import { DenominationLine } from '../../shared/till.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
+import { FieldLabel } from '../../shared/field-label/field-label';
 import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
@@ -36,7 +37,7 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-withdrawal',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal],
+  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel],
   templateUrl: './cash-withdrawal.html',
   styleUrl: '../cash-deposit/cash-deposit.css',
 })

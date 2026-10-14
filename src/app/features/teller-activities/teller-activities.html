@@ -7,7 +7,7 @@
         </div>
         <div class="header-actions">
           <label class="perf-layout-picker" for="perfCardLayout">
-            <span class="perf-layout-picker-label">Stat cards</span>
+            <app-field-label [asSpan]="true" icon="layout" text="Stat cards" />
             <select
               id="perfCardLayout"
               class="field select-field perf-layout-select"
@@ -531,7 +531,7 @@
             </button>
             <button type="button" class="side-action" (click)="onQuickAction('Same Day Reversal')">
               <span class="side-icon is-exchange" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+                <svg lucideUndo2></svg>
               </span>
               <span>Same Day Reversal</span>
               <span class="action-go" aria-hidden="true">›</span>
@@ -619,7 +619,7 @@
             </div>
             <div class="table-head-tools">
               <label class="currency-field" for="tellerCurrency">
-                <span>Currency</span>
+                <app-field-label [asSpan]="true" icon="currency" text="Currency" />
                 <select
                   id="tellerCurrency"
                   class="field select-field currency-select"

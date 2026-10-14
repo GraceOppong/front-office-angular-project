@@ -8,6 +8,7 @@ import { VaultStore } from '../../shared/vault.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
+import { FieldLabel } from '../../shared/field-label/field-label';
 
 interface IssueRow {
   denomination: string;
@@ -16,7 +17,7 @@ interface IssueRow {
 
 @Component({
   selector: 'app-vault',
-  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe],
+  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe, FieldLabel],
   templateUrl: './vault.html',
   styleUrl: './vault.css',
 })

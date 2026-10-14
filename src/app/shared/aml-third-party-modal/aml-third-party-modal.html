@@ -30,7 +30,7 @@
         <h3 class="section-heading">Personal Details</h3>
         <div class="aml-grid">
           <div class="aml-field">
-            <label for="amlTitle">Title</label>
+            <app-field-label forId="amlTitle" icon="title" text="Title" />
             <select
               id="amlTitle"
               class="field select-field"
@@ -45,7 +45,7 @@
             </select>
           </div>
           <div class="aml-field">
-            <label for="amlFirstName"><span class="req">*</span> First Name</label>
+            <app-field-label forId="amlFirstName" icon="user" [required]="true" text="First Name" />
             <input
               id="amlFirstName"
               type="text"
@@ -55,7 +55,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlSurname"><span class="req">*</span> Surname</label>
+            <app-field-label forId="amlSurname" icon="user" [required]="true" text="Surname" />
             <input
               id="amlSurname"
               type="text"
@@ -65,7 +65,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlMiddleName">Middle Name</label>
+            <app-field-label forId="amlMiddleName" icon="user" text="Middle Name" />
             <input
               id="amlMiddleName"
               type="text"
@@ -75,7 +75,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlAlias">Alias</label>
+            <app-field-label forId="amlAlias" icon="user" text="Alias" />
             <input
               id="amlAlias"
               type="text"
@@ -85,7 +85,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlGender">Gender</label>
+            <app-field-label forId="amlGender" icon="gender" text="Gender" />
             <select
               id="amlGender"
               class="field select-field"
@@ -100,7 +100,7 @@
             </select>
           </div>
           <div class="aml-field">
-            <label for="amlDob">Date of Birth</label>
+            <app-field-label forId="amlDob" icon="calendar" text="Date of Birth" />
             <input
               id="amlDob"
               type="date"
@@ -110,7 +110,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlPob">Place of Birth</label>
+            <app-field-label forId="amlPob" icon="home" text="Place of Birth" />
             <input
               id="amlPob"
               type="text"
@@ -120,7 +120,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlMothersName">Mother's Name</label>
+            <app-field-label forId="amlMothersName" icon="user" text="Mother's Name" />
             <input
               id="amlMothersName"
               type="text"
@@ -136,7 +136,7 @@
         <h3 class="section-heading">Other Details</h3>
         <div class="aml-grid">
           <div class="aml-field">
-            <label for="amlOccupation">Occupation</label>
+            <app-field-label forId="amlOccupation" icon="briefcase" text="Occupation" />
             <input
               id="amlOccupation"
               type="text"
@@ -146,7 +146,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlSourceOfWealth">Source of Wealth</label>
+            <app-field-label forId="amlSourceOfWealth" icon="funds" text="Source of Wealth" />
             <input
               id="amlSourceOfWealth"
               type="text"
@@ -156,7 +156,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlPhone">Phone</label>
+            <app-field-label forId="amlPhone" icon="phone" text="Phone" />
             <input
               id="amlPhone"
               type="tel"
@@ -166,7 +166,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlEmail">Email</label>
+            <app-field-label forId="amlEmail" icon="mail" text="Email" />
             <input
               id="amlEmail"
               type="email"
@@ -176,7 +176,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlResidence">Residence</label>
+            <app-field-label forId="amlResidence" icon="home" text="Residence" />
             <input
               id="amlResidence"
               type="text"
@@ -187,9 +187,11 @@
           </div>
           @for (nationality of draft().nationalities; track $index) {
             <div class="aml-field nationality-field">
-              <label [for]="'amlNationality' + $index">
-                Nationality {{ draft().nationalities.length > 1 ? $index + 1 : '' }}
-              </label>
+              <app-field-label
+                [forId]="'amlNationality' + $index"
+                icon="globe"
+                [text]="'Nationality' + (draft().nationalities.length > 1 ? ' ' + ($index + 1) : '')"
+              />
               <div class="nationality-row">
                 <input
                   [id]="'amlNationality' + $index"
@@ -226,7 +228,7 @@
         <h3 class="section-heading">ID Details</h3>
         <div class="aml-grid">
           <div class="aml-field">
-            <label for="amlIdType">ID Type</label>
+            <app-field-label forId="amlIdType" icon="type" text="ID Type" />
             <select
               id="amlIdType"
               class="field select-field"
@@ -241,7 +243,7 @@
             </select>
           </div>
           <div class="aml-field">
-            <label for="amlIdNumber"><span class="req">*</span> ID Number</label>
+            <app-field-label forId="amlIdNumber" icon="id" [required]="true" text="ID Number" />
             <input
               id="amlIdNumber"
               type="text"
@@ -251,7 +253,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlIdIssue">Date of Issue</label>
+            <app-field-label forId="amlIdIssue" icon="calendar" text="Date of Issue" />
             <input
               id="amlIdIssue"
               type="date"
@@ -261,7 +263,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlIdExpiry">Expiry Date</label>
+            <app-field-label forId="amlIdExpiry" icon="calendar" text="Expiry Date" />
             <input
               id="amlIdExpiry"
               type="date"
@@ -271,7 +273,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlIdCountry">Issuing Country</label>
+            <app-field-label forId="amlIdCountry" icon="globe" text="Issuing Country" />
             <input
               id="amlIdCountry"
               type="text"
@@ -287,7 +289,7 @@
         <h3 class="section-heading">Employer Details</h3>
         <div class="aml-grid">
           <div class="aml-field">
-            <label for="amlEmployerName">Employer Name</label>
+            <app-field-label forId="amlEmployerName" icon="building" text="Employer Name" />
             <input
               id="amlEmployerName"
               type="text"
@@ -297,7 +299,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlJobTitle">Job Title</label>
+            <app-field-label forId="amlJobTitle" icon="title" text="Job Title" />
             <input
               id="amlJobTitle"
               type="text"
@@ -307,7 +309,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlEmploymentStatus">Employment Status</label>
+            <app-field-label forId="amlEmploymentStatus" icon="status" text="Employment Status" />
             <select
               id="amlEmploymentStatus"
               class="field select-field"
@@ -322,7 +324,7 @@
             </select>
           </div>
           <div class="aml-field">
-            <label for="amlEmployerPhone">Employer Phone</label>
+            <app-field-label forId="amlEmployerPhone" icon="phone" text="Employer Phone" />
             <input
               id="amlEmployerPhone"
               type="tel"
@@ -332,7 +334,7 @@
             />
           </div>
           <div class="aml-field">
-            <label for="amlEmployerAddress">Employer Address</label>
+            <app-field-label forId="amlEmployerAddress" icon="home" text="Employer Address" />
             <input
               id="amlEmployerAddress"
               type="text"

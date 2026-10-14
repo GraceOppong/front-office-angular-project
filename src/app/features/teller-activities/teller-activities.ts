@@ -12,6 +12,7 @@ import { PendingCashOut } from '../pending-cash-out/pending-cash-out';
 import { RequestCash } from '../request-cash/request-cash';
 import { TransferCash } from '../transfer-cash/transfer-cash';
 import { UngrantedCashRequest } from '../ungranted-cash-request/ungranted-cash-request';
+import { LucideUndo2 } from '@lucide/angular';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { TELLER_CALLOVER_JOURNAL_PATH, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 import {
@@ -22,6 +23,7 @@ import {
   savePerfCardLayout,
 } from '../../shared/perf-card-layout';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
+import { FieldLabel } from '../../shared/field-label/field-label';
 
 @Component({
   selector: 'app-teller-activities',
@@ -35,7 +37,9 @@ import { DenominationDescriptionPipe } from '../../shared/denomination-descripti
     CashReceived,
     CashSent,
     UngrantedCashRequest,
+    LucideUndo2,
     MessagePopup,
+    FieldLabel,
   ],
   templateUrl: './teller-activities.html',
   styleUrl: './teller-activities.css',
@@ -265,6 +269,11 @@ export class TellerActivities {
 
     if (label === 'Cash Withdrawal') {
       void this.router.navigate(['/cash-withdrawal']);
+      return;
+    }
+
+    if (label === 'Same Day Reversal') {
+      void this.router.navigateByUrl('/same-day-reversal');
       return;
     }
 

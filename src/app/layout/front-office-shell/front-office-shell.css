@@ -26,13 +26,13 @@
 .sidebar {
   grid-area: sidebar;
   grid-row: 1 / -1;
-  background: linear-gradient(180deg, #134a7a 0%, #0f3d6b 38%, #0c2f54 100%);
+  background: var(--shell-nav-gradient);
   color: #e8f2fb;
   padding: 1.15rem 0.75rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid var(--shell-nav-border);
   box-shadow: 4px 0 24px rgba(9, 30, 55, 0.12);
   min-height: 0;
   overflow: hidden;
