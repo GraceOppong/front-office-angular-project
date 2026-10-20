@@ -245,19 +245,8 @@
   --date-input-height: 2.4rem;
 }
 
-.aml-field.span-2,
-.nationality-field.span-2 {
+.aml-field.span-2 {
   grid-column: 1 / -1;
-}
-
-.aml-field-action {
-  justify-content: flex-end;
-}
-
-.field-label-spacer {
-  display: block;
-  height: 1rem;
-  visibility: hidden;
 }
 
 .aml-field label {
@@ -301,44 +290,6 @@
 
 .select-field.is-placeholder {
   color: #7a8fa3;
-}
-
-.nationality-row {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.nationality-row .field {
-  flex: 1;
-  min-width: 0;
-}
-
-.btn-icon-remove {
-  width: 2.4rem;
-  height: 2.4rem;
-  flex-shrink: 0;
-  border: 1px solid #d0d9e2;
-  border-radius: 8px;
-  background: #fff;
-  color: #5a6d80;
-  font-size: 1.15rem;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-}
-
-.btn-icon-remove:hover {
-  background: #fef3f2;
-  border-color: #fecdca;
-  color: #b42318;
-}
-
-.btn-add {
-  width: fit-content;
-  height: 2.4rem;
-  padding-inline: 0.85rem;
-  font-size: 0.8rem;
 }
 
 .btn {

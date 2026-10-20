@@ -253,8 +253,13 @@
     @if (calloverView() === 'pending') {
       <section class="card table-panel">
       <header class="table-head">
-        <h2>Pending callover</h2>
-        <span class="count-pill">{{ pendingCount() }} remaining</span>
+        @if (calloverStore.calloverInitiated()) {
+          <h2>Pending callover</h2>
+          <span class="count-pill">{{ pendingCount() }} remaining</span>
+        } @else {
+          <h2>Transactions</h2>
+          <span class="count-pill">{{ pendingCount() }}</span>
+        }
       </header>
 
       <div class="table-wrap">
@@ -262,7 +267,7 @@
           <thead>
             <tr>
               @if (calloverStore.calloverInitiated()) {
-                <th class="col-reversal" scope="col" title="Same day reversal">RVRSL</th>
+                <th class="col-reversal" scope="col" title="Same day reversal">REV</th>
               }
               <th class="col-batch">Batch No</th>
               <th class="col-trans">Trans No</th>

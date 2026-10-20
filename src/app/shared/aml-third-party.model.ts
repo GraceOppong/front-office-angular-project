@@ -39,7 +39,7 @@ export function createEmptyAmlThirdParty(): AmlThirdPartyDetails {
     mothersName: '',
     occupation: '',
     sourceOfWealth: '',
-    nationalities: [''],
+    nationalities: ['', ''],
     residence: '',
     phone: '',
     email: '',
@@ -59,6 +59,6 @@ export function createEmptyAmlThirdParty(): AmlThirdPartyDetails {
 export function cloneAmlThirdParty(details: AmlThirdPartyDetails): AmlThirdPartyDetails {
   return {
     ...details,
-    nationalities: [...details.nationalities],
+    nationalities: [details.nationalities[0] ?? '', details.nationalities[1] ?? ''],
   };
 }

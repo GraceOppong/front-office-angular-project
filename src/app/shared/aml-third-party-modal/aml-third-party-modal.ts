@@ -46,6 +46,94 @@ export class AmlThirdPartyModal implements OnDestroy {
   readonly genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
   readonly idTypeOptions = ['National ID', 'Passport', 'Drivers Licence', 'Voters ID', 'Other'];
   readonly employmentStatusOptions = ['Employed', 'Self-employed', 'Unemployed', 'Retired', 'Student'];
+  readonly nationalityOptions = [
+    'Ghanaian',
+    'Nigerian',
+    'Ivorian',
+    'Togolese',
+    'Beninese',
+    'Burkinabe',
+    'Malian',
+    'Senegalese',
+    'Liberian',
+    'Sierra Leonean',
+    'Guinean',
+    'Gambian',
+    'Cameroonian',
+    'South African',
+    'Kenyan',
+    'Ugandan',
+    'Tanzanian',
+    'Rwandan',
+    'Egyptian',
+    'Moroccan',
+    'British',
+    'American',
+    'Canadian',
+    'French',
+    'German',
+    'Italian',
+    'Spanish',
+    'Portuguese',
+    'Dutch',
+    'Irish',
+    'Chinese',
+    'Indian',
+    'Pakistani',
+    'Bangladeshi',
+    'Lebanese',
+    'Syrian',
+    'Emirati',
+    'Saudi',
+    'Turkish',
+    'Filipino',
+    'Australian',
+    'Other',
+  ];
+  readonly countryOptions = [
+    'Ghana',
+    'Nigeria',
+    'Cote d\'Ivoire',
+    'Togo',
+    'Benin',
+    'Burkina Faso',
+    'Mali',
+    'Senegal',
+    'Liberia',
+    'Sierra Leone',
+    'Guinea',
+    'Gambia',
+    'Cameroon',
+    'South Africa',
+    'Kenya',
+    'Uganda',
+    'Tanzania',
+    'Rwanda',
+    'Egypt',
+    'Morocco',
+    'United Kingdom',
+    'United States',
+    'Canada',
+    'France',
+    'Germany',
+    'Italy',
+    'Spain',
+    'Portugal',
+    'Netherlands',
+    'Ireland',
+    'China',
+    'India',
+    'Pakistan',
+    'Bangladesh',
+    'Lebanon',
+    'Syria',
+    'United Arab Emirates',
+    'Saudi Arabia',
+    'Turkey',
+    'Philippines',
+    'Australia',
+    'Other',
+  ];
 
   readonly draft = signal<AmlThirdPartyDetails>(createEmptyAmlThirdParty());
 
@@ -85,28 +173,11 @@ export class AmlThirdPartyModal implements OnDestroy {
 
   onNationalityInput(index: number, value: string): void {
     this.draft.update((current) => {
-      const nationalities = [...current.nationalities];
+      const nationalities = [current.nationalities[0] ?? '', current.nationalities[1] ?? ''];
       nationalities[index] = value;
       return { ...current, nationalities };
     });
     this.formError.set('');
-  }
-
-  addNationality(): void {
-    this.draft.update((current) => ({
-      ...current,
-      nationalities: [...current.nationalities, ''],
-    }));
-  }
-
-  removeNationality(index: number): void {
-    this.draft.update((current) => {
-      if (current.nationalities.length <= 1) {
-        return { ...current, nationalities: [''] };
-      }
-      const nationalities = current.nationalities.filter((_, i) => i !== index);
-      return { ...current, nationalities };
-    });
   }
 
   goToStep(index: number): void {

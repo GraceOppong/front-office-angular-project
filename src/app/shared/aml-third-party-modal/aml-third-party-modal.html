@@ -210,41 +210,35 @@
                 (input)="patchField('residence', $any($event.target).value)"
               />
             </div>
-            @for (nationality of draft().nationalities; track $index) {
-              <div class="aml-field nationality-field" [class.span-2]="draft().nationalities.length === 1">
-                <app-field-label
-                  [forId]="'amlNationality' + $index"
-                  icon="globe"
-                  [text]="'Nationality' + (draft().nationalities.length > 1 ? ' ' + ($index + 1) : '')"
-                />
-                <div class="nationality-row">
-                  <input
-                    [id]="'amlNationality' + $index"
-                    type="text"
-                    class="field"
-                    placeholder="Country"
-                    [value]="nationality"
-                    (input)="onNationalityInput($index, $any($event.target).value)"
-                  />
-                  @if (draft().nationalities.length > 1) {
-                    <button
-                      type="button"
-                      class="btn-icon-remove"
-                      aria-label="Remove nationality"
-                      title="Remove"
-                      (click)="removeNationality($index)"
-                    >
-                      ×
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-            <div class="aml-field aml-field-action">
-              <span class="field-label-spacer" aria-hidden="true">&nbsp;</span>
-              <button type="button" class="btn btn-soft btn-add" (click)="addNationality()">
-                + Add nationality
-              </button>
+            <div class="aml-field">
+              <app-field-label forId="amlNationality1" icon="globe" text="Nationality 1" />
+              <select
+                id="amlNationality1"
+                class="field select-field"
+                [class.is-placeholder]="!draft().nationalities[0]"
+                [value]="draft().nationalities[0]"
+                (change)="onNationalityInput(0, $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of nationalityOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlNationality2" icon="globe" text="Nationality 2" />
+              <select
+                id="amlNationality2"
+                class="field select-field"
+                [class.is-placeholder]="!draft().nationalities[1]"
+                [value]="draft().nationalities[1]"
+                (change)="onNationalityInput(1, $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of nationalityOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
             </div>
           </div>
         </section>
@@ -297,15 +291,20 @@
                 (blurred)="onDateBlur('idExpiryDate')"
               />
             </div>
-            <div class="aml-field span-2">
+            <div class="aml-field">
               <app-field-label forId="amlIdCountry" icon="globe" text="Issuing Country" />
-              <input
+              <select
                 id="amlIdCountry"
-                type="text"
-                class="field"
+                class="field select-field"
+                [class.is-placeholder]="!draft().idIssuingCountry"
                 [value]="draft().idIssuingCountry"
-                (input)="patchField('idIssuingCountry', $any($event.target).value)"
-              />
+                (change)="patchField('idIssuingCountry', $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of countryOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
             </div>
           </div>
         </section>
