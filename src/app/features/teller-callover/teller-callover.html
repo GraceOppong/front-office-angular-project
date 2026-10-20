@@ -144,6 +144,27 @@
       </div>
     </section>
 
+    @if (!calloverStore.calloverInitiated()) {
+      <section class="status-stats" aria-label="Transaction statuses">
+        @for (card of statusStatCards(); track card.id) {
+          <button
+            type="button"
+            class="status-stat"
+            [attr.data-trans-status]="card.id"
+            [class.is-active]="transStatusFilter() === card.id"
+            (click)="setTransStatusFilter(card.id)"
+          >
+            <span class="status-stat-label">{{ card.label }}</span>
+            <span class="status-stat-count">{{ card.count | number: '1.0-0' }}</span>
+            <span class="status-stat-meta">{{ card.share }}% of total</span>
+            <span class="status-stat-bar" aria-hidden="true">
+              <span class="status-stat-bar-fill" [style.width.%]="card.share"></span>
+            </span>
+          </button>
+        }
+      </section>
+    }
+
     <div class="screen-toolbar">
       @if (calloverView() === 'pending' && calloverStore.calloverInitiated()) {
         <button type="button" class="called-over-btn" (click)="showCalledOverScreen()">

@@ -140,6 +140,42 @@ export class TellerCallover {
     () => !this.calloverStore.calloverInitiated() && this.calloverEligibleCount() > 0,
   );
 
+  readonly statusStatCards = computed(() => {
+    const batch = this.batchNumber().trim().toLowerCase();
+    const account = this.accountNumber().trim().toLowerCase();
+    const min = this.parseFilterAmount(this.amountMin());
+    const max = this.parseFilterAmount(this.amountMax());
+    const typeFilter = this.transactionTypeFilter();
+    const rows = this.calloverStore.rows().filter((row) =>
+      this.matchesNonStatusFilters(row, batch, account, typeFilter, min, max),
+    );
+
+    const counts: Record<CalloverTransStatusFilter, number> = {
+      all: rows.length,
+      applied: 0,
+      approved: 0,
+      unapproved: 0,
+      rejected: 0,
+      reversed: 0,
+    };
+    for (const row of rows) {
+      counts[row.transStatus] += 1;
+    }
+
+    return [
+      { id: 'all' as const, label: 'All' },
+      { id: 'applied' as const, label: 'Applied' },
+      { id: 'approved' as const, label: 'Approved' },
+      { id: 'unapproved' as const, label: 'Unapproved' },
+      { id: 'rejected' as const, label: 'Rejected' },
+      { id: 'reversed' as const, label: 'Reversed' },
+    ].map((card) => ({
+      ...card,
+      count: counts[card.id],
+      share: counts.all === 0 ? 0 : Math.round((counts[card.id] / counts.all) * 100),
+    }));
+  });
+
   readonly pendingTotalDebit = computed(() => this.sumDebit(this.pendingRows()));
   readonly pendingTotalCredit = computed(() => this.sumCredit(this.pendingRows()));
   readonly calledOverTotalDebit = computed(() => this.sumDebit(this.calledOverRows()));
