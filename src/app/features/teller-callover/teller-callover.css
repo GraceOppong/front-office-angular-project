@@ -413,10 +413,6 @@
   background: rgba(255, 255, 255, 0.14);
 }
 
-.back-pending-btn {
-  height: 2.05rem;
-}
-
 .called-over-screen .table-head {
   background: #f8fbfe;
 }
@@ -535,8 +531,8 @@
 }
 
 .col-reversal {
-  width: 3.25rem;
-  min-width: 3.25rem;
+  width: 4.35rem;
+  min-width: 4.35rem;
   text-align: center !important;
   padding-left: 0.35rem !important;
   padding-right: 0.2rem !important;
@@ -605,7 +601,7 @@
   text-align: right;
 }
 
-.col-value-date {
+.col-posting-date {
   width: 10%;
   white-space: nowrap;
 }

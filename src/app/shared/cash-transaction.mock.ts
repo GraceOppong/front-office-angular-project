@@ -1,6 +1,7 @@
 export interface AccountSnapshot {
   accountName: string;
   availableBalance: number;
+  ledgerBalance: number;
   clearedBalance: number;
   unclearedBalance: number;
   odAmount: number;
@@ -8,6 +9,7 @@ export interface AccountSnapshot {
   branch: string;
   product: string;
   currency: string;
+  phone: string;
 }
 
 const TEN_DIGIT_ACCOUNT = /^\d{10}$/;
@@ -27,6 +29,7 @@ export const CASH_TRANSACTION_MOCK_ACCOUNTS: Record<string, AccountSnapshot> = {
   '1002003004': {
     accountName: 'KWAME MENSAH CURRENT',
     availableBalance: 45820.55,
+    ledgerBalance: 45820.55,
     clearedBalance: 45200.55,
     unclearedBalance: 620,
     odAmount: 0,
@@ -34,10 +37,12 @@ export const CASH_TRANSACTION_MOCK_ACCOUNTS: Record<string, AccountSnapshot> = {
     branch: 'HEAD OFFICE',
     product: 'CURRENT ACCOUNT',
     currency: 'GHANA CEDIS',
+    phone: '0244112233',
   },
   '2003004005': {
     accountName: 'AMA ADJEI SAVINGS',
     availableBalance: 12840,
+    ledgerBalance: 12840,
     clearedBalance: 12840,
     unclearedBalance: 0,
     odAmount: 0,
@@ -45,6 +50,7 @@ export const CASH_TRANSACTION_MOCK_ACCOUNTS: Record<string, AccountSnapshot> = {
     branch: 'HEAD OFFICE',
     product: 'SAVINGS ACCOUNT',
     currency: 'GHANA CEDIS',
+    phone: '0205550123',
   },
 };
 
@@ -59,6 +65,7 @@ function buildSyntheticAccount(accountNumber: string): AccountSnapshot {
   return {
     accountName: `${SYNTHETIC_ACCOUNT_NAMES[nameIdx]} ${isSavings ? 'SAVINGS' : 'CURRENT'}`,
     availableBalance: cleared - block,
+    ledgerBalance: Math.round((cleared + uncleared) * 100) / 100,
     clearedBalance: cleared,
     unclearedBalance: uncleared,
     odAmount: 0,
@@ -66,6 +73,7 @@ function buildSyntheticAccount(accountNumber: string): AccountSnapshot {
     branch: 'HEAD OFFICE',
     product: isSavings ? 'SAVINGS ACCOUNT' : 'CURRENT ACCOUNT',
     currency: 'GHANA CEDIS',
+    phone: `024${accountNumber.slice(-7)}`,
   };
 }
 

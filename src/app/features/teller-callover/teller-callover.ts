@@ -7,11 +7,13 @@ import {
   parseAmountInput,
   restrictAmountTyping,
 } from '../../shared/amount-input';
+import { maskDmyInput, normalizeDmyDateInput, parseDmyDateInput } from '../../shared/business-date';
 import {
   CalloverRow,
   CalloverStore,
   TELLER_CALLOVER_JOURNAL_TITLE,
 } from '../../shared/callover.store';
+import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { SAME_DAY_REVERSAL_PATH } from '../../shared/same-day-reversal.mock';
@@ -54,7 +56,7 @@ const TRANS_STATUS_OPTIONS: { id: CalloverTransStatusFilter; label: string }[] =
 
 @Component({
   selector: 'app-teller-callover',
-  imports: [DecimalPipe, RouterLink, LucideUndo2, MessagePopup, FieldLabel],
+  imports: [DecimalPipe, RouterLink, LucideUndo2, MessagePopup, FieldLabel, DateInput],
   templateUrl: './teller-callover.html',
   styleUrl: './teller-callover.css',
 })
@@ -83,6 +85,12 @@ export class TellerCallover {
   readonly transStatusFilter = signal<CalloverTransStatusFilter>('all');
   private transStatusFilterBeforeInitiate: CalloverTransStatusFilter | null = null;
   readonly feedbackMessage = signal('');
+  readonly confirmPrompt = signal<{
+    action: 'callover-all' | 'uncheck-all';
+    title: string;
+    message: string;
+    confirmLabel: string;
+  } | null>(null);
   readonly selectedTransaction = signal<CalloverRow | null>(null);
   readonly detailsPanel = signal<'none' | 'voucher' | 'signature'>('none');
   readonly calloverView = signal<'pending' | 'called-over'>('pending');
@@ -96,43 +104,10 @@ export class TellerCallover {
     const statusFilter = this.transStatusFilter();
 
     return this.calloverStore.rows().filter((row) => {
-      const matchBatch = !batch || row.batchNo.toLowerCase().includes(batch);
-      if (!matchBatch) {
+      if (!this.matchesNonStatusFilters(row, batch, account, typeFilter, min, max)) {
         return false;
       }
-
-      const matchAccount =
-        !account || row.accountNumber.toLowerCase().includes(account);
-      if (!matchAccount) {
-        return false;
-      }
-
-      if (!this.matchesTransactionType(row, typeFilter)) {
-        return false;
-      }
-
-      if (!this.matchesTransStatus(row, statusFilter)) {
-        return false;
-      }
-
-      if (!this.matchesTransactionDate(row)) {
-        return false;
-      }
-
-      if (min !== null || max !== null) {
-        const amount = this.filterableAmount(row);
-        if (amount === null) {
-          return false;
-        }
-        if (min !== null && amount < min) {
-          return false;
-        }
-        if (max !== null && amount > max) {
-          return false;
-        }
-      }
-
-      return true;
+      return this.matchesTransStatus(row, statusFilter);
     });
   });
 
@@ -147,8 +122,22 @@ export class TellerCallover {
     () => this.filteredRows().length > 0 && this.pendingCount() === 0,
   );
 
+  readonly calloverEligibleCount = computed(() => {
+    const batch = this.batchNumber().trim().toLowerCase();
+    const account = this.accountNumber().trim().toLowerCase();
+    const min = this.parseFilterAmount(this.amountMin());
+    const max = this.parseFilterAmount(this.amountMax());
+    const typeFilter = this.transactionTypeFilter();
+
+    return this.calloverStore.rows().filter(
+      (row) =>
+        row.transStatus === 'applied' &&
+        this.matchesNonStatusFilters(row, batch, account, typeFilter, min, max),
+    ).length;
+  });
+
   readonly canInitiateCallover = computed(
-    () => !this.calloverStore.calloverInitiated() && this.count() > 0,
+    () => !this.calloverStore.calloverInitiated() && this.calloverEligibleCount() > 0,
   );
 
   readonly pendingTotalDebit = computed(() => this.sumDebit(this.pendingRows()));
@@ -181,11 +170,19 @@ export class TellerCallover {
   }
 
   onTransactionDateFromInput(value: string): void {
-    this.transactionDateFrom.set(value);
+    this.transactionDateFrom.set(maskDmyInput(value));
+  }
+
+  onTransactionDateFromBlur(): void {
+    this.transactionDateFrom.set(normalizeDmyDateInput(this.transactionDateFrom()));
   }
 
   onTransactionDateToInput(value: string): void {
-    this.transactionDateTo.set(value);
+    this.transactionDateTo.set(maskDmyInput(value));
+  }
+
+  onTransactionDateToBlur(): void {
+    this.transactionDateTo.set(normalizeDmyDateInput(this.transactionDateTo()));
   }
 
   setTransactionTypeFilter(value: CalloverTransactionFilter): void {
@@ -248,7 +245,7 @@ export class TellerCallover {
 
   openSameDayReversal(row: CalloverRow, event: Event): void {
     event.stopPropagation();
-    if (row.transStatus === 'reversed') {
+    if (!this.calloverStore.calloverInitiated() || row.ticked || row.transStatus === 'reversed') {
       return;
     }
     void this.router.navigate([SAME_DAY_REVERSAL_PATH], {
@@ -275,6 +272,41 @@ export class TellerCallover {
     return 'others';
   }
 
+  private matchesNonStatusFilters(
+    row: CalloverRow,
+    batch: string,
+    account: string,
+    typeFilter: CalloverTransactionFilter,
+    min: number | null,
+    max: number | null,
+  ): boolean {
+    if (batch && !row.batchNo.toLowerCase().includes(batch)) {
+      return false;
+    }
+    if (account && !row.accountNumber.toLowerCase().includes(account)) {
+      return false;
+    }
+    if (!this.matchesTransactionType(row, typeFilter)) {
+      return false;
+    }
+    if (!this.matchesTransactionDate(row)) {
+      return false;
+    }
+    if (min !== null || max !== null) {
+      const amount = this.filterableAmount(row);
+      if (amount === null) {
+        return false;
+      }
+      if (min !== null && amount < min) {
+        return false;
+      }
+      if (max !== null && amount > max) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private matchesTransactionType(row: CalloverRow, filter: CalloverTransactionFilter): boolean {
     if (filter === 'all') {
       return true;
@@ -290,8 +322,8 @@ export class TellerCallover {
   }
 
   private matchesTransactionDate(row: CalloverRow): boolean {
-    const from = this.parseIsoDateInput(this.transactionDateFrom());
-    const to = this.parseIsoDateInput(this.transactionDateTo());
+    const from = this.parseFilterDate(this.transactionDateFrom());
+    const to = this.parseFilterDate(this.transactionDateTo());
     if (from === null && to === null) {
       return true;
     }
@@ -340,25 +372,12 @@ export class TellerCallover {
     return Date.UTC(year, monthIndex, day);
   }
 
-  private parseIsoDateInput(value: string): number | null {
-    const trimmed = value.trim();
-    if (!trimmed) {
+  private parseFilterDate(value: string): number | null {
+    const parsed = parseDmyDateInput(value);
+    if (!parsed) {
       return null;
     }
-
-    const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (!match) {
-      return null;
-    }
-
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
-      return null;
-    }
-
-    return Date.UTC(year, month - 1, day);
+    return Date.UTC(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
   }
 
   private parseFilterAmount(value: string): number | null {
@@ -400,30 +419,80 @@ export class TellerCallover {
     return row.amount > 0 ? row.amount : null;
   }
 
-  tickAllPending(checked: boolean): void {
+  onPendingCheckAllClick(event: Event): void {
+    event.preventDefault();
+    if (!this.calloverStore.calloverInitiated() || this.count() === 0) {
+      return;
+    }
+    if (this.allTicked()) {
+      this.askUncheckAll();
+      return;
+    }
+    this.askCalloverAll();
+  }
+
+  onCalledOverCheckAllClick(event: Event): void {
+    event.preventDefault();
+    if (this.calledOverCount() === 0) {
+      return;
+    }
+    this.askUncheckAll();
+  }
+
+  onConfirmPromptClosed(): void {
+    this.confirmPrompt.set(null);
+  }
+
+  onConfirmPromptConfirmed(): void {
+    const prompt = this.confirmPrompt();
+    this.confirmPrompt.set(null);
+    if (prompt?.action === 'callover-all') {
+      this.applyCalloverAll();
+      return;
+    }
+    if (prompt?.action === 'uncheck-all') {
+      this.uncheckAllCalledOver();
+    }
+  }
+
+  private askCalloverAll(): void {
+    const count = this.pendingCount();
+    if (count === 0) {
+      return;
+    }
+    this.confirmPrompt.set({
+      action: 'callover-all',
+      title: 'Call over all?',
+      message: `Call over all ${count} pending transaction${count === 1 ? '' : 's'}? They will move to Called over.`,
+      confirmLabel: 'Call over all',
+    });
+  }
+
+  private askUncheckAll(): void {
+    const count = this.calledOverCount();
+    if (count === 0) {
+      return;
+    }
+    this.confirmPrompt.set({
+      action: 'uncheck-all',
+      title: 'Uncheck all?',
+      message: `Return all ${count} called over transaction${count === 1 ? '' : 's'} to pending callover?`,
+      confirmLabel: 'Uncheck all',
+    });
+  }
+
+  private applyCalloverAll(): void {
     if (!this.calloverStore.calloverInitiated()) {
       return;
     }
-
-    if (checked) {
-      for (const row of this.pendingRows()) {
-        this.toggleTick(row.id, true);
-      }
-      return;
+    for (const row of this.pendingRows()) {
+      this.toggleTick(row.id, true);
     }
-
-    this.uncheckAllCalledOver();
   }
 
-  uncheckAllCalledOver(): void {
+  private uncheckAllCalledOver(): void {
     for (const row of this.calledOverRows()) {
       this.toggleTick(row.id, false);
-    }
-  }
-
-  onCalledOverCheckAll(checked: boolean): void {
-    if (!checked) {
-      this.uncheckAllCalledOver();
     }
   }
 
@@ -441,14 +510,12 @@ export class TellerCallover {
   }
 
   onInitiateCallover(): void {
-    const total = this.filteredRows().length;
-
     if (this.calloverStore.calloverInitiated()) {
       return;
     }
 
-    if (total === 0) {
-      this.feedbackMessage.set('No transactions available for callover.');
+    if (this.calloverEligibleCount() === 0) {
+      this.feedbackMessage.set('No applied transactions available for callover.');
       return;
     }
 
@@ -534,7 +601,7 @@ export class TellerCallover {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               }),
-        'Value Date': row.valueDate,
+        'Posting Date': row.postingDate,
         Status: row.ticked ? 'Called over' : 'Pending',
         Ticked: row.ticked ? 'Yes' : 'No',
       };

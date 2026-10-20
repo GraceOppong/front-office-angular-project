@@ -344,7 +344,8 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   white-space: nowrap;
 }
 
-.batch-table tbody td.col-qty .qty-field {
+.batch-table tbody td.col-qty .qty-field,
+.batch-table tbody td.col-amount .qty-field {
   margin-left: auto;
   display: block;
   text-align: right;
@@ -425,12 +426,20 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   width: 1.38rem;
   height: 1.38rem;
   border-radius: 7px;
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: #fff;
   box-shadow: 0 1px 3px rgba(15, 40, 70, 0.12);
+}
+
+app-teller-activities .label-icon {
+  display: inline-flex;
+}
+
+.modal-backdrop .label-icon {
+  display: none;
 }
 
 .label-icon.is-trans { background: #5925dc; }

@@ -29,6 +29,7 @@ export class SameDayReversal implements OnDestroy {
   private static readonly ENTER_LOOKUP_MS = 420;
 
   readonly transNo = signal('');
+  readonly transactionDetails2 = signal('');
   readonly reversal = signal<SameDayReversalView | null>(null);
   readonly lookupHint = signal('');
   readonly lookupLoading = signal(false);
@@ -68,6 +69,7 @@ export class SameDayReversal implements OnDestroy {
     if (!value.trim()) {
       this.clearLookupSchedule();
       this.reversal.set(null);
+      this.transactionDetails2.set('');
       this.lookupHint.set('');
       this.lookupLoading.set(false);
       return;
@@ -86,6 +88,10 @@ export class SameDayReversal implements OnDestroy {
     event.preventDefault();
     this.clearLookupSchedule();
     this.runLookupWithDelay(true);
+  }
+
+  onTransactionDetails2Input(value: string): void {
+    this.transactionDetails2.set(value);
   }
 
   private scheduleLookup(): void {
@@ -113,6 +119,7 @@ export class SameDayReversal implements OnDestroy {
   private beginLookup(): void {
     this.lookupLoading.set(true);
     this.reversal.set(null);
+    this.transactionDetails2.set('');
     this.lookupHint.set('');
   }
 
@@ -120,6 +127,7 @@ export class SameDayReversal implements OnDestroy {
     const input = this.transNo().trim();
     if (!input) {
       this.reversal.set(null);
+      this.transactionDetails2.set('');
       this.lookupHint.set('');
       this.lookupLoading.set(false);
       return;
@@ -127,6 +135,7 @@ export class SameDayReversal implements OnDestroy {
 
     if (input.length < 5) {
       this.reversal.set(null);
+      this.transactionDetails2.set('');
       this.lookupHint.set('');
       this.lookupLoading.set(false);
       return;
@@ -158,6 +167,7 @@ export class SameDayReversal implements OnDestroy {
 
     if (!match) {
       this.reversal.set(null);
+      this.transactionDetails2.set('');
       this.lookupHint.set('No transaction found for that number. Try a callover/journal trans no (e.g. TXN-88011).');
       this.lookupLoading.set(false);
       return;
@@ -165,6 +175,7 @@ export class SameDayReversal implements OnDestroy {
 
     this.transNo.set(match.transNo);
     this.reversal.set(match);
+    this.transactionDetails2.set(match.transactionDetails2);
     this.lookupHint.set('');
     this.lookupLoading.set(false);
   }
@@ -189,6 +200,7 @@ export class SameDayReversal implements OnDestroy {
     this.clearLookupDelay();
     this.transNo.set('');
     this.reversal.set(null);
+    this.transactionDetails2.set('');
     this.lookupHint.set('');
     this.lookupLoading.set(false);
   }

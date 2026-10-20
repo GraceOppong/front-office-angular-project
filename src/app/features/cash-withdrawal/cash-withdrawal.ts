@@ -1,8 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  businessDateFromIsoDateInput,
-  toIsoDateInputValue,
+  businessDateFromDmyDateInput,
+  finalizeVoucherDateInput,
+  maskDmyInput,
 } from '../../shared/business-date';
 import { CalloverStore, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 import { TillStore } from '../../shared/till.store';
@@ -25,8 +26,10 @@ import {
   resolveDenominationTargetAmount,
 } from '../../shared/cash-denomination.helpers';
 import { DenominationLine } from '../../shared/till.store';
-import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
+import { WorkspaceCurrencyStore, toCurrencyCode } from '../../shared/workspace-currency.store';
+import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { calculateCashCharges } from '../../shared/cash-charges';
 import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
@@ -37,7 +40,7 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-withdrawal',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel],
+  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel, DateInput],
   templateUrl: './cash-withdrawal.html',
   styleUrl: '../cash-deposit/cash-deposit.css',
 })
@@ -49,6 +52,7 @@ export class CashWithdrawal {
 
   readonly sourceOfFundsOptions = ['Cash', 'Cheque', 'Transfer', 'Other'];
   readonly formatAmount = formatCashAmount;
+  readonly toCurrencyCode = toCurrencyCode;
 
   readonly debitAccount = signal('');
   readonly accountNumberMaxLength = ACCOUNT_NUMBER_LENGTH;
@@ -66,9 +70,8 @@ export class CashWithdrawal {
   );
   readonly accountSnapshot = this.accountLookupHandlers.accountSnapshot;
   readonly accountName = this.accountLookupHandlers.accountName;
-  readonly maxVoucherDateIso = toIsoDateInputValue();
-  readonly voucherDateIso = signal(this.maxVoucherDateIso);
-  readonly voucherDate = computed(() => businessDateFromIsoDateInput(this.voucherDateIso()));
+  readonly voucherDateDmy = signal('');
+  readonly voucherDate = computed(() => businessDateFromDmyDateInput(this.voucherDateDmy()));
   readonly amount = signal('');
   readonly voucherRef = signal('');
   readonly sourceOfFunds = signal('');
@@ -95,16 +98,29 @@ export class CashWithdrawal {
     return amount !== null && amount > SOURCE_OF_FUNDS_THRESHOLD;
   });
 
+  readonly charges = computed(() => calculateCashCharges(parseAmountInput(this.amount())));
+  readonly showCharges = computed(() => {
+    const amount = parseAmountInput(this.amount());
+    return amount !== null && amount > 0;
+  });
+
+  readonly displayPhone = computed(() => {
+    if (this.thirdParty() === 'yes') {
+      return this.amlThirdPartyCaptured() ? this.amlThirdPartyDetails().phone.trim() : '';
+    }
+    return this.showAccountInformation() ? (this.accountSnapshot()?.phone ?? '') : '';
+  });
+
   onDebitAccountInput(value: string): void {
     this.accountLookupHandlers.onAccountNumberInput(value);
   }
 
-  onVoucherDateChange(value: string): void {
-    if (!value || value > this.maxVoucherDateIso) {
-      this.voucherDateIso.set(this.maxVoucherDateIso);
-      return;
-    }
-    this.voucherDateIso.set(value);
+  onVoucherDateInput(value: string): void {
+    this.voucherDateDmy.set(maskDmyInput(value));
+  }
+
+  onVoucherDateBlur(): void {
+    this.voucherDateDmy.set(finalizeVoucherDateInput(this.voucherDateDmy()));
   }
 
   onDebitAccountBlur(): void {

@@ -45,7 +45,12 @@ export class MessagePopup {
   readonly title = input('Notice');
   /** When omitted, variant is inferred from the message text. */
   readonly variant = input<MessagePopupVariant | undefined>(undefined);
+  readonly confirmLabel = input('');
+  readonly cancelLabel = input('Cancel');
   readonly closed = output<void>();
+  readonly confirmed = output<void>();
+
+  readonly isConfirm = computed(() => this.confirmLabel().trim().length > 0);
 
   readonly resolvedVariant = computed((): MessagePopupVariant => {
     const explicit = this.variant();
@@ -66,5 +71,9 @@ export class MessagePopup {
 
   onBackdropClick(): void {
     this.dismiss();
+  }
+
+  confirm(): void {
+    this.confirmed.emit();
   }
 }

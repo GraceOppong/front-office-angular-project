@@ -6,11 +6,17 @@ import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import {
+  amountDraftFromQuantity,
+  parseWholeAmountInput,
+  quantityFromEnteredAmount,
+} from '../../shared/cash-denomination.helpers';
 
 interface TransferRow {
   denomination: string;
   selected: boolean;
   quantity: number;
+  amountDraft: string;
 }
 
 @Component({
@@ -36,6 +42,7 @@ export class TransferCash {
       denomination: String(denom),
       selected: false,
       quantity: 0,
+      amountDraft: '',
     })),
   );
 
@@ -65,45 +72,59 @@ export class TransferCash {
 
   toggleSelected(denomination: string, checked: boolean): void {
     this.rows.update((rows) =>
-      rows.map((row) =>
-        row.denomination === denomination
-          ? {
-              ...row,
-              selected: checked,
-              quantity: checked ? Math.max(row.quantity, 1) : 0,
-            }
-          : row,
-      ),
+      rows.map((row) => {
+        if (row.denomination !== denomination) {
+          return row;
+        }
+        return {
+          ...row,
+          selected: checked,
+          quantity: checked ? row.quantity : 0,
+          amountDraft: checked ? row.amountDraft : '',
+        };
+      }),
     );
   }
 
-  onQuantityInput(denomination: string, value: string): void {
-    const parsed = Number(value);
-    const quantity = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 0;
+  onAmountInput(denomination: string, value: string): void {
+    const digits = value.replace(/\D/g, '');
+    const enteredAmount = parseWholeAmountInput(digits);
+    const denomValue = Number(denomination);
     const available = this.tillStore.availableQuantity(denomination);
-    const capped = Math.min(quantity, available);
+    const uncapped = quantityFromEnteredAmount(enteredAmount, denomValue);
+    const quantity = quantityFromEnteredAmount(enteredAmount, denomValue, available);
 
     this.rows.update((rows) =>
       rows.map((row) =>
         row.denomination === denomination
           ? {
               ...row,
-              selected: capped > 0 ? true : row.selected,
-              quantity: capped,
+              selected: quantity > 0 ? true : row.selected,
+              quantity,
+              amountDraft: digits,
             }
           : row,
       ),
     );
 
-    if (quantity > available) {
+    if (uncapped > available) {
       this.feedbackMessage.set(
         `Only ${available} notes/coins available for denomination ${denomination}.`,
       );
     }
   }
 
-  rowAmount(row: TransferRow): number {
-    return row.selected ? row.quantity * Number(row.denomination) : 0;
+  onAmountBlur(denomination: string): void {
+    this.rows.update((rows) =>
+      rows.map((row) =>
+        row.denomination === denomination
+          ? {
+              ...row,
+              amountDraft: amountDraftFromQuantity(row.quantity, Number(row.denomination)),
+            }
+          : row,
+      ),
+    );
   }
 
   availableFor(denomination: string): number {
@@ -131,7 +152,7 @@ export class TransferCash {
 
     const lines = this.selectedLines();
     if (lines.length === 0) {
-      this.feedbackMessage.set('Select at least one denomination and enter quantity.');
+      this.feedbackMessage.set('Select at least one denomination and enter amount.');
       return;
     }
 
@@ -166,6 +187,7 @@ export class TransferCash {
         denomination: String(denom),
         selected: false,
         quantity: 0,
+        amountDraft: '',
       })),
     );
   }

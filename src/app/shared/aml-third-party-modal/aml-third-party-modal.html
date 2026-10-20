@@ -9,7 +9,7 @@
     <header class="modal-header">
       <div class="heading-block">
         <h2 id="amlThirdPartyTitle">AML Third Party</h2>
-        <p class="modal-caption">Third-party customer information</p>
+        <p class="modal-caption">{{ currentStep().label }} details · Step {{ stepIndex() + 1 }} of {{ steps.length }}</p>
       </div>
       <button type="button" class="close-icon-btn" (click)="onCancel()" aria-label="Close" title="Close">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -21,334 +21,370 @@
       </button>
     </header>
 
-    <div class="modal-body aml-body-grid">
+    <nav class="aml-stepper" aria-label="Third party sections">
+      @for (step of steps; track step.id; let i = $index) {
+        <button
+          type="button"
+          class="aml-step"
+          [class.is-active]="stepIndex() === i"
+          [class.is-done]="maxReached() > i && stepIndex() !== i"
+          [disabled]="i > maxReached()"
+          (click)="goToStep(i)"
+        >
+          <span class="aml-step-index" aria-hidden="true">{{ maxReached() > i && stepIndex() !== i ? '✓' : i + 1 }}</span>
+          <span class="aml-step-label">{{ step.label }}</span>
+        </button>
+        @if (i < steps.length - 1) {
+          <span class="aml-step-rule" [class.is-done]="maxReached() > i" aria-hidden="true"></span>
+        }
+      }
+    </nav>
+
+    <div class="modal-body">
       @if (formError()) {
         <p class="form-error" role="alert">{{ formError() }}</p>
       }
 
-      <section class="aml-section">
-        <h3 class="section-heading">Personal Details</h3>
-        <div class="aml-grid">
-          <div class="aml-field">
-            <app-field-label forId="amlTitle" icon="title" text="Title" />
-            <select
-              id="amlTitle"
-              class="field select-field"
-              [class.is-placeholder]="!draft().title"
-              [value]="draft().title"
-              (change)="patchField('title', $any($event.target).value)"
-            >
-              <option value="" disabled hidden>Select</option>
-              @for (item of titleOptions; track item) {
-                <option [value]="item">{{ item }}</option>
-              }
-            </select>
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlFirstName" icon="user" [required]="true" text="First Name" />
-            <input
-              id="amlFirstName"
-              type="text"
-              class="field"
-              [value]="draft().firstName"
-              (input)="patchField('firstName', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlSurname" icon="user" [required]="true" text="Surname" />
-            <input
-              id="amlSurname"
-              type="text"
-              class="field"
-              [value]="draft().surname"
-              (input)="patchField('surname', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlMiddleName" icon="user" text="Middle Name" />
-            <input
-              id="amlMiddleName"
-              type="text"
-              class="field"
-              [value]="draft().middleName"
-              (input)="patchField('middleName', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlAlias" icon="user" text="Alias" />
-            <input
-              id="amlAlias"
-              type="text"
-              class="field"
-              [value]="draft().alias"
-              (input)="patchField('alias', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlGender" icon="gender" text="Gender" />
-            <select
-              id="amlGender"
-              class="field select-field"
-              [class.is-placeholder]="!draft().gender"
-              [value]="draft().gender"
-              (change)="patchField('gender', $any($event.target).value)"
-            >
-              <option value="" disabled hidden>Select</option>
-              @for (item of genderOptions; track item) {
-                <option [value]="item">{{ item }}</option>
-              }
-            </select>
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlDob" icon="calendar" text="Date of Birth" />
-            <input
-              id="amlDob"
-              type="date"
-              class="field"
-              [value]="draft().dateOfBirth"
-              (input)="patchField('dateOfBirth', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlPob" icon="home" text="Place of Birth" />
-            <input
-              id="amlPob"
-              type="text"
-              class="field"
-              [value]="draft().placeOfBirth"
-              (input)="patchField('placeOfBirth', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlMothersName" icon="user" text="Mother's Name" />
-            <input
-              id="amlMothersName"
-              type="text"
-              class="field"
-              [value]="draft().mothersName"
-              (input)="patchField('mothersName', $any($event.target).value)"
-            />
-          </div>
-        </div>
-      </section>
-
-      <section class="aml-section">
-        <h3 class="section-heading">Other Details</h3>
-        <div class="aml-grid">
-          <div class="aml-field">
-            <app-field-label forId="amlOccupation" icon="briefcase" text="Occupation" />
-            <input
-              id="amlOccupation"
-              type="text"
-              class="field"
-              [value]="draft().occupation"
-              (input)="patchField('occupation', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlSourceOfWealth" icon="funds" text="Source of Wealth" />
-            <input
-              id="amlSourceOfWealth"
-              type="text"
-              class="field"
-              [value]="draft().sourceOfWealth"
-              (input)="patchField('sourceOfWealth', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlPhone" icon="phone" text="Phone" />
-            <input
-              id="amlPhone"
-              type="tel"
-              class="field"
-              [value]="draft().phone"
-              (input)="patchField('phone', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlEmail" icon="mail" text="Email" />
-            <input
-              id="amlEmail"
-              type="email"
-              class="field"
-              [value]="draft().email"
-              (input)="patchField('email', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlResidence" icon="home" text="Residence" />
-            <input
-              id="amlResidence"
-              type="text"
-              class="field"
-              [value]="draft().residence"
-              (input)="patchField('residence', $any($event.target).value)"
-            />
-          </div>
-          @for (nationality of draft().nationalities; track $index) {
-            <div class="aml-field nationality-field">
-              <app-field-label
-                [forId]="'amlNationality' + $index"
-                icon="globe"
-                [text]="'Nationality' + (draft().nationalities.length > 1 ? ' ' + ($index + 1) : '')"
-              />
-              <div class="nationality-row">
-                <input
-                  [id]="'amlNationality' + $index"
-                  type="text"
-                  class="field"
-                  placeholder="Country"
-                  [value]="nationality"
-                  (input)="onNationalityInput($index, $any($event.target).value)"
-                />
-                @if (draft().nationalities.length > 1) {
-                  <button
-                    type="button"
-                    class="btn-icon-remove"
-                    aria-label="Remove nationality"
-                    title="Remove"
-                    (click)="removeNationality($index)"
-                  >
-                    ×
-                  </button>
+      @if (currentStep().id === 'personal') {
+        <section class="aml-section">
+          <h3 class="section-heading">Personal Details</h3>
+          <div class="aml-grid">
+            <div class="aml-title-row">
+            <div class="aml-title-pair">
+            <div class="aml-field is-title">
+              <app-field-label forId="amlTitle" icon="title" text="Title" />
+              <select
+                id="amlTitle"
+                class="field select-field"
+                [class.is-placeholder]="!draft().title"
+                [value]="draft().title"
+                (change)="patchField('title', $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of titleOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
                 }
-              </div>
+              </select>
             </div>
-          }
-          <div class="aml-field aml-field-action">
-            <span class="field-label-spacer" aria-hidden="true">&nbsp;</span>
-            <button type="button" class="btn btn-soft btn-add" (click)="addNationality()">
-              + Add nationality
-            </button>
+            <div class="aml-field is-gender">
+              <app-field-label forId="amlGender" icon="gender" text="Gender" />
+              <select
+                id="amlGender"
+                class="field select-field"
+                [class.is-placeholder]="!draft().gender"
+                [value]="draft().gender"
+                (change)="patchField('gender', $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of genderOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+            </div>
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlFirstName" icon="user" [required]="true" text="First Name" />
+              <input
+                id="amlFirstName"
+                type="text"
+                class="field"
+                [value]="draft().firstName"
+                (input)="patchField('firstName', $any($event.target).value)"
+              />
+            </div>
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlSurname" icon="user" [required]="true" text="Surname" />
+              <input
+                id="amlSurname"
+                type="text"
+                class="field"
+                [value]="draft().surname"
+                (input)="patchField('surname', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlMiddleName" icon="user" text="Middle Name" />
+              <input
+                id="amlMiddleName"
+                type="text"
+                class="field"
+                [value]="draft().middleName"
+                (input)="patchField('middleName', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlAlias" icon="user" text="Alias" />
+              <input
+                id="amlAlias"
+                type="text"
+                class="field"
+                [value]="draft().alias"
+                (input)="patchField('alias', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field is-date">
+              <app-field-label forId="amlDob" icon="calendar" text="Date of Birth" />
+              <app-date-input
+                inputId="amlDob"
+                [value]="draft().dateOfBirth"
+                (valueChange)="onDateInput('dateOfBirth', $event)"
+                (blurred)="onDateBlur('dateOfBirth')"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlPob" icon="home" text="Place of Birth" />
+              <input
+                id="amlPob"
+                type="text"
+                class="field"
+                [value]="draft().placeOfBirth"
+                (input)="patchField('placeOfBirth', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field span-2">
+              <app-field-label forId="amlMothersName" icon="user" text="Mother's Name" />
+              <input
+                id="amlMothersName"
+                type="text"
+                class="field"
+                [value]="draft().mothersName"
+                (input)="patchField('mothersName', $any($event.target).value)"
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      }
 
-      <section class="aml-section is-lower-row">
-        <h3 class="section-heading">ID Details</h3>
-        <div class="aml-grid">
-          <div class="aml-field">
-            <app-field-label forId="amlIdType" icon="type" text="ID Type" />
-            <select
-              id="amlIdType"
-              class="field select-field"
-              [class.is-placeholder]="!draft().idType"
-              [value]="draft().idType"
-              (change)="patchField('idType', $any($event.target).value)"
-            >
-              <option value="" disabled hidden>Select</option>
-              @for (item of idTypeOptions; track item) {
-                <option [value]="item">{{ item }}</option>
-              }
-            </select>
+      @if (currentStep().id === 'other') {
+        <section class="aml-section">
+          <h3 class="section-heading">Contact Details</h3>
+          <div class="aml-grid">
+            <div class="aml-field">
+              <app-field-label forId="amlPhone" icon="phone" text="Phone" />
+              <input
+                id="amlPhone"
+                type="tel"
+                class="field"
+                [value]="draft().phone"
+                (input)="patchField('phone', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlEmail" icon="mail" text="Email" />
+              <input
+                id="amlEmail"
+                type="email"
+                class="field"
+                [value]="draft().email"
+                (input)="patchField('email', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlOccupation" icon="briefcase" text="Occupation" />
+              <input
+                id="amlOccupation"
+                type="text"
+                class="field"
+                [value]="draft().occupation"
+                (input)="patchField('occupation', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlSourceOfWealth" icon="funds" text="Source of Wealth" />
+              <input
+                id="amlSourceOfWealth"
+                type="text"
+                class="field"
+                [value]="draft().sourceOfWealth"
+                (input)="patchField('sourceOfWealth', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field span-2">
+              <app-field-label forId="amlResidence" icon="home" text="Residence" />
+              <input
+                id="amlResidence"
+                type="text"
+                class="field"
+                [value]="draft().residence"
+                (input)="patchField('residence', $any($event.target).value)"
+              />
+            </div>
+            @for (nationality of draft().nationalities; track $index) {
+              <div class="aml-field nationality-field" [class.span-2]="draft().nationalities.length === 1">
+                <app-field-label
+                  [forId]="'amlNationality' + $index"
+                  icon="globe"
+                  [text]="'Nationality' + (draft().nationalities.length > 1 ? ' ' + ($index + 1) : '')"
+                />
+                <div class="nationality-row">
+                  <input
+                    [id]="'amlNationality' + $index"
+                    type="text"
+                    class="field"
+                    placeholder="Country"
+                    [value]="nationality"
+                    (input)="onNationalityInput($index, $any($event.target).value)"
+                  />
+                  @if (draft().nationalities.length > 1) {
+                    <button
+                      type="button"
+                      class="btn-icon-remove"
+                      aria-label="Remove nationality"
+                      title="Remove"
+                      (click)="removeNationality($index)"
+                    >
+                      ×
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+            <div class="aml-field aml-field-action">
+              <span class="field-label-spacer" aria-hidden="true">&nbsp;</span>
+              <button type="button" class="btn btn-soft btn-add" (click)="addNationality()">
+                + Add nationality
+              </button>
+            </div>
           </div>
-          <div class="aml-field">
-            <app-field-label forId="amlIdNumber" icon="id" [required]="true" text="ID Number" />
-            <input
-              id="amlIdNumber"
-              type="text"
-              class="field"
-              [value]="draft().idNumber"
-              (input)="patchField('idNumber', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlIdIssue" icon="calendar" text="Date of Issue" />
-            <input
-              id="amlIdIssue"
-              type="date"
-              class="field"
-              [value]="draft().idIssueDate"
-              (input)="patchField('idIssueDate', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlIdExpiry" icon="calendar" text="Expiry Date" />
-            <input
-              id="amlIdExpiry"
-              type="date"
-              class="field"
-              [value]="draft().idExpiryDate"
-              (input)="patchField('idExpiryDate', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlIdCountry" icon="globe" text="Issuing Country" />
-            <input
-              id="amlIdCountry"
-              type="text"
-              class="field"
-              [value]="draft().idIssuingCountry"
-              (input)="patchField('idIssuingCountry', $any($event.target).value)"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      }
 
-      <section class="aml-section is-lower-row">
-        <h3 class="section-heading">Employer Details</h3>
-        <div class="aml-grid">
-          <div class="aml-field">
-            <app-field-label forId="amlEmployerName" icon="building" text="Employer Name" />
-            <input
-              id="amlEmployerName"
-              type="text"
-              class="field"
-              [value]="draft().employerName"
-              (input)="patchField('employerName', $any($event.target).value)"
-            />
+      @if (currentStep().id === 'id') {
+        <section class="aml-section">
+          <h3 class="section-heading">ID Details</h3>
+          <div class="aml-grid">
+            <div class="aml-field">
+              <app-field-label forId="amlIdType" icon="type" text="ID Type" />
+              <select
+                id="amlIdType"
+                class="field select-field"
+                [class.is-placeholder]="!draft().idType"
+                [value]="draft().idType"
+                (change)="patchField('idType', $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of idTypeOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlIdNumber" icon="id" [required]="true" text="ID Number" />
+              <input
+                id="amlIdNumber"
+                type="text"
+                class="field"
+                [value]="draft().idNumber"
+                (input)="patchField('idNumber', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field is-date">
+              <app-field-label forId="amlIdIssue" icon="calendar" text="Date of Issue" />
+              <app-date-input
+                inputId="amlIdIssue"
+                [value]="draft().idIssueDate"
+                (valueChange)="onDateInput('idIssueDate', $event)"
+                (blurred)="onDateBlur('idIssueDate')"
+              />
+            </div>
+            <div class="aml-field is-date">
+              <app-field-label forId="amlIdExpiry" icon="calendar" text="Expiry Date" />
+              <app-date-input
+                inputId="amlIdExpiry"
+                [value]="draft().idExpiryDate"
+                (valueChange)="onDateInput('idExpiryDate', $event)"
+                (blurred)="onDateBlur('idExpiryDate')"
+              />
+            </div>
+            <div class="aml-field span-2">
+              <app-field-label forId="amlIdCountry" icon="globe" text="Issuing Country" />
+              <input
+                id="amlIdCountry"
+                type="text"
+                class="field"
+                [value]="draft().idIssuingCountry"
+                (input)="patchField('idIssuingCountry', $any($event.target).value)"
+              />
+            </div>
           </div>
-          <div class="aml-field">
-            <app-field-label forId="amlJobTitle" icon="title" text="Job Title" />
-            <input
-              id="amlJobTitle"
-              type="text"
-              class="field"
-              [value]="draft().jobTitle"
-              (input)="patchField('jobTitle', $any($event.target).value)"
-            />
+        </section>
+      }
+
+      @if (currentStep().id === 'employer') {
+        <section class="aml-section">
+          <h3 class="section-heading">Employer Details</h3>
+          <div class="aml-grid">
+            <div class="aml-field">
+              <app-field-label forId="amlEmployerName" icon="building" text="Employer Name" />
+              <input
+                id="amlEmployerName"
+                type="text"
+                class="field"
+                [value]="draft().employerName"
+                (input)="patchField('employerName', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlJobTitle" icon="title" text="Job Title" />
+              <input
+                id="amlJobTitle"
+                type="text"
+                class="field"
+                [value]="draft().jobTitle"
+                (input)="patchField('jobTitle', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlEmploymentStatus" icon="status" text="Employment Status" />
+              <select
+                id="amlEmploymentStatus"
+                class="field select-field"
+                [class.is-placeholder]="!draft().employmentStatus"
+                [value]="draft().employmentStatus"
+                (change)="patchField('employmentStatus', $any($event.target).value)"
+              >
+                <option value="" disabled hidden>Select</option>
+                @for (item of employmentStatusOptions; track item) {
+                  <option [value]="item">{{ item }}</option>
+                }
+              </select>
+            </div>
+            <div class="aml-field">
+              <app-field-label forId="amlEmployerPhone" icon="phone" text="Employer Phone" />
+              <input
+                id="amlEmployerPhone"
+                type="tel"
+                class="field"
+                [value]="draft().employerPhone"
+                (input)="patchField('employerPhone', $any($event.target).value)"
+              />
+            </div>
+            <div class="aml-field span-2">
+              <app-field-label forId="amlEmployerAddress" icon="home" text="Employer Address" />
+              <input
+                id="amlEmployerAddress"
+                type="text"
+                class="field"
+                [value]="draft().employerAddress"
+                (input)="patchField('employerAddress', $any($event.target).value)"
+              />
+            </div>
           </div>
-          <div class="aml-field">
-            <app-field-label forId="amlEmploymentStatus" icon="status" text="Employment Status" />
-            <select
-              id="amlEmploymentStatus"
-              class="field select-field"
-              [class.is-placeholder]="!draft().employmentStatus"
-              [value]="draft().employmentStatus"
-              (change)="patchField('employmentStatus', $any($event.target).value)"
-            >
-              <option value="" disabled hidden>Select</option>
-              @for (item of employmentStatusOptions; track item) {
-                <option [value]="item">{{ item }}</option>
-              }
-            </select>
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlEmployerPhone" icon="phone" text="Employer Phone" />
-            <input
-              id="amlEmployerPhone"
-              type="tel"
-              class="field"
-              [value]="draft().employerPhone"
-              (input)="patchField('employerPhone', $any($event.target).value)"
-            />
-          </div>
-          <div class="aml-field">
-            <app-field-label forId="amlEmployerAddress" icon="home" text="Employer Address" />
-            <input
-              id="amlEmployerAddress"
-              type="text"
-              class="field"
-              [value]="draft().employerAddress"
-              (input)="patchField('employerAddress', $any($event.target).value)"
-            />
-          </div>
-        </div>
-      </section>
+        </section>
+      }
     </div>
 
     <footer class="modal-footer">
-      <button type="button" class="btn btn-primary" (click)="onSave()">Save</button>
+      @if (!isFirstStep()) {
+        <button type="button" class="btn btn-soft" (click)="goPrevious()">Previous</button>
+      }
+      <span class="footer-spacer"></span>
+      @if (!isLastStep()) {
+        <button type="button" class="btn btn-primary" (click)="goNext()">Next</button>
+      } @else {
+        <button type="button" class="btn btn-primary" (click)="onSave()">Save</button>
+      }
     </footer>
   </div>
 </div>

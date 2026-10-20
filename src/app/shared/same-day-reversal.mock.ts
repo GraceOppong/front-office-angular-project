@@ -69,7 +69,7 @@ function mapRowToView(
     transactionType: transactionTypeLabel(details),
     valueDate: row.valueDate,
     transactionDetails1: details,
-    transactionDetails2: `Batch ${row.batchNo} · Voucher ${row.voucherNumber}`,
+    transactionDetails2: `REVERSAL OF ${details}`,
     denominations: isCash && amount > 0 ? breakIntoDenominations(amount) : [],
   };
 }

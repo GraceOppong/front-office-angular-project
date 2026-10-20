@@ -9,10 +9,16 @@ import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import {
+  amountDraftFromQuantity,
+  parseWholeAmountInput,
+  quantityFromEnteredAmount,
+} from '../../shared/cash-denomination.helpers';
 
 interface IssueRow {
   denomination: string;
   quantity: number;
+  amountDraft: string;
 }
 
 @Component({
@@ -124,14 +130,12 @@ export class Vault {
   }
 
   startIssue(request: CashRequestRow): void {
-    const suggested = this.tillStore.breakIntoDenominations(request.transAmount);
-    const qtyMap = new Map(suggested.map((line) => [line.denomination, line.quantity]));
-
     this.issuingRequest.set(request);
     this.issueRows.set(
       DEFAULT_DENOMS.map((denom) => ({
         denomination: String(denom),
-        quantity: qtyMap.get(String(denom)) ?? 0,
+        quantity: 0,
+        amountDraft: '',
       })),
     );
     this.issueFeedback.set('');
@@ -143,21 +147,36 @@ export class Vault {
     this.issueFeedback.set('');
   }
 
-  onIssueQuantityInput(denomination: string, value: string): void {
-    const parsed = Number(value);
-    const quantity = Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 0;
+  onIssueAmountInput(denomination: string, value: string): void {
+    const digits = value.replace(/\D/g, '');
+    const enteredAmount = parseWholeAmountInput(digits);
+    const denomValue = Number(denomination);
     const available = this.vaultStore.availableQuantity(denomination);
-    const capped = Math.min(quantity, available);
+    const uncapped = quantityFromEnteredAmount(enteredAmount, denomValue);
+    const quantity = quantityFromEnteredAmount(enteredAmount, denomValue, available);
 
     this.issueRows.update((rows) =>
       rows.map((row) =>
-        row.denomination === denomination ? { ...row, quantity: capped } : row,
+        row.denomination === denomination ? { ...row, quantity, amountDraft: digits } : row,
       ),
     );
 
-    if (quantity > available) {
+    if (uncapped > available) {
       this.issueFeedback.set(`Only ${available} available for denomination ${denomination}.`);
     }
+  }
+
+  onIssueAmountBlur(denomination: string): void {
+    this.issueRows.update((rows) =>
+      rows.map((row) =>
+        row.denomination === denomination
+          ? {
+              ...row,
+              amountDraft: amountDraftFromQuantity(row.quantity, Number(row.denomination)),
+            }
+          : row,
+      ),
+    );
   }
 
   sendIssue(): void {

@@ -1,117 +1,118 @@
 <div class="modal-backdrop" (click)="onBackdropClick()" role="presentation">
   <div
-    class="modal-dialog is-wide"
+    class="modal-dialog"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="cashDenomTitle"
+    [attr.aria-label]="modeLabel() + ' denominations'"
     (click)="onDialogClick($event)"
   >
-    <header class="modal-header">
-      <div class="heading-block">
-        <h2 id="cashDenomTitle">{{ modeLabel() }} — denominations</h2>
-        <p class="modal-caption">
-          Enter quantities so the total matches
-          <strong>{{ targetAmount() | number: '1.2-2' }}</strong>.
-        </p>
-      </div>
-      <button type="button" class="close-icon-btn" (click)="onCancel()" aria-label="Close" title="Close">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill="currentColor"
-            d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"
-          />
-        </svg>
-      </button>
-    </header>
-
     <div class="modal-body">
-      <div class="summary-bar">
-        <div class="summary-item">
-          <span class="summary-label">Transaction amount</span>
-          <span class="summary-value is-amount">{{ targetAmount() | number: '1.2-2' }}</span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">Denomination total</span>
-          <span
-            class="summary-value is-amount"
-            [class.is-match]="tallies()"
-            [class.is-mismatch]="!tallies()"
-          >
-            {{ entryTotal() | number: '1.2-2' }}
-          </span>
-        </div>
-        <div class="summary-item">
-          <span class="summary-label">Status</span>
-          <span class="count-pill" [class.is-match]="tallies()">
-            {{ tallies() ? 'Tallies' : 'Adjust quantities' }}
-          </span>
-        </div>
+      <div class="table-wrap">
+        <table class="batch-table" [class.has-avail]="mode() === 'pay'">
+          <thead>
+            <tr>
+              <th class="col-denom">Denomination</th>
+              <th class="col-desc">Description</th>
+              <th class="col-amount">Amount</th>
+              <th class="col-qty">Quantity</th>
+              @if (mode() === 'pay') {
+                <th class="col-avail">Available Qty</th>
+              }
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.id) {
+              <tr>
+                <td class="col-denom">
+                  <input
+                    [id]="'denom-' + row.id"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="qty-field denom-field"
+                    [value]="row.denominationDraft"
+                    (input)="onDenominationInput(row.id, $any($event.target).value)"
+                    (blur)="onDenominationBlur(row.id)"
+                    aria-label="Denomination"
+                  />
+                </td>
+                <td class="col-desc">
+                  {{ row.denomination ? (row.denomination | denomDescription) : '—' }}
+                </td>
+                <td class="col-amount">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    class="qty-field"
+                    [disabled]="!row.denomination"
+                    [value]="row.amountDraft"
+                    (input)="onAmountInput(row.id, $any($event.target).value)"
+                    (blur)="onAmountBlur(row.id)"
+                    aria-label="Amount"
+                  />
+                </td>
+                <td class="col-qty mono">{{ row.quantity || '' }}</td>
+                @if (mode() === 'pay') {
+                  <td class="col-avail mono">{{ row.denomination ? availableFor(row.denomination) : '' }}</td>
+                }
+                <td class="col-actions">
+                  <button
+                    type="button"
+                    class="entry-remove"
+                    [disabled]="rows().length === 1 && !row.denominationDraft"
+                    (click)="removeRow(row.id)"
+                    aria-label="Remove denomination"
+                    title="Remove"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill="currentColor" d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Total</td>
+              <td class="col-amount" [class.is-match]="tallies()" [class.is-mismatch]="!tallies()">
+                {{ entryTotal() | number: '1.2-2' }}
+              </td>
+              <td class="col-qty"></td>
+              @if (mode() === 'pay') {
+                <td class="col-avail"></td>
+              }
+              <td class="col-actions"></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
       @if (formError()) {
         <p class="form-error" role="alert">{{ formError() }}</p>
       }
 
-      <section class="table-panel">
-        <header class="table-head">
-          <h3>Denominations</h3>
-        </header>
-        <div class="table-wrap">
-          <table class="batch-table" [class.has-avail]="mode() === 'pay'">
-            <thead>
-              <tr>
-                <th class="col-denom">Denomination</th>
-                <th class="col-desc">Description</th>
-                <th class="col-amount">Amount</th>
-                <th class="col-qty">Quantity</th>
-                @if (mode() === 'pay') {
-                  <th class="col-avail">Available</th>
-                }
-              </tr>
-            </thead>
-            <tbody>
-              @for (row of rows(); track row.denomination) {
-                <tr>
-                  <td class="col-denom mono">{{ row.denomination }}</td>
-                  <td class="col-desc">{{ row.denomination | denomDescription }}</td>
-                  <td class="col-amount">{{ lineAmount(row) | number: '1.2-2' }}</td>
-                  <td class="col-qty">
-                    <input
-                      type="text"
-                      inputmode="numeric"
-                      autocomplete="off"
-                      class="field qty-field"
-                      placeholder="0"
-                      [value]="row.quantity || ''"
-                      (input)="onQuantityInput(row.denomination, $any($event.target).value)"
-                    />
-                  </td>
-                  @if (mode() === 'pay') {
-                    <td class="col-avail mono">{{ availableFor(row.denomination) }}</td>
-                  }
-                </tr>
-              }
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="2">Total</td>
-                <td class="col-amount">{{ entryTotal() | number: '1.2-2' }}</td>
-                <td class="col-qty"></td>
-                @if (mode() === 'pay') {
-                  <td class="col-avail"></td>
-                }
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </section>
+      <button type="button" class="add-row" (click)="addRow()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        Add denomination
+      </button>
     </div>
 
     <footer class="modal-footer">
-      <button type="button" class="btn btn-soft" (click)="onCancel()">Cancel</button>
-      <button type="button" class="btn btn-primary" [disabled]="!tallies()" (click)="onConfirm()">
-        Confirm denominations
-      </button>
+      <div class="match-amount">
+        <span class="match-label">To match</span>
+        <strong>{{ targetAmount() | number: '1.2-2' }}</strong>
+      </div>
+      <div class="footer-actions">
+        <button type="button" class="btn btn-soft" (click)="onCancel()">Cancel</button>
+        <button type="button" class="btn btn-primary" [disabled]="!tallies()" (click)="onConfirm()">
+          Confirm
+        </button>
+      </div>
     </footer>
   </div>
 </div>

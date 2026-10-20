@@ -9,6 +9,21 @@ export const WORKSPACE_CURRENCIES = [
 
 export type WorkspaceCurrency = (typeof WORKSPACE_CURRENCIES)[number];
 
+const CURRENCY_CODES: Record<string, string> = {
+  'GHANA CEDIS': 'GHS',
+  'US DOLLAR': 'USD',
+  EURO: 'EUR',
+  'POUND STERLING': 'GBP',
+};
+
+export function toCurrencyCode(value: string | null | undefined): string {
+  const key = value?.trim() ?? '';
+  if (!key) {
+    return '';
+  }
+  return CURRENCY_CODES[key] ?? key;
+}
+
 const STORAGE_KEY = 'front-office.workspaceCurrency';
 
 function readStoredCurrency(): string {

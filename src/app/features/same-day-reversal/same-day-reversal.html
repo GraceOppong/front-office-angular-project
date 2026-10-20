@@ -32,7 +32,15 @@
 
     <div class="reversal-layout" [class.is-fetching]="lookupLoading()">
 
-      <section class="card form-panel">
+      <section class="card form-card" aria-labelledby="transactionDetailsTitle">
+
+        <header class="form-card-head">
+
+          <h2 id="transactionDetailsTitle">Transaction Details</h2>
+
+        </header>
+
+        <div class="form-card-body">
 
         <div class="form-grid-compact">
 
@@ -286,19 +294,23 @@
 
           <div class="form-field span-2">
 
-            <app-field-label forId="transactionDetails2" icon="list" text="Transaction Details 2" />
+            <app-field-label forId="reversalNarration" icon="narration" text="Reversal Narration" />
 
             <input
 
-              id="transactionDetails2"
+              id="reversalNarration"
 
               type="text"
 
-              class="field field-readonly"
+              class="field"
 
-              readonly
+              [class.field-readonly]="!hasReversal()"
 
-              [value]="hasReversal() ? reversal()!.transactionDetails2 : ''"
+              [readonly]="!hasReversal()"
+
+              [value]="transactionDetails2()"
+
+              (input)="onTransactionDetails2Input($any($event.target).value)"
 
               placeholder="—"
 
@@ -320,17 +332,15 @@
 
         </div>
 
+        </div>
+
       </section>
 
 
 
-      <article class="card denom-panel">
+      <article class="card form-card denom-panel" aria-label="Denominations">
 
-        <header class="denom-panel-head">
-
-          <app-field-label [asSpan]="true" icon="denom" text="Denominations" />
-
-        </header>
+        <div class="form-card-body">
 
         <div class="table-wrap">
 
@@ -415,6 +425,8 @@
             }
 
           </table>
+
+        </div>
 
         </div>
 

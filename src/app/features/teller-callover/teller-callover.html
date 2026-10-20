@@ -93,20 +93,20 @@
           <div class="filter-group">
             <app-field-label forId="transactionDateFrom" icon="calendar" text="Transaction date" />
             <div class="amount-range is-compact">
-              <input
-                id="transactionDateFrom"
-                type="date"
-                class="field field-date field-filter-date"
+              <app-date-input
+                inputId="transactionDateFrom"
+                [compact]="true"
                 [value]="transactionDateFrom()"
-                (input)="onTransactionDateFromInput($any($event.target).value)"
+                (valueChange)="onTransactionDateFromInput($event)"
+                (blurred)="onTransactionDateFromBlur()"
               />
               <span class="range-sep" aria-hidden="true">–</span>
-              <input
-                id="transactionDateTo"
-                type="date"
-                class="field field-date field-filter-date"
+              <app-date-input
+                inputId="transactionDateTo"
+                [compact]="true"
                 [value]="transactionDateTo()"
-                (input)="onTransactionDateToInput($any($event.target).value)"
+                (valueChange)="onTransactionDateToInput($event)"
+                (blurred)="onTransactionDateToBlur()"
               />
             </div>
           </div>
@@ -161,8 +161,24 @@
           </span>
         </button>
       } @else if (calloverView() === 'called-over' && calloverStore.calloverInitiated()) {
-        <button type="button" class="btn btn-soft back-pending-btn" (click)="showPendingScreen()">
-          Back to pending
+        <button
+          type="button"
+          class="called-over-btn"
+          (click)="showPendingScreen()"
+          aria-label="Callover, {{ pendingCount() }} left"
+        >
+          <span class="called-over-btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14-5-5 1.41-1.41L14 14.17l6.59-6.59L22 9l-8 8z"
+              />
+            </svg>
+          </span>
+          <span class="called-over-btn-text">Callover</span>
+          <span class="called-over-badge" [class.is-empty]="pendingCount() === 0">
+            {{ pendingCount() }}
+          </span>
         </button>
       }
 
@@ -246,7 +262,7 @@
           <thead>
             <tr>
               @if (calloverStore.calloverInitiated()) {
-                <th class="col-reversal" scope="col"><span class="sr-only">Reverse</span></th>
+                <th class="col-reversal" scope="col" title="Same day reversal">RVRSL</th>
               }
               <th class="col-batch">Batch No</th>
               <th class="col-trans">Trans No</th>
@@ -256,7 +272,7 @@
               <th class="col-details">Transaction Details</th>
               <th class="col-debit">Debit</th>
               <th class="col-credit">Credit</th>
-              <th class="col-value-date">Value Date</th>
+              <th class="col-posting-date">Posting Date</th>
               <th class="col-status">Status</th>
               @if (calloverStore.calloverInitiated()) {
                 <th class="col-check">
@@ -264,11 +280,11 @@
                     type="checkbox"
                     [checked]="allTicked()"
                     [disabled]="count() === 0"
-                    (change)="tickAllPending($any($event.target).checked)"
+                    (click)="onPendingCheckAllClick($event)"
                     [attr.aria-label]="
                       allTicked() ? 'Uncheck all filtered transactions' : 'Call over all pending transactions'
                     "
-                    [title]="allTicked() ? 'Uncheck all' : 'Callover'"
+                    [title]="allTicked() ? 'Uncheck all' : 'Callover all'"
                   />
                 </th>
               }
@@ -315,7 +331,7 @@
                     —
                   }
                 </td>
-                <td class="col-value-date">{{ row.valueDate }}</td>
+                <td class="col-posting-date">{{ row.postingDate }}</td>
                 <td class="col-status">
                   <span class="status-pill" [attr.data-trans-status]="row.transStatus">
                     {{ transStatusLabel(row) }}
@@ -391,7 +407,6 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th class="col-reversal" scope="col"><span class="sr-only">Reverse</span></th>
                 <th class="col-batch">Batch No</th>
                 <th class="col-trans">Trans No</th>
                 <th class="col-account">Account No</th>
@@ -400,14 +415,14 @@
                 <th class="col-details">Transaction Details</th>
                 <th class="col-debit">Debit</th>
                 <th class="col-credit">Credit</th>
-                <th class="col-value-date">Value Date</th>
+                <th class="col-posting-date">Posting Date</th>
                 <th class="col-status">Status</th>
                 <th class="col-check">
                   <input
                     type="checkbox"
                     [checked]="calledOverCount() > 0"
                     [disabled]="calledOverCount() === 0"
-                    (change)="onCalledOverCheckAll($any($event.target).checked)"
+                    (click)="onCalledOverCheckAllClick($event)"
                     aria-label="Uncheck all called over transactions"
                     title="Uncheck all"
                   />
@@ -421,18 +436,6 @@
                   title="Click to view details"
                   (click)="openDetails(row)"
                 >
-                  <td class="col-reversal" (click)="$event.stopPropagation()">
-                    <button
-                      type="button"
-                      class="row-reversal-btn"
-                      [disabled]="row.transStatus === 'reversed'"
-                      (click)="openSameDayReversal(row, $event)"
-                      [attr.aria-label]="'Same day reversal for ' + row.transNo"
-                      title="Same day reversal"
-                    >
-                      <svg lucideUndo2 aria-hidden="true"></svg>
-                    </button>
-                  </td>
                   <td class="col-batch mono">{{ row.batchNo }}</td>
                   <td class="col-trans mono">{{ row.transNo }}</td>
                   <td class="col-account mono">{{ row.accountNumber }}</td>
@@ -453,7 +456,7 @@
                       —
                     }
                   </td>
-                  <td class="col-value-date">{{ row.valueDate }}</td>
+                  <td class="col-posting-date">{{ row.postingDate }}</td>
                   <td class="col-status">
                     <span class="status-pill" [attr.data-trans-status]="row.transStatus">
                       {{ transStatusLabel(row) }}
@@ -471,7 +474,7 @@
                 </tr>
               } @empty {
                 <tr class="empty-row">
-                  <td colspan="12">
+                  <td colspan="11">
                     Nothing called over yet. Go back to pending and tick transactions to add them here.
                   </td>
                 </tr>
@@ -480,7 +483,7 @@
             @if (calledOverCount() > 0) {
               <tfoot class="data-table-totals">
                 <tr>
-                  <td class="totals-label" colspan="7">Totals</td>
+                  <td class="totals-label" colspan="6">Totals</td>
                   <td class="col-debit">{{ calledOverTotalDebit() | number: '1.2-2' }}</td>
                   <td class="col-credit">{{ calledOverTotalCredit() | number: '1.2-2' }}</td>
                   <td colspan="3"></td>
@@ -503,7 +506,7 @@
             </div>
           </div>
           <span class="tally-note is-complete">
-            Uncheck to return a row to pending callover, or use Reverse to mark a transaction reversed
+            Uncheck to return a row to pending callover.
           </span>
         </footer>
       </section>
@@ -772,4 +775,14 @@
   }
 
   <app-message-popup [message]="feedbackMessage()" (closed)="feedbackMessage.set('')" />
+  @if (confirmPrompt(); as prompt) {
+    <app-message-popup
+      [message]="prompt.message"
+      [title]="prompt.title"
+      [confirmLabel]="prompt.confirmLabel"
+      variant="info"
+      (closed)="onConfirmPromptClosed()"
+      (confirmed)="onConfirmPromptConfirmed()"
+    />
+  }
 </div>

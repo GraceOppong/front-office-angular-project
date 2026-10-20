@@ -91,6 +91,36 @@
   padding: 0.85rem 1rem 1rem;
 }
 
+.form-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.form-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.72rem 1rem;
+  background: var(--shell-nav-gradient);
+  color: #f4f9ff;
+}
+
+.form-card-head h2 {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f4f9ff;
+}
+
+.form-card-body {
+  padding: 0.9rem 1rem 1rem;
+}
+
+.form-card ::ng-deep .label-icon {
+  display: none;
+}
+
 .form-grid-compact {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -239,30 +269,7 @@
 }
 
 .denom-panel {
-  padding: 0.9rem 1rem 0.85rem;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.denom-panel-head {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-width: 0;
-}
-
-.denom-panel-head .label-icon {
-  width: 1.65rem;
-  height: 1.65rem;
-  border-radius: 999px;
-}
-
-.denom-panel-head .label-text {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: #122536;
 }
 
 .table-wrap {

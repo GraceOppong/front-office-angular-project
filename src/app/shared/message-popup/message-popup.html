@@ -23,7 +23,12 @@
       </header>
       <p class="message-popup-body">{{ message() }}</p>
       <div class="message-popup-actions">
-        <button type="button" class="btn-primary" (click)="dismiss()">OK</button>
+        @if (isConfirm()) {
+          <button type="button" class="btn-cancel" (click)="dismiss()">{{ cancelLabel() }}</button>
+          <button type="button" class="btn-primary" (click)="confirm()">{{ confirmLabel() }}</button>
+        } @else {
+          <button type="button" class="btn-primary" (click)="dismiss()">OK</button>
+        }
       </div>
     </div>
   </div>

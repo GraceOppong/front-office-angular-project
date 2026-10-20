@@ -171,7 +171,7 @@
               <span class="total-pill">
                 Total {{ (currencyStore.selectedCurrency() ? vaultStore.vaultTotal() : 0) | number: '1.2-2' }}
               </span>
-              <button type="button" class="print-till" aria-label="Print Vault" (click)="onAction('Print Vault')">
+              <button type="button" class="print-till" aria-label="Print Vault" title="Print Vault" (click)="onAction('Print Vault')">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
               </button>
             </div>
@@ -305,7 +305,7 @@
                         <th class="col-desc">Description</th>
                         <th class="col-amount">Amount</th>
                         <th class="col-qty">Quantity</th>
-                        <th class="col-avail">Available</th>
+                        <th class="col-avail">Available Qty</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -313,18 +313,18 @@
                         <tr>
                           <td class="col-denom mono">{{ row.denomination }}</td>
                           <td class="col-desc">{{ row.denomination | denomDescription }}</td>
-                          <td class="col-amount">{{ row.quantity * +row.denomination | number: '1.2-2' }}</td>
-                          <td class="col-qty">
+                          <td class="col-amount">
                             <input
                               type="text"
                               inputmode="numeric"
                               autocomplete="off"
                               class="field qty-field"
-                              [value]="row.quantity || ''"
-                              (input)="onIssueQuantityInput(row.denomination, $any($event.target).value)"
-                              placeholder="0"
+                              [value]="row.amountDraft"
+                              (input)="onIssueAmountInput(row.denomination, $any($event.target).value)"
+                              (blur)="onIssueAmountBlur(row.denomination)"
                             />
                           </td>
+                          <td class="col-qty mono">{{ row.quantity || '' }}</td>
                           <td class="col-avail mono">{{ vaultStore.availableQuantity(row.denomination) }}</td>
                         </tr>
                       }

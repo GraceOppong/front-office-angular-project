@@ -15,9 +15,18 @@
 
     <div class="deposit-layout">
       <div class="deposit-main">
-        <section class="card form-panel">
+        <div class="form-stack">
+        <section class="card form-card" aria-labelledby="accountDetailsTitle">
+          <header class="form-card-head">
+            <span class="form-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
+            </span>
+            <h2 id="accountDetailsTitle">Account Details</h2>
+          </header>
+          <div class="form-card-body">
           <div class="form-grid-compact">
-            <div class="form-field span-2">
+            <div class="account-pair">
+            <div class="form-field">
               <app-field-label forId="debitAccount" icon="debit" [required]="true" text="Debit Account" />
               <input
                 id="debitAccount"
@@ -26,7 +35,7 @@
                 autocomplete="off"
                 class="field"
                 [class.is-loading]="accountLookupLoading()"
-                placeholder="10-digit account number"
+                placeholder="10-digit number"
                 [attr.maxlength]="accountNumberMaxLength"
                 [value]="debitAccount()"
                 (input)="onDebitAccountInput($any($event.target).value)"
@@ -46,7 +55,9 @@
                 [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
               />
             </div>
+            </div>
 
+            <div class="account-meta">
             <div class="form-field">
               <app-field-label forId="accountBranch" icon="branch" text="Account Branch" />
               <input
@@ -73,21 +84,33 @@
               />
             </div>
 
-            <div class="form-field">
+            <div class="form-field is-currency">
               <app-field-label forId="accountCurrency" icon="currency" text="Currency" />
               <input
                 id="accountCurrency"
                 type="text"
                 class="field field-readonly"
                 [class.is-loading]="accountLookupLoading()"
-                [value]="showAccountInformation() ? (accountSnapshot()?.currency ?? '') : ''"
+                [value]="showAccountInformation() ? toCurrencyCode(accountSnapshot()?.currency) : ''"
                 readonly
                 [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
               />
             </div>
+            </div>
+          </div>
+          </div>
+        </section>
 
-            <h2 class="section-title span-full">Transaction Details</h2>
-
+        <section class="card form-card" aria-labelledby="transactionDetailsTitle">
+          <header class="form-card-head">
+            <span class="form-card-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2 3.5-2V5c0-1.1-.9-2-2-2zm-2 11H7v-2h10v2zm0-4H7V8h10v2z"/></svg>
+            </span>
+            <h2 id="transactionDetailsTitle">Transaction Details</h2>
+          </header>
+          <div class="form-card-body">
+          <div class="form-grid-compact">
+            <div class="txn-lane">
             <div class="form-field">
               <app-field-label forId="amount" icon="amount" [required]="true" text="Amount" />
               <input
@@ -111,14 +134,27 @@
 
             <div class="form-field">
               <app-field-label forId="voucherDate" icon="calendar" text="Voucher Date" />
-              <input
-                id="voucherDate"
-                type="date"
-                class="field field-date"
-                [value]="voucherDateIso()"
-                [max]="maxVoucherDateIso"
-                (input)="onVoucherDateChange($any($event.target).value)"
+              <app-date-input
+                inputId="voucherDate"
+                [value]="voucherDateDmy()"
+                [maxToday]="true"
+                (valueChange)="onVoucherDateInput($event)"
+                (blurred)="onVoucherDateBlur()"
               />
+            </div>
+
+            <div class="form-field">
+              <app-field-label forId="accountPhone" icon="phone" text="Phone Number" />
+              <input
+                id="accountPhone"
+                type="text"
+                class="field field-readonly"
+                [class.is-loading]="accountLookupLoading()"
+                [value]="displayPhone()"
+                readonly
+                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+              />
+            </div>
             </div>
 
             <div class="form-field">
@@ -206,15 +242,18 @@
           <div class="form-actions">
             <button type="button" class="btn btn-primary" (click)="onSubmit()">Submit</button>
           </div>
+          </div>
         </section>
+        </div>
 
+        <div class="account-column">
         <article class="card account-info-card">
           <header class="account-info-head">
             <div class="account-info-title">
               <span class="card-icon is-blue" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
               </span>
-              <h3>Account Information</h3>
+              <h3>Account Balances</h3>
             </div>
             <button
               type="button"
@@ -232,38 +271,75 @@
               <span>Fetching account details…</span>
             </div>
           } @else if (showAccountInformation()) {
-            <dl class="info-grid">
-              <div class="info-tile is-monetary">
-                <dt><app-field-label [asSpan]="true" [compact]="true" icon="amount" text="Available Balance" /></dt>
-                <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
-              </div>
-              <div class="info-tile is-monetary">
-                <dt><app-field-label [asSpan]="true" [compact]="true" icon="credit" text="Cleared Balance" /></dt>
-                <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
-              </div>
-              <div class="info-tile is-monetary">
-                <dt><app-field-label [asSpan]="true" [compact]="true" icon="amount" text="Uncleared Balance" /></dt>
-                <dd>
-                  <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
-                  <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
-                </dd>
-              </div>
-              <div class="info-tile is-monetary">
-                <dt><app-field-label [asSpan]="true" [compact]="true" icon="debit" text="Overdraft Amount" /></dt>
-                <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
-              </div>
-              <div class="info-tile is-monetary">
-                <dt><app-field-label [asSpan]="true" [compact]="true" icon="status" text="Block Amount" /></dt>
-                <dd>
-                  <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
-                  <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>
-                </dd>
-              </div>
-            </dl>
+            <div class="available-balance">
+              <span class="available-balance-label">Available Balance</span>
+              <span class="available-balance-value">{{ formatAmount(accountSnapshot()?.availableBalance) }}</span>
+            </div>
+            <div class="balance-lines">
+              <dl class="charge-list">
+                <div class="charge-row">
+                  <dt>Ledger Balance</dt>
+                  <dd>{{ formatAmount(accountSnapshot()?.ledgerBalance) }}</dd>
+                </div>
+                <div class="charge-row">
+                  <dt>Cleared Balance</dt>
+                  <dd>{{ formatAmount(accountSnapshot()?.clearedBalance) }}</dd>
+                </div>
+                <div class="charge-row">
+                  <dt>Uncleared Balance</dt>
+                  <dd>
+                    <span class="is-highlight">{{ formatAmount(accountSnapshot()?.unclearedBalance) }}</span>
+                    <button type="button" class="row-go" aria-label="Uncleared balance detail" (click)="openUnclearedDetail()">›</button>
+                  </dd>
+                </div>
+                <div class="charge-row">
+                  <dt>Overdraft Amount</dt>
+                  <dd>{{ formatAmount(accountSnapshot()?.odAmount) }}</dd>
+                </div>
+                <div class="charge-row">
+                  <dt>Block Amount</dt>
+                  <dd>
+                    <span class="is-highlight">{{ formatAmount(accountSnapshot()?.blockAmount) }}</span>
+                    <button type="button" class="row-go" aria-label="Block amount detail" (click)="openBlockDetail()">›</button>
+                  </dd>
+                </div>
+              </dl>
+            </div>
           } @else {
             <p class="account-info-placeholder">Enter a valid account number to view balances.</p>
           }
         </article>
+
+        @if (showCharges()) {
+        <article class="card charge-card" aria-labelledby="chargesTitle">
+          <header class="charge-head">
+            <h3 id="chargesTitle">Charge</h3>
+          </header>
+          <dl class="charge-list">
+            <div class="charge-row">
+              <dt>Swift Charges</dt>
+              <dd>{{ formatAmount(charges().swift) }}</dd>
+            </div>
+            <div class="charge-row">
+              <dt>Transfer Commission <span class="charge-rate">0.5%</span></dt>
+              <dd>{{ formatAmount(charges().transferCommission) }}</dd>
+            </div>
+            <div class="charge-row">
+              <dt>Correspondent Handling Fee</dt>
+              <dd>{{ formatAmount(charges().correspondentHandling) }}</dd>
+            </div>
+            <div class="charge-row">
+              <dt>VAT on Commission <span class="charge-rate">15%</span></dt>
+              <dd>{{ formatAmount(charges().vatOnCommission) }}</dd>
+            </div>
+          </dl>
+          <div class="charge-total">
+            <span>Total Charges</span>
+            <strong>{{ formatAmount(charges().total) }}</strong>
+          </div>
+        </article>
+        }
+        </div>
       </div>
 
         @if (showSignaturePanel()) {

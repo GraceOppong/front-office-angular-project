@@ -164,12 +164,6 @@ export class CalloverStore {
       ]),
     );
 
-    this.rows.update((rows) =>
-      rows.map((row) => ({
-        ...row,
-        transStatus: 'applied' as CalloverTransStatus,
-      })),
-    );
     this.calloverInitiated.set(true);
   }
 

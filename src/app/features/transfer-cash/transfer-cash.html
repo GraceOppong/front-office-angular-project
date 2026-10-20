@@ -78,7 +78,7 @@
                   <th class="col-desc">Description</th>
                   <th class="col-amount">Amount</th>
                   <th class="col-qty">Quantity</th>
-                  <th class="col-avail">Available</th>
+                  <th class="col-avail">Available Qty</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,19 +95,19 @@
                       </td>
                       <td class="col-denom mono">{{ row.denomination }}</td>
                       <td class="col-desc">{{ row.denomination | denomDescription }}</td>
-                      <td class="col-amount">{{ rowAmount(row) | number: '1.2-2' }}</td>
-                      <td class="col-qty">
+                      <td class="col-amount">
                         <input
                           type="text"
                           inputmode="numeric"
                           autocomplete="off"
                           class="qty-field"
                           [disabled]="!row.selected"
-                          [value]="row.selected ? row.quantity : ''"
-                          (input)="onQuantityInput(row.denomination, $any($event.target).value)"
-                          placeholder="0"
+                          [value]="row.selected ? row.amountDraft : ''"
+                          (input)="onAmountInput(row.denomination, $any($event.target).value)"
+                          (blur)="onAmountBlur(row.denomination)"
                         />
                       </td>
+                      <td class="col-qty mono">{{ row.selected && row.quantity ? row.quantity : '' }}</td>
                       <td class="col-avail mono">{{ availableFor(row.denomination) }}</td>
                     </tr>
                   }
