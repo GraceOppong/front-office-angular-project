@@ -1489,5 +1489,41 @@
     border-left: none;
     border-top: 1px solid #d5e0ea;
   }
+
+  .perf-card-body {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .perf-table {
+    min-width: 0;
+  }
+
+  .table-card-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-head-tools {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .currency-select {
+    width: 100%;
+  }
+
+  .header-main {
+    flex-wrap: wrap;
+  }
+
+  .perf-layout-picker {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .perf-layout-select {
+    width: 100%;
+  }
 }
 

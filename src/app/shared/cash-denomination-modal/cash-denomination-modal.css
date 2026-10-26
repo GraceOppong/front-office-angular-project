@@ -268,3 +268,22 @@
   border-color: #b7cce0;
   color: #1565a8;
 }
+
+@media (max-width: 640px) {
+  .modal-dialog {
+    width: 100%;
+    max-width: calc(100vw - 1rem);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+  }
+
+  .modal-footer .btn {
+    flex: 1 1 7rem;
+  }
+}

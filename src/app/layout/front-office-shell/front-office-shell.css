@@ -229,25 +229,66 @@
   background: #eef2f7;
 }
 
+.nav-backdrop {
+  display: none;
+}
+
 @media (max-width: 960px) {
   .app-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
-      'sidebar'
       'topbar'
       'main';
   }
 
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    grid-area: unset;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: rgba(16, 39, 64, 0.46);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(18.75rem, 86vw);
+    height: 100dvh;
+    max-height: 100dvh;
+    z-index: 130;
+    grid-area: unset;
     grid-row: auto;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 16px rgba(9, 30, 55, 0.12);
-    overflow: visible;
+    transform: translateX(-105%);
+    transition: transform 0.22s ease;
+    border-right: 1px solid var(--shell-nav-border);
+    box-shadow: 8px 0 32px rgba(9, 30, 55, 0.28);
+    overflow: hidden;
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
   }
 
   .activity-nav {
-    max-height: 280px;
+    max-height: none;
+  }
+
+  .app-topbar-slot {
+    overflow: visible;
   }
 }

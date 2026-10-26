@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { TellerSessionStore } from '../../shared/teller-session.store';
 
 @Component({
@@ -8,6 +8,8 @@ import { TellerSessionStore } from '../../shared/teller-session.store';
   styleUrl: './app-topbar.css',
 })
 export class AppTopbar {
+  readonly menuOpen = input(false);
+  readonly menuToggle = output<void>();
   readonly session = inject(TellerSessionStore);
 
   readonly initials = computed(() => {

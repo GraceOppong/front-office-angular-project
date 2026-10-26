@@ -1286,4 +1286,14 @@
   .summary-bar {
     grid-template-columns: 1fr;
   }
+
+  .card-head,
+  .table-card-head {
+    flex-wrap: wrap;
+  }
+
+  .table-head-tools {
+    width: 100%;
+    margin-left: 0;
+  }
 }

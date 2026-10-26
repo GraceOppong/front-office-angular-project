@@ -1,5 +1,19 @@
-<div class="app-shell">
-  <aside class="sidebar" aria-label="My Activities">
+<div class="app-shell" [class.nav-open]="navOpen()">
+  @if (navOpen()) {
+    <button
+      type="button"
+      class="nav-backdrop is-visible"
+      aria-label="Close activity menu"
+      (click)="closeNav()"
+    ></button>
+  }
+
+  <aside
+    id="activity-sidebar"
+    class="sidebar"
+    [class.is-open]="navOpen()"
+    aria-label="My Activities"
+  >
     <div class="sidebar-brand">
       <span class="brand-mark" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
@@ -48,7 +62,11 @@
     </nav>
   </aside>
 
-  <app-topbar class="app-topbar-slot" />
+  <app-topbar
+    class="app-topbar-slot"
+    [menuOpen]="navOpen()"
+    (menuToggle)="toggleNav()"
+  />
 
   <main class="main-content">
     <router-outlet />

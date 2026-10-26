@@ -913,7 +913,17 @@
     grid-template-columns: 1fr;
   }
 
-  .account-pair > .form-field:first-child {
-    width: auto;
+  .account-pair > .form-field:first-child,
+  .form-field.is-currency,
+  .field-amount,
+  .field-date {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .header-actions,
+  .form-actions,
+  .screen-toolbar {
+    flex-wrap: wrap;
   }
 }

@@ -357,15 +357,36 @@
     grid-template-columns: 1fr;
   }
 
+  .aml-title-pair {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .aml-field.is-title,
+  .aml-field.is-gender,
+  .aml-field.is-date {
+    width: 100%;
+    flex-basis: auto;
+  }
+
   .aml-step-label {
     display: none;
   }
 
   .modal-dialog.is-aml {
     width: calc(100vw - 1.2rem);
+    max-height: calc(100dvh - 1.2rem);
   }
 
   .modal-body {
     min-height: 0;
+  }
+
+  .modal-footer {
+    flex-wrap: wrap;
+  }
+
+  .modal-footer .btn {
+    flex: 1 1 7rem;
   }
 }

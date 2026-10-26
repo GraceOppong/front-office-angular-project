@@ -1492,11 +1492,18 @@
   }
 }
 
+@media (max-width: 960px) {
+  :host {
+    --callover-content-width: 100%;
+  }
+}
+
 @media (max-width: 820px) {
   :host {
     height: auto;
     max-height: none;
     overflow: visible;
+    --callover-content-width: 100%;
   }
 
   .page,
