@@ -1,0 +1,41 @@
+<div class="usg-lov">
+  <div class="usg-lov-trigger-wrap">
+    <input
+      [id]="inputId()"
+      type="text"
+      class="field field-type-lov"
+      readonly
+      [disabled]="disabled()"
+      [value]="displayLabel()"
+      placeholder="Select…"
+      (click)="toggle()"
+      (keydown.enter)="toggle()"
+    />
+    @if (value() && !disabled()) {
+      <button type="button" class="usg-lov-clear" aria-label="Clear selection" (click)="clear($event)">
+        ×
+      </button>
+    }
+  </div>
+  @if (open()) {
+    <div class="usg-lov-panel" role="listbox">
+      <div class="usg-lov-search">
+        <input
+          type="text"
+          class="field"
+          [placeholder]="placeholder()"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+          (click)="$event.stopPropagation()"
+        />
+      </div>
+      @for (opt of filteredOptions(); track opt.value) {
+        <button type="button" class="usg-lov-option" role="option" (click)="select(opt)">
+          {{ opt.label }}
+        </button>
+      } @empty {
+        <p class="usg-lov-empty">No matches</p>
+      }
+    </div>
+  }
+</div>

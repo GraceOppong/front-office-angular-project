@@ -212,10 +212,10 @@ import { FieldLabelIcon, FieldLabelVariant } from './field-label.model';
         }
       </span>
       <span class="label-text">
-        @if (required()) {
-          <span class="req">*</span>
-        }
         {{ text() }}
+        @if (required()) {
+          <span class="req" aria-hidden="true">*</span>
+        }
         <ng-content />
       </span>
     </ng-template>

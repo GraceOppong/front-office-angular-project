@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.usg-dt-empty-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748b;
+}
+
+.usg-dt-th.col-actions,
+.usg-dt-td.col-actions {
+  text-align: right;
+}

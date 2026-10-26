@@ -1,0 +1,426 @@
+/* UnionSG core-banking field standards — @unionsg/ui (framework-agnostic) */
+
+:root {
+  /* Visual blueprint — Pixel-Perfect Core Banking Spec */
+  --usg-input-height: 28px;
+  --usg-input-height-sm: 24px;
+  --usg-input-height-lg: 32px;
+  --usg-input-radius: 4px;
+  --usg-input-border-width: 1px;
+  --usg-label-font-size: 14px;
+  --usg-label-font-weight: 500;
+  --usg-label-color: #1565a8;
+  --usg-label-icon-bg: #1565a8;
+  --usg-label-min-width: 120px;
+  --usg-input-font-size: 14px;
+  --usg-input-line-height: 1.25;
+  --usg-input-text: #1f2937;
+  --usg-input-placeholder: #d1d5db;
+  --usg-input-border: #d1d5db;
+  --usg-input-focus: #2563eb;
+  --usg-input-disabled-bg: #f3f4f6;
+  --usg-input-disabled-border: #e5e7eb;
+  --usg-input-disabled-text: #9ca3af;
+  --usg-input-readonly-bg: #f9f8fa;
+  --usg-input-readonly-text: #0f172a;
+  --usg-input-error-border: #f87171;
+  --usg-required-color: #ef4444;
+}
+
+/* ── §1 Form labels ── */
+.usg-label,
+.field-label {
+  font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif);
+  font-size: var(--usg-label-font-size);
+  font-weight: var(--usg-label-font-weight);
+  color: var(--usg-label-color);
+  line-height: 20px;
+}
+
+.label-text {
+  font-size: var(--usg-label-font-size);
+  font-weight: var(--usg-label-font-weight);
+  color: var(--usg-label-color);
+  line-height: 20px;
+}
+
+.req {
+  color: var(--usg-required-color);
+  margin-left: 2px;
+  margin-right: 0;
+  font-weight: 500;
+}
+
+/* Horizontal form row — label right, control left (≥640px) */
+.usg-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+@media (max-width: 639px) {
+  .form-field:not(.is-stacked) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .form-field:not(.is-stacked) > app-field-label .field-label {
+    justify-content: flex-start;
+    text-align: left;
+    padding-top: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .usg-form-row,
+  .form-field:not(.is-stacked) {
+    display: grid;
+    grid-template-columns: var(--usg-label-min-width) minmax(0, 1fr);
+    align-items: start;
+    column-gap: 8px;
+    row-gap: 4px;
+  }
+
+  .usg-form-row > .usg-label,
+  .usg-form-row > .field-label,
+  .usg-form-row > app-field-label,
+  .form-field:not(.is-stacked) > app-field-label,
+  .form-field:not(.is-stacked) > .field-label,
+  .form-field:not(.is-stacked) > label:first-child {
+    grid-column: 1;
+    justify-self: stretch;
+    text-align: right;
+    padding-top: 4px;
+    margin-bottom: 0 !important;
+  }
+
+  .usg-form-row > .field,
+  .usg-form-row > .select-field,
+  .usg-form-row > app-date-input,
+  .usg-form-row > app-usg-email-input,
+  .usg-form-row > app-usg-phone-input,
+  .usg-form-row > app-usg-lov,
+  .form-field:not(.is-stacked) > .field,
+  .form-field:not(.is-stacked) > .select-field,
+  .form-field:not(.is-stacked) > app-date-input,
+  .form-field:not(.is-stacked) > app-usg-email-input,
+  .form-field:not(.is-stacked) > app-usg-phone-input,
+  .form-field:not(.is-stacked) > app-usg-lov {
+    grid-column: 2;
+  }
+
+  .usg-form-row > .field-hint,
+  .form-field:not(.is-stacked) > .field-hint {
+    grid-column: 2;
+  }
+}
+
+/* ── Base input (28px / 4px radius) ── */
+.field,
+.select-field.field {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: var(--usg-input-height);
+  padding: 0 10px;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--usg-input-text);
+  background-color: #ffffff;
+  border: 1px solid var(--usg-input-border);
+  border-radius: var(--usg-input-radius);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.field::placeholder {
+  color: var(--usg-input-placeholder);
+}
+
+.field.is-compact,
+.field.field-sm {
+  height: var(--usg-input-height-sm);
+  font-size: 13px;
+}
+
+.field.field-lg {
+  height: var(--usg-input-height-lg);
+}
+
+/* LOV / native selects — same box model as .field */
+.select-field {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: var(--usg-input-height);
+  padding: 0 10px;
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  font-size: var(--usg-input-font-size);
+  line-height: var(--usg-input-line-height);
+  color: var(--usg-input-text);
+  background-color: #ffffff;
+  border: var(--usg-input-border-width) solid var(--usg-input-border);
+  border-radius: var(--usg-input-radius);
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.select-field:focus {
+  border-color: var(--usg-input-focus);
+  box-shadow: 0 0 0 1px var(--usg-input-focus);
+}
+
+.select-field:disabled {
+  background-color: var(--usg-input-disabled-bg);
+  color: var(--usg-input-disabled-text);
+  border-color: var(--usg-input-disabled-border);
+  cursor: not-allowed;
+}
+
+.field:focus,
+.select-field.field:focus {
+  border-color: var(--usg-input-focus);
+  box-shadow: 0 0 0 1px var(--usg-input-focus);
+}
+
+.field:disabled,
+.select-field.field:disabled {
+  background-color: var(--usg-input-disabled-bg);
+  color: var(--usg-input-disabled-text);
+  border-color: var(--usg-input-disabled-border);
+  cursor: not-allowed;
+}
+
+.field.field-readonly,
+.field[readonly]:not([readonly='false']),
+.select-field.field.field-readonly {
+  background-color: var(--usg-input-readonly-bg);
+  color: var(--usg-input-readonly-text);
+  font-weight: 600;
+  border: none;
+  cursor: default;
+}
+
+.field.field-readonly:focus,
+.field[readonly]:not([readonly='false']):focus {
+  outline: none;
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.field.is-error,
+.field.field-error {
+  border-color: var(--usg-input-error-border);
+}
+
+.field.is-error:focus,
+.field.field-error:focus {
+  border-color: var(--usg-input-error-border);
+  box-shadow: 0 0 0 1px var(--usg-input-error-border);
+}
+
+.field-hint.is-error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #ef4444;
+}
+
+/* ── Standard field widths (fieldType) ── */
+.field-type-name {
+  max-width: 420px;
+  text-align: left;
+}
+
+.field-type-account-number {
+  max-width: 180px;
+  text-align: left;
+}
+
+.field-type-customer-number {
+  max-width: 85px;
+  text-align: left;
+}
+
+.field-type-amount,
+.field.field-amount,
+.field.field-filter-amount {
+  max-width: 180px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-type-date {
+  max-width: 160px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-type-email {
+  max-width: 280px;
+  text-align: left;
+}
+
+.field-type-phone {
+  max-width: 240px;
+  text-align: left;
+}
+
+.field-type-lov,
+.select-field.field-type-lov {
+  max-width: 280px;
+  text-align: left;
+}
+
+/* ── Email / phone composite shells ── */
+.usg-field-shell {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  height: var(--usg-input-height);
+  border: 1px solid var(--usg-input-border);
+  border-radius: var(--usg-input-radius);
+  background: #fff;
+  overflow: hidden;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.usg-field-shell:focus-within {
+  border-color: var(--usg-input-focus);
+  box-shadow: 0 0 0 1px var(--usg-input-focus);
+}
+
+.usg-field-shell.is-disabled {
+  background-color: var(--usg-input-disabled-bg);
+  border-color: var(--usg-input-disabled-border);
+  cursor: not-allowed;
+}
+
+.usg-field-shell.field-type-email {
+  max-width: 280px;
+  width: 100%;
+}
+
+.usg-field-shell.field-type-phone {
+  max-width: 240px;
+  width: 100%;
+}
+
+.usg-field-shell .field {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+}
+
+.usg-field-shell .field:focus {
+  box-shadow: none;
+}
+
+.usg-field-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0 8px;
+  color: #6b7280;
+  border-right: 1px solid var(--usg-input-border);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.usg-field-shell.is-disabled .usg-field-prefix {
+  border-right-color: var(--usg-input-disabled-border);
+  color: var(--usg-input-disabled-text);
+}
+
+.usg-field-prefix svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── LOV trigger ── */
+.usg-lov {
+  position: relative;
+  display: inline-block;
+  max-width: 280px;
+  width: 100%;
+}
+
+.usg-lov-panel {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--usg-input-border);
+  border-radius: var(--usg-input-radius);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.usg-lov-search {
+  position: sticky;
+  top: 0;
+  padding: 6px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.usg-lov-search .field {
+  width: 100%;
+  max-width: none;
+}
+
+.usg-lov-option {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 13px;
+  color: var(--usg-input-text);
+  cursor: pointer;
+}
+
+.usg-lov-option:hover,
+.usg-lov-option.is-highlighted {
+  background: rgba(239, 246, 255, 0.85);
+}
+
+.usg-lov-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+}
+
+.usg-lov-clear:hover {
+  color: #4b5563;
+}
+
+.usg-lov-trigger-wrap {
+  position: relative;
+}
+
+.usg-lov-trigger-wrap .field {
+  padding-right: 28px;
+  cursor: pointer;
+}

@@ -1,3 +1,6 @@
+@import './app/shared/usg-fields.css';
+@import './app/shared/usg-datatable.css';
+
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --app-bg: #e4ebf3;
@@ -346,21 +349,18 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   font-size: 0.78rem;
 }
 
-/* Table column headers app-wide — match sidebar / top bar blue */
+/* Denomination / perf grids — navy header (DataTable uses UnionSG light-blue in usg-datatable.css) */
 .batch-table thead th,
-.data-table thead th,
 .perf-table thead th {
   background: var(--shell-nav-gradient) !important;
   border-bottom: 1px solid var(--shell-nav-border) !important;
   color: #fff !important;
 }
 
-.data-table thead th,
 .perf-table thead th {
   border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.data-table thead th:last-child,
 .perf-table thead th:last-child {
   border-right: none;
 }
@@ -466,11 +466,12 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
   width: 20%;
 }
 
-/* Shared field labels with colored icons */
+/* Field label layout (typography: usg-fields.css §1) */
 .field-label {
   display: inline-flex;
-  align-items: center;
-  gap: 0.42rem;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.35rem;
   min-width: 0;
   max-width: 100%;
 }
@@ -491,10 +492,6 @@ input[type='number'].field-filter-amount::-webkit-inner-spin-button {
 }
 
 .label-text {
-  font-size: 0.74rem;
-  font-weight: 650;
-  color: #5a6d80;
-  line-height: 1.25;
   min-width: 0;
 }
 
@@ -562,6 +559,11 @@ app-teller-activities .label-icon {
 .label-icon.is-signature { background: #7e22ce; }
 .label-icon.is-default { background: #667085; }
 
+/* House label colour — brand blue icons + text (usg-fields.css tokens) */
+.label-icon[class*='is-'] {
+  background: var(--usg-label-icon-bg, #1565a8);
+}
+
 .info-tile dt {
   margin: 0 0 0.2rem;
 }
@@ -573,10 +575,25 @@ app-teller-activities .label-icon {
 }
 
 .filter-group > app-field-label,
-.form-field > app-field-label,
 .aml-field > app-field-label {
   display: block;
   margin-bottom: 0.28rem;
+}
+
+.filter-group > app-field-label .field-label,
+.aml-field > app-field-label .field-label {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.form-field > app-field-label {
+  display: block;
+}
+
+@media (max-width: 639px) {
+  .form-field > app-field-label {
+    margin-bottom: 4px;
+  }
 }
 
 .currency-field > app-field-label {

@@ -85,28 +85,30 @@
                   <th class="col-amount">Trans Amount</th>
                   <th class="col-to">Trans To</th>
                   <th class="col-status">Status</th>
-                  <th class="col-delete"><span class="sr-only">Delete</span></th>
+                  <th class="col-actions">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                @for (row of awaitingVaultRequests(); track row.id) {
+                @for (row of pagedAwaitingVaultRequests(); track row.id) {
                   <tr>
                     <td class="col-batch mono">{{ row.batchNo }}</td>
                     <td class="col-amount">{{ row.transAmount | number: '1.2-2' }}</td>
                     <td class="col-to">{{ row.transTo }}</td>
                     <td class="col-status">
-                      <span class="status-pill" data-status="pending">At Vault</span>
+                      <span class="usg-status-pill" data-status="At Vault">At Vault</span>
                     </td>
-                    <td class="col-delete">
-                      <button
-                        type="button"
-                        class="icon-action is-delete"
-                        title="Delete request"
-                        aria-label="Delete awaiting request"
-                        (click)="deletePending(row.id)"
-                      >
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                      </button>
+                    <td class="col-actions">
+                      <div class="usg-dt-actions">
+                        <button
+                          type="button"
+                          class="usg-dt-action is-delete"
+                          title="Delete request"
+                          (click)="deletePending(row.id)"
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 } @empty {
@@ -117,6 +119,14 @@
               </tbody>
             </table>
           </div>
+          <app-usg-table-pagination
+            [totalRecords]="awaitingVaultRequests().length"
+            [page]="awaitingPage()"
+            [pageSize]="awaitingPageSize()"
+            [pageSizeOptions]="pageSizeOptions"
+            (pageChange)="awaitingPage.set($event)"
+            (pageSizeChange)="awaitingPageSize.set($event); awaitingPage.set(1)"
+          />
         </section>
 
           @if (showRejectedTable()) {
@@ -139,24 +149,34 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (row of rejectedRequests(); track row.id) {
+                    @for (row of pagedRejectedRequests(); track row.id) {
                       <tr>
                         <td class="col-batch mono">{{ row.batchNo }}</td>
                         <td class="col-amount">{{ row.transAmount | number: '1.2-2' }}</td>
                         <td class="col-to">{{ row.transTo }}</td>
                         <td class="col-status">
-                          <span class="status-pill" data-status="rejected">Rejected</span>
+                          <span class="usg-status-pill" data-status="Rejected">Rejected</span>
                         </td>
                         <td class="col-actions">
-                          <button type="button" class="btn btn-outline btn-ok" (click)="acknowledgeRejected(row.id)">
-                            OK
-                          </button>
+                          <div class="usg-dt-actions">
+                            <button type="button" class="usg-dt-action is-view" (click)="acknowledgeRejected(row.id)">
+                              OK
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     }
                   </tbody>
                 </table>
               </div>
+              <app-usg-table-pagination
+                [totalRecords]="rejectedRequests().length"
+                [page]="rejectedPage()"
+                [pageSize]="rejectedPageSize()"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="rejectedPage.set($event)"
+                (pageSizeChange)="rejectedPageSize.set($event); rejectedPage.set(1)"
+              />
             </section>
           }
       </div>

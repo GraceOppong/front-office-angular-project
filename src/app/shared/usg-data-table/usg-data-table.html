@@ -1,0 +1,120 @@
+<div class="usg-table-container">
+  <div class="usg-table-scroll">
+    <table class="usg-table data-table">
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th [class]="thClass(col)" scope="col">
+              @if (col.sortable) {
+                <button type="button" class="usg-dt-sort" (click)="toggleSort(col)">
+                  <span>{{ col.header }}</span>
+                  <span class="usg-dt-sort-icon" aria-hidden="true">
+                    @if (sortedKey() === col.key && sortDir() === 'asc') {
+                      <svg viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 3.5 4.5 7h7L8 3.5zm0 9L11.5 9h-7L8 12.5z" opacity="0.35" />
+                        <path d="M8 3.5 4.5 7h7L8 3.5z" />
+                      </svg>
+                    } @else if (sortedKey() === col.key && sortDir() === 'desc') {
+                      <svg viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 3.5 4.5 7h7L8 3.5zm0 9L11.5 9h-7L8 12.5z" opacity="0.35" />
+                        <path d="M8 12.5 11.5 9h-7L8 12.5z" />
+                      </svg>
+                    } @else {
+                      <svg viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 3.5 4.5 7h7L8 3.5zm0 9L11.5 9h-7L8 12.5z" />
+                      </svg>
+                    }
+                  </span>
+                </button>
+              } @else {
+                {{ col.header }}
+              }
+            </th>
+          }
+          @if (actions().length) {
+            <th class="usg-dt-th col-actions" scope="col">Actions</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (loading()) {
+          <tr class="empty-row">
+            <td [attr.colspan]="columns().length + (actions().length ? 1 : 0)">Loading…</td>
+          </tr>
+        } @else if (visibleRows().length === 0) {
+          <tr class="empty-row">
+            <td [attr.colspan]="columns().length + (actions().length ? 1 : 0)">
+              <strong>{{ emptyTitle() }}</strong>
+              @if (emptyDescription()) {
+                <div class="usg-dt-empty-desc">{{ emptyDescription() }}</div>
+              }
+            </td>
+          </tr>
+        } @else {
+          @for (row of visibleRows(); track trackRow(row)) {
+            <tr (click)="onRowClick(row)">
+              @if (rowTemplate()) {
+                <ng-container *ngTemplateOutlet="rowTemplate()!; context: { $implicit: row }" />
+              } @else {
+                @for (col of columns(); track col.key) {
+                  <td [class]="tdClass(col)" [class.is-empty]="isEmptyAmount(row, col)">
+                    @if (col.format === 'status') {
+                      <span class="usg-status-pill" [attr.data-status]="cellValue(row, col)">
+                        {{ cellValue(row, col) }}
+                      </span>
+                    } @else if (col.format === 'debit' || col.format === 'credit' || col.format === 'balance') {
+                      {{ formatMoneyCell(row, col) }}
+                    } @else {
+                      {{ cellValue(row, col) }}
+                    }
+                  </td>
+                }
+              }
+              @if (actions().length) {
+                <td class="usg-dt-td col-actions" (click)="$event.stopPropagation()">
+                  <div class="usg-dt-actions">
+                    @for (act of actions(); track act.variant + act.label) {
+                      <button
+                        type="button"
+                        class="usg-dt-action"
+                        [class.is-view]="act.variant === 'view'"
+                        [class.is-edit]="act.variant === 'edit'"
+                        [class.is-delete]="act.variant === 'delete'"
+                        [disabled]="isActionDisabled(act, row)"
+                        (click)="onAction(act.variant, row)"
+                      >
+                        @switch (act.variant) {
+                          @case ('view') {
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c-5 0-9 4.5-9 7s4 7 9 7 9-4.5 9-7-4-7-9-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/></svg>
+                          }
+                          @case ('edit') {
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                          }
+                          @case ('delete') {
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                          }
+                        }
+                        {{ act.label }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (pagination()) {
+    <app-usg-table-pagination
+      [totalRecords]="totalCount()"
+      [page]="currentPage()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="pageSizeOptions()"
+      (pageChange)="goToPage($event)"
+      (pageSizeChange)="onFooterPageSizeChange($event)"
+    />
+  }
+</div>

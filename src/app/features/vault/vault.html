@@ -247,7 +247,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (row of vaultCashRequests(); track row.id) {
+                    @for (row of pagedVaultCashRequests(); track row.id) {
                       <tr>
                         <td class="mono">{{ row.batchNo }}</td>
                         <td>{{ row.teller }}</td>
@@ -266,6 +266,14 @@
                   </tbody>
                 </table>
               </div>
+              <app-usg-table-pagination
+                [totalRecords]="vaultCashRequests().length"
+                [page]="issueQueuePage()"
+                [pageSize]="issueQueuePageSize()"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="issueQueuePage.set($event)"
+                (pageSizeChange)="issueQueuePageSize.set($event); issueQueuePage.set(1)"
+              />
             </section>
           } @else {
             @if (issuingRequest(); as request) {
@@ -387,7 +395,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (row of awaitingTransfers(); track row.id) {
+                    @for (row of pagedAwaitingTransfers(); track row.id) {
                       <tr>
                         <td class="mono">{{ row.batchNo }}</td>
                         <td>{{ row.teller }}</td>
@@ -406,6 +414,14 @@
                   </tbody>
                 </table>
               </div>
+              <app-usg-table-pagination
+                [totalRecords]="awaitingTransfers().length"
+                [page]="receiveQueuePage()"
+                [pageSize]="receiveQueuePageSize()"
+                [pageSizeOptions]="pageSizeOptions"
+                (pageChange)="receiveQueuePage.set($event)"
+                (pageSizeChange)="receiveQueuePageSize.set($event); receiveQueuePage.set(1)"
+              />
             </section>
           } @else {
             @if (reviewingTransfer(); as transfer) {

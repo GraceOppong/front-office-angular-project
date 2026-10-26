@@ -15,13 +15,6 @@ import { UngrantedCashRequest } from '../ungranted-cash-request/ungranted-cash-r
 import { LucideUndo2 } from '@lucide/angular';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { TELLER_CALLOVER_JOURNAL_PATH, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
-import {
-  PERF_CARD_LAYOUT_LABELS,
-  PERF_CARD_LAYOUTS,
-  PerfCardLayout,
-  readPerfCardLayout,
-  savePerfCardLayout,
-} from '../../shared/perf-card-layout';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 import { FieldLabel } from '../../shared/field-label/field-label';
 
@@ -55,11 +48,6 @@ export class TellerActivities {
   readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly screenTitle = 'Teller Activities';
-  readonly perfCardLayoutOptions = PERF_CARD_LAYOUTS.map((id) => ({
-    id,
-    label: PERF_CARD_LAYOUT_LABELS[id],
-  }));
-  readonly perfCardLayout = signal<PerfCardLayout>(readPerfCardLayout());
   readonly feedbackMessage = signal('');
   readonly showRequestCashModal = signal(false);
   readonly showPendingCashInModal = signal(false);
@@ -109,6 +97,10 @@ export class TellerActivities {
     }
     return Math.min(100, (this.tillStore.cashWithdrawn() / target) * 100);
   });
+
+  readonly depositedAmountProgressPct = computed(() => Math.round(this.depositedAmountProgress()));
+
+  readonly withdrawnAmountProgressPct = computed(() => Math.round(this.withdrawnAmountProgress()));
 
   readonly withdrawnCountProgress = computed(() => {
     const target = this.tillStore.cashWithdrawnCountTarget();
@@ -202,15 +194,6 @@ export class TellerActivities {
 
   onCurrencyChange(value: string): void {
     this.currencyStore.setCurrency(value);
-  }
-
-  onPerfCardLayoutChange(value: string): void {
-    if (!PERF_CARD_LAYOUTS.includes(value as PerfCardLayout)) {
-      return;
-    }
-    const layout = value as PerfCardLayout;
-    this.perfCardLayout.set(layout);
-    savePerfCardLayout(layout);
   }
 
   onQuickAction(label: string): void {

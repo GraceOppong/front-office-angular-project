@@ -15,6 +15,13 @@ import {
 } from '../../shared/callover.store';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
+import {
+  usgPageCount,
+  usgPaginateSlice,
+  USG_DEFAULT_PAGE_SIZE_OPTIONS,
+} from '../../shared/usg-table-pagination/usg-pagination.util';
+import { UsgTablePagination } from '../../shared/usg-table-pagination/usg-table-pagination';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { SAME_DAY_REVERSAL_PATH } from '../../shared/same-day-reversal.mock';
 
@@ -56,7 +63,16 @@ const TRANS_STATUS_OPTIONS: { id: CalloverTransStatusFilter; label: string }[] =
 
 @Component({
   selector: 'app-teller-callover',
-  imports: [DecimalPipe, RouterLink, LucideUndo2, MessagePopup, FieldLabel, DateInput],
+  imports: [
+    DecimalPipe,
+    RouterLink,
+    LucideUndo2,
+    MessagePopup,
+    FieldLabel,
+    DateInput,
+    UsgFieldTypeDirective,
+    UsgTablePagination,
+  ],
   templateUrl: './teller-callover.html',
   styleUrl: './teller-callover.css',
 })
@@ -65,10 +81,41 @@ export class TellerCallover {
   readonly calloverStore = inject(CalloverStore);
   private readonly router = inject(Router);
 
+  readonly pageSizeOptions = [...USG_DEFAULT_PAGE_SIZE_OPTIONS];
+  readonly pendingPage = signal(1);
+  readonly pendingPageSize = signal(5);
+  readonly calledOverPage = signal(1);
+  readonly calledOverPageSize = signal(5);
+
   constructor() {
     effect(() => {
       if (!this.calloverStore.calloverInitiated() && this.calloverView() === 'called-over') {
         this.calloverView.set('pending');
+      }
+    });
+
+    effect(() => {
+      this.batchNumber();
+      this.accountNumber();
+      this.amountMin();
+      this.amountMax();
+      this.transactionDateFrom();
+      this.transactionDateTo();
+      this.transactionTypeFilter();
+      this.transStatusFilter();
+      this.calloverView();
+      this.pendingPage.set(1);
+      this.calledOverPage.set(1);
+    });
+
+    effect(() => {
+      const pendingMax = usgPageCount(this.pendingCount(), this.pendingPageSize());
+      if (this.pendingPage() > pendingMax) {
+        this.pendingPage.set(pendingMax);
+      }
+      const calledMax = usgPageCount(this.calledOverCount(), this.calledOverPageSize());
+      if (this.calledOverPage() > calledMax) {
+        this.calledOverPage.set(calledMax);
       }
     });
   }
@@ -113,6 +160,13 @@ export class TellerCallover {
 
   readonly pendingRows = computed(() => this.filteredRows().filter((row) => !row.ticked));
   readonly calledOverRows = computed(() => this.filteredRows().filter((row) => row.ticked));
+
+  readonly pagedPendingRows = computed(() =>
+    usgPaginateSlice(this.pendingRows(), this.pendingPage(), this.pendingPageSize()),
+  );
+  readonly pagedCalledOverRows = computed(() =>
+    usgPaginateSlice(this.calledOverRows(), this.calledOverPage(), this.calledOverPageSize()),
+  );
 
   readonly count = computed(() => this.filteredRows().length);
   readonly pendingCount = computed(() => this.pendingRows().length);

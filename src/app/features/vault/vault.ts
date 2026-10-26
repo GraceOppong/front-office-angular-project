@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { formatBusinessDate } from '../../shared/business-date';
 import { CashRequestRow, CashRequestStore } from '../../shared/cash-request.store';
 import { CashOutTransfer, CashTransferStore } from '../../shared/cash-transfer.store';
@@ -9,6 +9,12 @@ import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import {
+  usgPageCount,
+  usgPaginateSlice,
+  USG_DEFAULT_PAGE_SIZE_OPTIONS,
+} from '../../shared/usg-table-pagination/usg-pagination.util';
+import { UsgTablePagination } from '../../shared/usg-table-pagination/usg-table-pagination';
 import {
   amountDraftFromQuantity,
   parseWholeAmountInput,
@@ -23,7 +29,7 @@ interface IssueRow {
 
 @Component({
   selector: 'app-vault',
-  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe, FieldLabel],
+  imports: [DecimalPipe, MessagePopup, DenominationDescriptionPipe, FieldLabel, UsgTablePagination],
   templateUrl: './vault.html',
   styleUrl: './vault.css',
 })
@@ -51,6 +57,35 @@ export class Vault {
 
   readonly reviewingTransfer = signal<CashOutTransfer | null>(null);
 
+  readonly pageSizeOptions = [...USG_DEFAULT_PAGE_SIZE_OPTIONS];
+  readonly issueQueuePage = signal(1);
+  readonly issueQueuePageSize = signal(5);
+  readonly receiveQueuePage = signal(1);
+  readonly receiveQueuePageSize = signal(5);
+
+  constructor() {
+    effect(() => {
+      this.vaultCashRequests().length;
+      this.issueQueuePage.set(1);
+    });
+    effect(() => {
+      this.awaitingTransfers().length;
+      this.receiveQueuePage.set(1);
+    });
+    effect(() => {
+      const max = usgPageCount(this.vaultCashRequests().length, this.issueQueuePageSize());
+      if (this.issueQueuePage() > max) {
+        this.issueQueuePage.set(max);
+      }
+    });
+    effect(() => {
+      const max = usgPageCount(this.awaitingTransfers().length, this.receiveQueuePageSize());
+      if (this.receiveQueuePage() > max) {
+        this.receiveQueuePage.set(max);
+      }
+    });
+  }
+
   /** Cash requests addressed to the vault custodian (not peer teller requests). */
   readonly vaultCashRequests = computed(() =>
     this.cashRequestStore
@@ -59,6 +94,14 @@ export class Vault {
   );
 
   readonly awaitingTransfers = this.cashTransferStore.awaitingVaultTransfers;
+
+  readonly pagedVaultCashRequests = computed(() =>
+    usgPaginateSlice(this.vaultCashRequests(), this.issueQueuePage(), this.issueQueuePageSize()),
+  );
+
+  readonly pagedAwaitingTransfers = computed(() =>
+    usgPaginateSlice(this.awaitingTransfers(), this.receiveQueuePage(), this.receiveQueuePageSize()),
+  );
 
   readonly pendingWorkAmount = computed(
     () =>

@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import {
   formatAmountOnBlur,
   formatAmountInput,
@@ -10,6 +10,12 @@ import { CashRequestStore } from '../../shared/cash-request.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { FieldLabel } from '../../shared/field-label/field-label';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
+import {
+  usgPageCount,
+  usgPaginateSlice,
+  USG_DEFAULT_PAGE_SIZE_OPTIONS,
+} from '../../shared/usg-table-pagination/usg-pagination.util';
+import { UsgTablePagination } from '../../shared/usg-table-pagination/usg-table-pagination';
 
 interface RequestFromOption {
   id: string;
@@ -18,13 +24,42 @@ interface RequestFromOption {
 
 @Component({
   selector: 'app-request-cash',
-  imports: [DecimalPipe, MessagePopup, FieldLabel],
+  imports: [DecimalPipe, MessagePopup, FieldLabel, UsgTablePagination],
   templateUrl: './request-cash.html',
   styleUrl: './request-cash.css',
 })
 export class RequestCash {
   private readonly cashRequestStore = inject(CashRequestStore);
   readonly currencyStore = inject(WorkspaceCurrencyStore);
+
+  readonly pageSizeOptions = [...USG_DEFAULT_PAGE_SIZE_OPTIONS];
+  readonly awaitingPage = signal(1);
+  readonly awaitingPageSize = signal(5);
+  readonly rejectedPage = signal(1);
+  readonly rejectedPageSize = signal(5);
+
+  constructor() {
+    effect(() => {
+      this.awaitingVaultRequests().length;
+      this.awaitingPage.set(1);
+    });
+    effect(() => {
+      this.rejectedRequests().length;
+      this.rejectedPage.set(1);
+    });
+    effect(() => {
+      const max = usgPageCount(this.awaitingVaultRequests().length, this.awaitingPageSize());
+      if (this.awaitingPage() > max) {
+        this.awaitingPage.set(max);
+      }
+    });
+    effect(() => {
+      const max = usgPageCount(this.rejectedRequests().length, this.rejectedPageSize());
+      if (this.rejectedPage() > max) {
+        this.rejectedPage.set(max);
+      }
+    });
+  }
 
   readonly closed = output<void>();
   readonly submitted = output<{ currency: string; amount: string; requestingFrom: string }>();
@@ -44,6 +79,14 @@ export class RequestCash {
   readonly rejectedRequests = this.cashRequestStore.rejectedRequests;
 
   readonly showRejectedTable = computed(() => this.rejectedRequests().length > 0);
+
+  readonly pagedAwaitingVaultRequests = computed(() =>
+    usgPaginateSlice(this.awaitingVaultRequests(), this.awaitingPage(), this.awaitingPageSize()),
+  );
+
+  readonly pagedRejectedRequests = computed(() =>
+    usgPaginateSlice(this.rejectedRequests(), this.rejectedPage(), this.rejectedPageSize()),
+  );
 
   onCurrencyChange(value: string): void {
     this.currencyStore.setCurrency(value);

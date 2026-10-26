@@ -2,33 +2,34 @@
   <input
     type="text"
     class="date-text"
-    inputmode="numeric"
+    inputmode="text"
     autocomplete="off"
-    maxlength="10"
-    placeholder="dd/mm/yyyy"
+    maxlength="11"
+    placeholder="dd-mmm-yyyy"
     [id]="inputId()"
     [value]="value()"
     [attr.aria-label]="ariaLabel() || null"
     (input)="onTextInput($any($event.target).value)"
     (blur)="onTextBlur()"
   />
-  <button type="button" class="date-picker-hit" title="Select date" (click)="openPicker(nativeDate)">
+  <div class="date-picker-hit" title="Select date">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="currentColor"
         d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"
       />
     </svg>
-  </button>
-  <input
-    #nativeDate
-    class="date-native"
-    type="date"
-    tabindex="-1"
-    [id]="pickerId()"
-    [attr.aria-hidden]="true"
-    [value]="isoValue()"
-    [attr.max]="maxIso() || null"
-    (change)="onPickerChange($any($event.target).value)"
-  />
+    <input
+      #nativeDate
+      class="date-native-overlay"
+      type="date"
+      tabindex="-1"
+      [id]="pickerId()"
+      [attr.aria-label]="(ariaLabel() || 'Select date') + ' calendar'"
+      [value]="isoValue()"
+      [attr.max]="maxIso() || null"
+      (input)="onPickerInput($any($event.target).value, nativeDate)"
+      (change)="onPickerChange($any($event.target).value, nativeDate)"
+    />
+  </div>
 </div>

@@ -1,0 +1,28 @@
+<div class="usg-field-shell field-type-phone" [class.is-disabled]="isDisabled()">
+  <div class="usg-phone-prefix">
+    <span class="usg-phone-prefix-label">{{ country().flag }}{{ country().dial }}</span>
+    <select
+      class="usg-phone-country"
+      [disabled]="isDisabled()"
+      [value]="country().code"
+      (change)="onCountryChange($any($event.target).value)"
+      [attr.aria-label]="'Country code for ' + inputId()"
+    >
+      @for (c of countries(); track c.code) {
+        <option [value]="c.code">{{ c.flag }}{{ c.dial }}</option>
+      }
+    </select>
+  </div>
+  <input
+    [id]="inputId()"
+    type="tel"
+    inputmode="tel"
+    autocomplete="tel-national"
+    class="field field-type-phone"
+    [disabled]="isDisabled()"
+    [value]="localNumber"
+    placeholder="000 000 0000"
+    (input)="onLocalInput($any($event.target).value)"
+    (blur)="onBlur()"
+  />
+</div>

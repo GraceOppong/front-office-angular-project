@@ -29,6 +29,7 @@ import { DenominationLine } from '../../shared/till.store';
 import { WorkspaceCurrencyStore, toCurrencyCode } from '../../shared/workspace-currency.store';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
 import { calculateCashCharges } from '../../shared/cash-charges';
 import {
   AmlThirdPartyDetails,
@@ -40,7 +41,15 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-withdrawal',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel, DateInput],
+  imports: [
+    RouterLink,
+    MessagePopup,
+    AmlThirdPartyModal,
+    CashDenominationModal,
+    FieldLabel,
+    DateInput,
+    UsgFieldTypeDirective,
+  ],
   templateUrl: './cash-withdrawal.html',
   styleUrl: '../cash-deposit/cash-deposit.css',
 })

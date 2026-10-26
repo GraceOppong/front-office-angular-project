@@ -33,6 +33,7 @@ import {
 } from '../../shared/aml-third-party.model';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
 import { calculateCashCharges } from '../../shared/cash-charges';
 
 const DEFAULT_NARRATION = 'CASH DEPOSIT';
@@ -40,7 +41,15 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
 
 @Component({
   selector: 'app-cash-deposit',
-  imports: [RouterLink, MessagePopup, AmlThirdPartyModal, CashDenominationModal, FieldLabel, DateInput],
+  imports: [
+    RouterLink,
+    MessagePopup,
+    AmlThirdPartyModal,
+    CashDenominationModal,
+    FieldLabel,
+    DateInput,
+    UsgFieldTypeDirective,
+  ],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
 })

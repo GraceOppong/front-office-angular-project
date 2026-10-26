@@ -1,0 +1,8 @@
+:host {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.usg-field-shell .field-type-email {
+  max-width: none;
+}

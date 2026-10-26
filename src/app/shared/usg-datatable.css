@@ -1,0 +1,519 @@
+/* UnionSG DataTable — https://unionsg-ui.vercel.app/ (DataTable) */
+
+:root {
+  --usg-table-bg: #f7f4f0;
+  --usg-table-row-bg: #f9f7f4;
+  --usg-table-border: rgba(226, 232, 240, 0.9);
+  --usg-table-header-bg: #e9effb;
+  --usg-table-header-border: #cbd5e1;
+  --usg-table-row-border: rgba(226, 232, 240, 0.6);
+  --usg-table-row-hover: rgba(239, 246, 255, 0.6);
+  --usg-table-debit: #dc2626;
+  --usg-table-credit: #16a34a;
+  --usg-table-empty-amount: #94a3b8;
+  --usg-table-pagination-active: #2563eb;
+  --usg-table-text: #334155;
+  --usg-table-head-text: #0f172a;
+}
+
+/* Panel card wrapping list tables */
+.table-panel:has(.data-table):not(:has(.usg-table-container)),
+.table-panel:has(app-usg-data-table),
+.usg-table-panel {
+  border: 1px solid var(--usg-table-border);
+  border-radius: 12px;
+  background: var(--usg-table-bg);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.table-panel:has(app-usg-data-table) .table-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  background: var(--usg-table-bg);
+}
+
+.table-panel:has(.data-table) .table-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  background: var(--usg-table-bg);
+}
+
+.table-panel:has(.data-table) .table-head h2,
+.table-panel:has(.data-table) .table-head h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--usg-table-head-text);
+}
+
+/* Scroll region */
+.table-wrap:has(> .data-table),
+.usg-table-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  overscroll-behavior-x: contain;
+  max-width: 100%;
+  min-width: 0;
+  max-height: none;
+  -webkit-overflow-scrolling: touch;
+  background: var(--usg-table-row-bg);
+  flex: 0 1 auto;
+}
+
+/* Paginated lists: row count = page size — no inner vertical scroll */
+.table-panel:has(app-usg-table-pagination) .table-wrap,
+.usg-table-container:has(app-usg-table-pagination) .usg-table-scroll {
+  overflow-y: visible;
+  max-height: none;
+}
+
+.usg-table-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--usg-table-border);
+  border-radius: 12px;
+  background: var(--usg-table-bg);
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.usg-table-container app-usg-table-pagination {
+  flex-shrink: 0;
+}
+
+.table-panel:has(.data-table) .table-wrap {
+  border-bottom: none;
+}
+
+/* Single card when panel wraps the Angular DataTable component */
+.table-panel:has(app-usg-data-table) app-usg-data-table .usg-table-container {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Default: fill the panel. Horizontal scroll on .table-wrap only if content overflows. */
+.data-table,
+.usg-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+/* Opt-in for very wide column sets (not Teller Callover — that grid fits the panel). */
+.data-table.is-wide-grid,
+.usg-table.is-wide-grid {
+  width: max-content;
+  min-width: 100%;
+  table-layout: auto;
+}
+
+.data-table thead th,
+.usg-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--usg-table-header-bg);
+  border-bottom: 1px solid var(--usg-table-header-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--usg-table-head-text);
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: middle;
+  box-shadow: 0 1px 0 var(--usg-table-header-border);
+}
+
+.data-table tbody td,
+.usg-table tbody td {
+  font-size: 12px;
+  color: var(--usg-table-text);
+  padding: 10px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--usg-table-row-border);
+  background: var(--usg-table-row-bg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table.is-wide-grid tbody td,
+.usg-table.is-wide-grid tbody td {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.data-table.is-wide-grid tbody td.col-desc,
+.data-table.is-wide-grid tbody td.col-details,
+.usg-table.is-wide-grid tbody td.col-desc,
+.usg-table.is-wide-grid tbody td.col-details {
+  white-space: normal;
+  min-width: 10rem;
+  max-width: 22rem;
+}
+
+.data-table tbody tr:last-child td,
+.usg-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover td,
+.usg-table tbody tr:hover td {
+  background-color: var(--usg-table-row-hover);
+}
+
+.data-table tbody tr.empty-row td,
+.usg-table tbody tr.empty-row td {
+  text-align: center;
+  color: #64748b;
+  font-weight: 500;
+  padding: 16px 12px;
+  background: var(--usg-table-bg);
+}
+
+.data-table tbody tr.empty-row:hover td,
+.usg-table tbody tr.empty-row:hover td {
+  background: var(--usg-table-bg);
+}
+
+.data-table tbody tr.is-clickable {
+  cursor: pointer;
+}
+
+.data-table tbody tr.is-selected td {
+  background-color: var(--usg-table-row-hover);
+}
+
+.data-table tbody tr.is-ticked td {
+  background-color: rgba(239, 246, 255, 0.85);
+}
+
+.data-table tbody td.col-desc,
+.usg-table tbody td.col-desc {
+  font-weight: 600;
+  color: #334155;
+}
+
+.data-table tbody td.col-details {
+  font-weight: 600;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-size: 11px;
+}
+
+/* Banking list — debit / credit / balance */
+.data-table tbody td.col-debit,
+.usg-table tbody td.col-debit,
+.usg-table tbody td.is-debit {
+  color: var(--usg-table-debit);
+  font-weight: 600;
+}
+
+.data-table tbody td.col-credit,
+.usg-table tbody td.col-credit,
+.usg-table tbody td.is-credit {
+  color: var(--usg-table-credit);
+  font-weight: 600;
+}
+
+.data-table tbody td.col-debit.is-empty,
+.data-table tbody td.col-credit.is-empty,
+.usg-table tbody td.is-debit.is-empty,
+.usg-table tbody td.is-credit.is-empty {
+  color: var(--usg-table-empty-amount);
+  font-weight: 400;
+}
+
+.data-table tbody td.col-balance,
+.usg-table tbody td.is-balance {
+  color: var(--usg-table-head-text);
+  font-weight: 700;
+}
+
+.data-table thead th.col-actions,
+.data-table tbody td.col-actions,
+.data-table tbody td.col-delete,
+.usg-table thead th.col-actions,
+.usg-table tbody td.col-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Totals / sticky footer row inside table */
+.data-table-totals td {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--usg-table-head-text);
+  background: #eef2f6;
+  border-top: 1px solid var(--usg-table-header-border);
+  box-shadow: 0 -1px 0 var(--usg-table-header-border);
+}
+
+.data-table-totals td.col-debit,
+.data-table-totals td.col-credit {
+  color: var(--usg-table-head-text);
+  font-weight: 700;
+}
+
+/* Table panel footer (pagination / meta) */
+.table-panel:has(.data-table) > .table-footer,
+.table-panel:has(.data-table) .table-footer,
+.usg-table-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  font-size: 12px;
+  color: #475569;
+  background: var(--usg-table-bg);
+  border-top: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+.usg-table-container .usg-table-footer-meta {
+  justify-self: start;
+}
+
+.usg-table-container .usg-table-pagination {
+  justify-self: center;
+}
+
+.usg-table-container .page-size-field {
+  justify-self: end;
+}
+
+.table-panel:has(.data-table) > app-usg-table-pagination,
+.table-panel:has(.data-table) app-usg-table-pagination {
+  display: block;
+}
+
+.table-panel:has(.data-table) app-usg-table-pagination .usg-table-footer-meta {
+  justify-self: start;
+}
+
+.table-panel:has(.data-table) app-usg-table-pagination .usg-table-pagination {
+  justify-self: center;
+}
+
+.table-panel:has(.data-table) app-usg-table-pagination .page-size-field {
+  justify-self: end;
+}
+
+.usg-table-footer-meta {
+  font-size: 12px;
+  color: #475569;
+  font-weight: 500;
+}
+
+.usg-table-footer-meta strong {
+  color: var(--usg-table-head-text);
+  font-weight: 600;
+}
+
+.pagination,
+.usg-table-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.page-btn,
+.usg-page-btn {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.page-btn:hover:not(:disabled),
+.usg-page-btn:hover:not(:disabled) {
+  background: var(--usg-table-row-hover);
+  border-color: #94a3b8;
+}
+
+.page-btn.is-active,
+.usg-page-btn.is-active {
+  background: var(--usg-table-pagination-active);
+  border-color: var(--usg-table-pagination-active);
+  color: #fff;
+  border-radius: 6px;
+  min-width: 28px;
+}
+
+.page-btn:disabled,
+.usg-page-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.page-size-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.page-size-select,
+.usg-page-size-select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+}
+
+.page-meta {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* Row action buttons (View / Edit / Delete) — UnionSG DataTable */
+.usg-dt-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.usg-dt-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.usg-dt-action svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.usg-dt-action.is-view {
+  border-color: #cbd5e1;
+  color: #475569;
+  background: #fff;
+}
+
+.usg-dt-action.is-edit {
+  border-color: #93c5fd;
+  color: #2563eb;
+  background: #fff;
+}
+
+.usg-dt-action.is-delete {
+  border-color: #fca5a5;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.usg-dt-action:hover:not(:disabled) {
+  filter: brightness(0.98);
+}
+
+.usg-dt-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Status pills inside DataTable */
+.usg-status-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.usg-status-pill[data-status='active'],
+.usg-status-pill[data-status='Active'] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.usg-status-pill[data-status='inactive'],
+.usg-status-pill[data-status='Inactive'] {
+  background: transparent;
+  padding: 0;
+  height: auto;
+  border-radius: 0;
+  color: #334155;
+  font-weight: 600;
+}
+
+.usg-status-pill[data-status='pending'],
+.usg-status-pill[data-status='Ungranted'],
+.usg-status-pill[data-status='At Vault'] {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.usg-status-pill[data-status='rejected'],
+.usg-status-pill[data-status='Rejected'] {
+  background: #fef2f2;
+  color: #b42318;
+}
+
+/* Sortable header control */
+.usg-dt-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.usg-dt-sort-icon {
+  display: inline-flex;
+  color: #94a3b8;
+  line-height: 0;
+}
+
+.usg-dt-sort-icon svg {
+  width: 14px;
+  height: 14px;
+}

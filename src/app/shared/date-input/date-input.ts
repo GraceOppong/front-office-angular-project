@@ -28,17 +28,29 @@ export class DateInput {
     this.blurred.emit();
   }
 
-  onPickerChange(value: string): void {
-    this.valueChange.emit(value ? toDisplayDmy(value) : '');
-    this.blurred.emit();
+  onPickerInput(iso: string, picker: HTMLInputElement): void {
+    if (!iso) {
+      return;
+    }
+    this.applyPickerValue(iso, picker);
   }
 
-  openPicker(picker: HTMLInputElement): void {
-    try {
-      picker.showPicker();
-    } catch {
-      picker.focus();
-      picker.click();
-    }
+  onPickerChange(iso: string, picker: HTMLInputElement): void {
+    this.applyPickerValue(iso, picker);
+  }
+
+  private applyPickerValue(iso: string, picker: HTMLInputElement): void {
+    this.valueChange.emit(iso ? toDisplayDmy(iso) : '');
+    this.blurred.emit();
+    this.closePicker(picker);
+  }
+
+  /** Dismiss native date UI and return focus to the text field. */
+  private closePicker(picker: HTMLInputElement): void {
+    picker.blur();
+    queueMicrotask(() => {
+      const text = document.getElementById(this.inputId()) as HTMLInputElement | null;
+      text?.blur();
+    });
   }
 }

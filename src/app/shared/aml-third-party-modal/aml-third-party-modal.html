@@ -53,24 +53,19 @@
             <div class="aml-title-pair">
             <div class="aml-field is-title">
               <app-field-label forId="amlTitle" icon="title" text="Title" />
-              <select
-                id="amlTitle"
-                class="field select-field"
-                [class.is-placeholder]="!draft().title"
-                [value]="draft().title"
-                (change)="patchField('title', $any($event.target).value)"
-              >
-                <option value="" disabled hidden>Select</option>
-                @for (item of titleOptions; track item) {
-                  <option [value]="item">{{ item }}</option>
-                }
-              </select>
+              <app-usg-lov
+                inputId="amlTitle"
+                [options]="titleLovOptions()"
+                [value]="titleLovSelection()"
+                (valueChange)="onTitleLovChange($event)"
+              />
             </div>
             <div class="aml-field is-gender">
               <app-field-label forId="amlGender" icon="gender" text="Gender" />
               <select
                 id="amlGender"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().gender"
                 [value]="draft().gender"
                 (change)="patchField('gender', $any($event.target).value)"
@@ -87,7 +82,7 @@
               <input
                 id="amlFirstName"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().firstName"
                 (input)="patchField('firstName', $any($event.target).value)"
               />
@@ -98,7 +93,7 @@
               <input
                 id="amlSurname"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().surname"
                 (input)="patchField('surname', $any($event.target).value)"
               />
@@ -108,7 +103,7 @@
               <input
                 id="amlMiddleName"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().middleName"
                 (input)="patchField('middleName', $any($event.target).value)"
               />
@@ -118,7 +113,7 @@
               <input
                 id="amlAlias"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().alias"
                 (input)="patchField('alias', $any($event.target).value)"
               />
@@ -137,7 +132,7 @@
               <input
                 id="amlPob"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().placeOfBirth"
                 (input)="patchField('placeOfBirth', $any($event.target).value)"
               />
@@ -147,7 +142,7 @@
               <input
                 id="amlMothersName"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().mothersName"
                 (input)="patchField('mothersName', $any($event.target).value)"
               />
@@ -162,22 +157,19 @@
           <div class="aml-grid">
             <div class="aml-field">
               <app-field-label forId="amlPhone" icon="phone" text="Phone" />
-              <input
-                id="amlPhone"
-                type="tel"
-                class="field"
+              <app-usg-phone-input
+                inputId="amlPhone"
+                defaultCountry="GH"
                 [value]="draft().phone"
-                (input)="patchField('phone', $any($event.target).value)"
+                (valueChange)="onPhoneChange($event)"
               />
             </div>
             <div class="aml-field">
               <app-field-label forId="amlEmail" icon="mail" text="Email" />
-              <input
-                id="amlEmail"
-                type="email"
-                class="field"
+              <app-usg-email-input
+                inputId="amlEmail"
                 [value]="draft().email"
-                (input)="patchField('email', $any($event.target).value)"
+                (valueChange)="patchField('email', $event)"
               />
             </div>
             <div class="aml-field">
@@ -185,7 +177,7 @@
               <input
                 id="amlOccupation"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().occupation"
                 (input)="patchField('occupation', $any($event.target).value)"
               />
@@ -195,7 +187,7 @@
               <input
                 id="amlSourceOfWealth"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().sourceOfWealth"
                 (input)="patchField('sourceOfWealth', $any($event.target).value)"
               />
@@ -205,7 +197,7 @@
               <input
                 id="amlResidence"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().residence"
                 (input)="patchField('residence', $any($event.target).value)"
               />
@@ -214,7 +206,8 @@
               <app-field-label forId="amlNationality1" icon="globe" text="Nationality 1" />
               <select
                 id="amlNationality1"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().nationalities[0]"
                 [value]="draft().nationalities[0]"
                 (change)="onNationalityInput(0, $any($event.target).value)"
@@ -229,7 +222,8 @@
               <app-field-label forId="amlNationality2" icon="globe" text="Nationality 2" />
               <select
                 id="amlNationality2"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().nationalities[1]"
                 [value]="draft().nationalities[1]"
                 (change)="onNationalityInput(1, $any($event.target).value)"
@@ -252,7 +246,8 @@
               <app-field-label forId="amlIdType" icon="type" text="ID Type" />
               <select
                 id="amlIdType"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().idType"
                 [value]="draft().idType"
                 (change)="patchField('idType', $any($event.target).value)"
@@ -268,7 +263,7 @@
               <input
                 id="amlIdNumber"
                 type="text"
-                class="field"
+                usgFieldType="short"
                 [value]="draft().idNumber"
                 (input)="patchField('idNumber', $any($event.target).value)"
               />
@@ -295,7 +290,8 @@
               <app-field-label forId="amlIdCountry" icon="globe" text="Issuing Country" />
               <select
                 id="amlIdCountry"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().idIssuingCountry"
                 [value]="draft().idIssuingCountry"
                 (change)="patchField('idIssuingCountry', $any($event.target).value)"
@@ -319,7 +315,7 @@
               <input
                 id="amlEmployerName"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().employerName"
                 (input)="patchField('employerName', $any($event.target).value)"
               />
@@ -329,7 +325,7 @@
               <input
                 id="amlJobTitle"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().jobTitle"
                 (input)="patchField('jobTitle', $any($event.target).value)"
               />
@@ -338,7 +334,8 @@
               <app-field-label forId="amlEmploymentStatus" icon="status" text="Employment Status" />
               <select
                 id="amlEmploymentStatus"
-                class="field select-field"
+                usgFieldType="lov"
+                class="select-field"
                 [class.is-placeholder]="!draft().employmentStatus"
                 [value]="draft().employmentStatus"
                 (change)="patchField('employmentStatus', $any($event.target).value)"
@@ -351,12 +348,11 @@
             </div>
             <div class="aml-field">
               <app-field-label forId="amlEmployerPhone" icon="phone" text="Employer Phone" />
-              <input
-                id="amlEmployerPhone"
-                type="tel"
-                class="field"
+              <app-usg-phone-input
+                inputId="amlEmployerPhone"
+                defaultCountry="GH"
                 [value]="draft().employerPhone"
-                (input)="patchField('employerPhone', $any($event.target).value)"
+                (valueChange)="onEmployerPhoneChange($event)"
               />
             </div>
             <div class="aml-field span-2">
@@ -364,7 +360,7 @@
               <input
                 id="amlEmployerAddress"
                 type="text"
-                class="field"
+                usgFieldType="name"
                 [value]="draft().employerAddress"
                 (input)="patchField('employerAddress', $any($event.target).value)"
               />

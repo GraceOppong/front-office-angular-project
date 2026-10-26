@@ -5,185 +5,10 @@
         <div class="heading-block">
           <h1>{{ screenTitle }}</h1>
         </div>
-        <div class="header-actions">
-          <label class="perf-layout-picker" for="perfCardLayout">
-            <app-field-label [asSpan]="true" icon="layout" text="Stat cards" />
-            <select
-              id="perfCardLayout"
-              class="field select-field perf-layout-select"
-              [value]="perfCardLayout()"
-              (change)="onPerfCardLayoutChange($any($event.target).value)"
-            >
-              @for (option of perfCardLayoutOptions; track option.id) {
-                <option [value]="option.id">{{ option.label }}</option>
-              }
-            </select>
-          </label>
-        </div>
       </div>
     </header>
 
-    @if (perfCardLayout() === 'classic') {
-      <section class="perf-strip perf-layout-classic" aria-label="Teller performance">
-        <article class="card perf-card is-deposit">
-          <header class="perf-head">
-            <span class="card-icon is-green" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11.17V7h-2v6.17l-2.59-2.58L7 12l5 5 5-5-1.41-1.41L13 13.17z"/></svg>
-            </span>
-            <h2>Deposits</h2>
-            <span
-              class="perf-status"
-              [class.is-good]="depositedAmountVariance() >= 0 && depositedCountVariance() >= 0"
-              [class.is-bad]="depositedAmountVariance() < 0 || depositedCountVariance() < 0"
-            >
-              {{
-                depositedAmountVariance() >= 0 && depositedCountVariance() >= 0 ? 'On track' : 'Below target'
-              }}
-            </span>
-          </header>
-          <table class="perf-table">
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col" class="is-num">Amount</th>
-                <th scope="col" class="is-num">Transactions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="is-today">
-                <th scope="row">Today</th>
-                <td class="is-num is-emphasis">{{ tillStore.cashDeposited() | number: '1.2-2' }}</td>
-                <td class="is-num is-emphasis">{{ tillStore.cashDepositedCount() | number: '1.0-0' }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Target</th>
-                <td class="is-num">{{ tillStore.cashDepositedTarget() | number: '1.2-2' }}</td>
-                <td class="is-num">{{ tillStore.cashDepositedCountTarget() | number: '1.0-0' }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Variance</th>
-                <td
-                  class="is-num"
-                  [class.is-good]="depositedAmountVariance() >= 0"
-                  [class.is-bad]="depositedAmountVariance() < 0"
-                >
-                  {{ depositedAmountVariance() > 0 ? '+' : '' }}{{ depositedAmountVariance() | number: '1.2-2' }}
-                </td>
-                <td
-                  class="is-num"
-                  [class.is-good]="depositedCountVariance() >= 0"
-                  [class.is-bad]="depositedCountVariance() < 0"
-                >
-                  {{ depositedCountVariance() > 0 ? '+' : '' }}{{ depositedCountVariance() | number: '1.0-0' }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </article>
-
-        <article class="card perf-card is-withdrawn">
-          <header class="perf-head">
-            <span class="card-icon is-amber" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 8.83L15.59 13.41 17 12l-5-5-5 5 1.41 1.41L11 10.83V17h2v-6.17z"/></svg>
-            </span>
-            <h2>Withdrawals</h2>
-            <span
-              class="perf-status"
-              [class.is-good]="withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0"
-              [class.is-bad]="withdrawnAmountVariance() > 0 || withdrawnCountVariance() > 0"
-            >
-              {{
-                withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0 ? 'Within target' : 'Over target'
-              }}
-            </span>
-          </header>
-          <table class="perf-table">
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col" class="is-num">Amount</th>
-                <th scope="col" class="is-num">Transactions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="is-today">
-                <th scope="row">Today</th>
-                <td class="is-num is-emphasis">{{ tillStore.cashWithdrawn() | number: '1.2-2' }}</td>
-                <td class="is-num is-emphasis">{{ tillStore.cashWithdrawnCount() | number: '1.0-0' }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Target</th>
-                <td class="is-num">{{ tillStore.cashWithdrawnTarget() | number: '1.2-2' }}</td>
-                <td class="is-num">{{ tillStore.cashWithdrawnCountTarget() | number: '1.0-0' }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Variance</th>
-                <td
-                  class="is-num"
-                  [class.is-good]="withdrawnAmountVariance() <= 0"
-                  [class.is-bad]="withdrawnAmountVariance() > 0"
-                >
-                  {{ withdrawnAmountVariance() > 0 ? '+' : '' }}{{ withdrawnAmountVariance() | number: '1.2-2' }}
-                </td>
-                <td
-                  class="is-num"
-                  [class.is-good]="withdrawnCountVariance() <= 0"
-                  [class.is-bad]="withdrawnCountVariance() > 0"
-                >
-                  {{ withdrawnCountVariance() > 0 ? '+' : '' }}{{ withdrawnCountVariance() | number: '1.0-0' }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </article>
-
-        <article class="card perf-card is-vault">
-          <header class="perf-head">
-            <span class="card-icon is-blue" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 10h3V7H4v3zm0 7h3v-3H4v3zm5-10v3h3V7H9zm0 10h3v-3H9v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3z"/></svg>
-            </span>
-            <h2>Vault movements</h2>
-            <span class="perf-status is-good">Today</span>
-          </header>
-          <table class="perf-table">
-            <thead>
-              <tr>
-                <th scope="col"></th>
-                <th scope="col" class="is-num">Amount</th>
-                <th scope="col" class="is-num">Transactions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Received from vault</th>
-                <td class="is-num is-emphasis">{{ tillStore.vaultCashReceived() | number: '1.2-2' }}</td>
-                <td class="is-num">{{ tillStore.vaultCashReceivedCount() | number: '1.0-0' }}</td>
-              </tr>
-              <tr>
-                <th scope="row">Sent to vault</th>
-                <td class="is-num is-emphasis">{{ tillStore.vaultCashSent() | number: '1.2-2' }}</td>
-                <td class="is-num">{{ tillStore.vaultCashSentCount() | number: '1.0-0' }}</td>
-              </tr>
-              <tr class="is-net">
-                <th scope="row">Net</th>
-                <td
-                  class="is-num"
-                  colspan="2"
-                  [class.is-good]="vaultNetFlow() >= 0"
-                  [class.is-bad]="vaultNetFlow() < 0"
-                >
-                  {{ vaultNetFlow() > 0 ? '+' : '' }}{{ vaultNetFlow() | number: '1.2-2' }}
-                  <span class="perf-net-note">received minus sent</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </article>
-      </section>
-    }
-
-    @if (perfCardLayout() === 'tinted') {
-      <section class="perf-strip perf-layout-tinted" aria-label="Teller performance">
+    <section class="perf-strip perf-layout-tinted" aria-label="Teller performance">
         <article class="card perf-card perf-hero is-deposit">
           <header class="perf-head">
             <span class="card-icon is-green" aria-hidden="true">
@@ -203,10 +28,10 @@
           <div class="perf-hero-stage">
             <div
               class="perf-hero-dial is-green"
-              [style.--pct]="depositedAmountProgress()"
+              [style.--pct]="depositedAmountProgressPct()"
               aria-hidden="true"
             >
-              <span class="perf-hero-dial-core">{{ depositedAmountProgress() | number: '1.0-0' }}%</span>
+              <span class="perf-hero-dial-core">{{ depositedAmountProgressPct() }}%</span>
             </div>
             <div class="perf-hero-stack">
               <p class="perf-hero-stack-kicker">Today</p>
@@ -257,10 +82,10 @@
             <div
               class="perf-hero-dial is-amber"
               [class.is-over]="withdrawnAmountProgress() >= 100"
-              [style.--pct]="withdrawnAmountProgress()"
+              [style.--pct]="withdrawnAmountProgressPct()"
               aria-hidden="true"
             >
-              <span class="perf-hero-dial-core">{{ withdrawnAmountProgress() | number: '1.0-0' }}%</span>
+              <span class="perf-hero-dial-core">{{ withdrawnAmountProgressPct() }}%</span>
             </div>
             <div class="perf-hero-stack">
               <p class="perf-hero-stack-kicker">Today</p>
@@ -324,147 +149,6 @@
           </ul>
         </article>
       </section>
-    }
-
-    @if (perfCardLayout() === 'elevated') {
-      <section class="perf-strip perf-layout-elevated" aria-label="Teller performance">
-        <article class="card perf-card perf-bento-card is-deposit">
-          <header class="perf-head">
-            <span class="card-icon is-green" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 11.17V7h-2v6.17l-2.59-2.58L7 12l5 5 5-5-1.41-1.41L13 13.17z"/></svg>
-            </span>
-            <h2>Deposits</h2>
-            <span
-              class="perf-status"
-              [class.is-good]="depositedAmountVariance() >= 0 && depositedCountVariance() >= 0"
-              [class.is-bad]="depositedAmountVariance() < 0 || depositedCountVariance() < 0"
-            >
-              {{
-                depositedAmountVariance() >= 0 && depositedCountVariance() >= 0 ? 'On track' : 'Below target'
-              }}
-            </span>
-          </header>
-          <div class="perf-bento">
-            <div class="perf-bento-cell is-spot">
-              <span class="perf-bento-tag">Today</span>
-              <span class="perf-bento-value">{{ tillStore.cashDeposited() | number: '1.2-2' }}</span>
-            </div>
-            <div class="perf-bento-cell is-spot is-side">
-              <span class="perf-bento-tag">Transactions</span>
-              <span class="perf-bento-value">{{ tillStore.cashDepositedCount() | number: '1.0-0' }}</span>
-            </div>
-            <div class="perf-bento-cell is-soft">
-              <span class="perf-bento-tag">Target</span>
-              <div class="perf-bento-duo">
-                <span>{{ tillStore.cashDepositedTarget() | number: '1.2-2' }}</span>
-                <span class="perf-bento-sep" aria-hidden="true">·</span>
-                <span>{{ tillStore.cashDepositedCountTarget() | number: '1.0-0' }}</span>
-              </div>
-            </div>
-            <div
-              class="perf-bento-cell is-soft"
-              [class.is-good]="depositedAmountVariance() >= 0 && depositedCountVariance() >= 0"
-              [class.is-bad]="depositedAmountVariance() < 0 || depositedCountVariance() < 0"
-            >
-              <span class="perf-bento-tag">Variance</span>
-              <div class="perf-bento-duo">
-                <span>
-                  {{ depositedAmountVariance() > 0 ? '+' : '' }}{{ depositedAmountVariance() | number: '1.2-2' }}
-                </span>
-                <span class="perf-bento-sep" aria-hidden="true">·</span>
-                <span>
-                  {{ depositedCountVariance() > 0 ? '+' : '' }}{{ depositedCountVariance() | number: '1.0-0' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="card perf-card perf-bento-card is-withdrawn">
-          <header class="perf-head">
-            <span class="card-icon is-amber" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 8.83L15.59 13.41 17 12l-5-5-5 5 1.41 1.41L11 10.83V17h2v-6.17z"/></svg>
-            </span>
-            <h2>Withdrawals</h2>
-            <span
-              class="perf-status"
-              [class.is-good]="withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0"
-              [class.is-bad]="withdrawnAmountVariance() > 0 || withdrawnCountVariance() > 0"
-            >
-              {{
-                withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0 ? 'Within target' : 'Over target'
-              }}
-            </span>
-          </header>
-          <div class="perf-bento">
-            <div class="perf-bento-cell is-spot">
-              <span class="perf-bento-tag">Today</span>
-              <span class="perf-bento-value">{{ tillStore.cashWithdrawn() | number: '1.2-2' }}</span>
-            </div>
-            <div class="perf-bento-cell is-spot is-side">
-              <span class="perf-bento-tag">Transactions</span>
-              <span class="perf-bento-value">{{ tillStore.cashWithdrawnCount() | number: '1.0-0' }}</span>
-            </div>
-            <div class="perf-bento-cell is-soft">
-              <span class="perf-bento-tag">Target</span>
-              <div class="perf-bento-duo">
-                <span>{{ tillStore.cashWithdrawnTarget() | number: '1.2-2' }}</span>
-                <span class="perf-bento-sep" aria-hidden="true">·</span>
-                <span>{{ tillStore.cashWithdrawnCountTarget() | number: '1.0-0' }}</span>
-              </div>
-            </div>
-            <div
-              class="perf-bento-cell is-soft"
-              [class.is-good]="withdrawnAmountVariance() <= 0 && withdrawnCountVariance() <= 0"
-              [class.is-bad]="withdrawnAmountVariance() > 0 || withdrawnCountVariance() > 0"
-            >
-              <span class="perf-bento-tag">Variance</span>
-              <div class="perf-bento-duo">
-                <span>
-                  {{ withdrawnAmountVariance() > 0 ? '+' : '' }}{{ withdrawnAmountVariance() | number: '1.2-2' }}
-                </span>
-                <span class="perf-bento-sep" aria-hidden="true">·</span>
-                <span>
-                  {{ withdrawnCountVariance() > 0 ? '+' : '' }}{{ withdrawnCountVariance() | number: '1.0-0' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article class="card perf-card perf-bento-card is-vault">
-          <header class="perf-head">
-            <span class="card-icon is-blue" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 10h3V7H4v3zm0 7h3v-3H4v3zm5-10v3h3V7H9zm0 10h3v-3H9v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3zm5-10v3h3V7h-3zm0 10h3v-3h-3v3z"/></svg>
-            </span>
-            <h2>Vault movements</h2>
-            <span class="perf-status is-good">Today</span>
-          </header>
-          <div class="perf-bento is-vault">
-            <div class="perf-bento-cell is-in">
-              <span class="perf-bento-tag">Received from vault</span>
-              <span class="perf-bento-value">{{ tillStore.vaultCashReceived() | number: '1.2-2' }}</span>
-              <span class="perf-bento-meta">{{ tillStore.vaultCashReceivedCount() | number: '1.0-0' }} transactions</span>
-            </div>
-            <div class="perf-bento-cell is-out">
-              <span class="perf-bento-tag">Sent to vault</span>
-              <span class="perf-bento-value">{{ tillStore.vaultCashSent() | number: '1.2-2' }}</span>
-              <span class="perf-bento-meta">{{ tillStore.vaultCashSentCount() | number: '1.0-0' }} transactions</span>
-            </div>
-            <div
-              class="perf-bento-cell is-net"
-              [class.is-good]="vaultNetFlow() >= 0"
-              [class.is-bad]="vaultNetFlow() < 0"
-            >
-              <span class="perf-bento-tag">Net · received minus sent</span>
-              <span class="perf-bento-value">
-                {{ vaultNetFlow() > 0 ? '+' : '' }}{{ vaultNetFlow() | number: '1.2-2' }}
-              </span>
-            </div>
-          </div>
-        </article>
-      </section>
-    }
 
     <div class="workspace">
       <aside class="cash-stack">

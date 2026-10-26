@@ -8,6 +8,11 @@ import {
 import { maskDmyInput, normalizeDmyDateInput, toDisplayDmy } from '../business-date';
 import { DateInput } from '../date-input/date-input';
 import { FieldLabel } from '../field-label/field-label';
+import { UsgEmailInput } from '../usg-email-input/usg-email-input';
+import { UsgLov } from '../usg-lov/usg-lov';
+import { UsgLovOption } from '../usg-lov/usg-lov.model';
+import { UsgFieldTypeDirective } from '../usg-field-type.directive';
+import { UsgPhoneInput } from '../usg-phone-input/usg-phone-input';
 
 type AmlDateKey = 'dateOfBirth' | 'idIssueDate' | 'idExpiryDate';
 
@@ -22,7 +27,7 @@ export type AmlStepId = (typeof AML_STEPS)[number]['id'];
 
 @Component({
   selector: 'app-aml-third-party-modal',
-  imports: [FieldLabel, DateInput],
+  imports: [FieldLabel, DateInput, UsgFieldTypeDirective, UsgEmailInput, UsgPhoneInput, UsgLov],
   templateUrl: './aml-third-party-modal.html',
   styleUrl: './aml-third-party-modal.css',
 })
@@ -137,6 +142,15 @@ export class AmlThirdPartyModal implements OnDestroy {
 
   readonly draft = signal<AmlThirdPartyDetails>(createEmptyAmlThirdParty());
 
+  readonly titleLovOptions = computed((): UsgLovOption[] =>
+    this.titleOptions.map((label) => ({ value: label, label })),
+  );
+
+  readonly titleLovSelection = computed((): UsgLovOption | null => {
+    const title = this.draft().title;
+    return title ? { value: title, label: title } : null;
+  });
+
   constructor() {
     this.document.body.style.overflow = 'hidden';
 
@@ -161,6 +175,18 @@ export class AmlThirdPartyModal implements OnDestroy {
   patchField<K extends keyof AmlThirdPartyDetails>(key: K, value: AmlThirdPartyDetails[K]): void {
     this.draft.update((current) => ({ ...current, [key]: value }));
     this.formError.set('');
+  }
+
+  onTitleLovChange(option: UsgLovOption | null): void {
+    this.patchField('title', option?.value ?? '');
+  }
+
+  onPhoneChange(payload: { fullNumber: string }): void {
+    this.patchField('phone', payload.fullNumber);
+  }
+
+  onEmployerPhoneChange(payload: { fullNumber: string }): void {
+    this.patchField('employerPhone', payload.fullNumber);
   }
 
   onDateInput(key: AmlDateKey, value: string): void {

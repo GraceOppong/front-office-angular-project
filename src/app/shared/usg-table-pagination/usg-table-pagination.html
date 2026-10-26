@@ -1,0 +1,50 @@
+<footer class="usg-table-footer">
+  <span class="usg-table-footer-meta">
+    @if (totalRecords() > 0) {
+      Showing <strong>{{ rangeStart() }}</strong> to <strong>{{ rangeEnd() }}</strong> of
+      <strong>{{ totalRecords() }}</strong> records
+    } @else {
+      Showing <strong>0</strong> records
+    }
+  </span>
+
+  <div class="usg-table-pagination">
+    <button
+      type="button"
+      class="usg-page-btn"
+      [disabled]="page() <= 1"
+      (click)="goToPage(page() - 1)"
+      aria-label="Previous page"
+    >
+      ‹
+    </button>
+    @for (p of pageNumbers(); track p) {
+      <button
+        type="button"
+        class="usg-page-btn"
+        [class.is-active]="p === page()"
+        (click)="goToPage(p)"
+      >
+        {{ p }}
+      </button>
+    }
+    <button
+      type="button"
+      class="usg-page-btn"
+      [disabled]="page() >= pageCount()"
+      (click)="goToPage(page() + 1)"
+      aria-label="Next page"
+    >
+      ›
+    </button>
+  </div>
+
+  <label class="page-size-field">
+    Per page:
+    <select class="usg-page-size-select" [value]="pageSize()" (change)="onPageSizeChange($any($event.target).value)">
+      @for (opt of pageSizeOptions(); track opt) {
+        <option [value]="opt">{{ opt }} / page</option>
+      }
+    </select>
+  </label>
+</footer>

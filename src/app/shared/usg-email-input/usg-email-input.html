@@ -1,0 +1,28 @@
+<div
+  class="usg-field-shell field-type-email"
+  [class.is-disabled]="isDisabled()"
+  [class.is-error]="error()"
+>
+  <span class="usg-field-prefix" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M4 4h16v16H4z" opacity="0" />
+      <path d="M4 8l8 5 8-5M4 6h16v12H4V6z" stroke-linejoin="round" />
+    </svg>
+  </span>
+  <input
+    [id]="inputId()"
+    type="email"
+    inputmode="email"
+    autocomplete="email"
+    class="field field-type-email"
+    [disabled]="isDisabled()"
+    [value]="value"
+    [attr.aria-invalid]="error() ? true : null"
+    [attr.aria-describedby]="error() ? inputId() + '-error' : null"
+    (input)="onInput($any($event.target).value)"
+    (blur)="onBlur()"
+  />
+</div>
+@if (error()) {
+  <p class="field-hint is-error" [id]="inputId() + '-error'">{{ error() }}</p>
+}

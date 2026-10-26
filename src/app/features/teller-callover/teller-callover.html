@@ -42,7 +42,7 @@
             <input
               id="batchNumber"
               type="text"
-              class="field field-filter-batch"
+              usgFieldType="short"
               placeholder="Batch"
               [value]="batchNumber()"
               (input)="onBatchNumberInput($any($event.target).value)"
@@ -54,7 +54,7 @@
             <input
               id="accountNumberFilter"
               type="text"
-              class="field field-filter-batch"
+              usgFieldType="accountNumber"
               placeholder="Account"
               [value]="accountNumber()"
               (input)="onAccountNumberInput($any($event.target).value)"
@@ -67,9 +67,8 @@
               <input
                 id="amountMin"
                 type="text"
-                inputmode="decimal"
                 autocomplete="off"
-                class="field field-filter-amount"
+                usgFieldType="amount"
                 placeholder="Min"
                 [value]="amountMin()"
                 (input)="onAmountMinInput($any($event.target).value)"
@@ -79,9 +78,8 @@
               <input
                 id="amountMax"
                 type="text"
-                inputmode="decimal"
                 autocomplete="off"
-                class="field field-filter-amount"
+                usgFieldType="amount"
                 placeholder="Max"
                 [value]="amountMax()"
                 (input)="onAmountMaxInput($any($event.target).value)"
@@ -115,7 +113,8 @@
             <app-field-label forId="transactionType" icon="type" text="Trans type" />
             <select
               id="transactionType"
-              class="field field-filter-type"
+              usgFieldType="lov"
+              class="select-field field-filter-type"
               [value]="transactionTypeFilter()"
               (change)="setTransactionTypeFilter($any($event.target).value)"
             >
@@ -129,7 +128,8 @@
             <app-field-label forId="transStatus" icon="status" text="Trans status" />
             <select
               id="transStatus"
-              class="field field-filter-type"
+              usgFieldType="lov"
+              class="select-field field-filter-type"
               [class.is-filter-locked]="calloverStore.calloverInitiated()"
               [value]="calloverStore.calloverInitiated() ? 'applied' : transStatusFilter()"
               [disabled]="calloverStore.calloverInitiated()"
@@ -317,7 +317,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of pendingRows(); track row.id) {
+            @for (row of pagedPendingRows(); track row.id) {
               <tr
                 class="is-clickable"
                 title="Click to view details"
@@ -343,14 +343,14 @@
                 <td class="col-desc">{{ row.accountDescription }}</td>
                 <td class="col-currency mono">{{ row.currency }}</td>
                 <td class="col-details">{{ row.transactionDetails }}</td>
-                <td class="col-debit">
+                <td class="col-debit" [class.is-empty]="!debitAmount(row)">
                   @if (debitAmount(row); as debit) {
                     {{ debit | number: '1.2-2' }}
                   } @else {
                     —
                   }
                 </td>
-                <td class="col-credit">
+                <td class="col-credit" [class.is-empty]="!creditAmount(row)">
                   @if (creditAmount(row); as credit) {
                     {{ credit | number: '1.2-2' }}
                   } @else {
@@ -400,27 +400,27 @@
         </table>
       </div>
 
-      <footer class="table-footer table-footer-compact">
-        <div class="footer-left">
-          <div class="count-field">
-            <app-field-label forId="pendingCount" icon="clock" text="Pending" />
-            <input id="pendingCount" class="field field-readonly" [value]="pendingCount()" readonly />
-          </div>
-        </div>
-        <span class="tally-note" [class.is-complete]="allTicked() || calloverStore.calloverInitiated()">
-          @if (calloverStore.calloverInitiated()) {
-            @if (allTicked()) {
-              All filtered transactions called over
-            } @else {
-              Tick rows to call over; use Reverse on a row if needed
-            }
-          } @else if (count() === 0) {
-            Adjust filters to see transactions
+      <app-usg-table-pagination
+        [totalRecords]="pendingCount()"
+        [page]="pendingPage()"
+        [pageSize]="pendingPageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        (pageChange)="pendingPage.set($event)"
+        (pageSizeChange)="pendingPageSize.set($event); pendingPage.set(1)"
+      />
+      <span class="tally-note callover-tally-bar" [class.is-complete]="allTicked() || calloverStore.calloverInitiated()">
+        @if (calloverStore.calloverInitiated()) {
+          @if (allTicked()) {
+            All filtered transactions called over
           } @else {
-            Select Initiate callover to begin
+            Tick rows to call over; use Reverse on a row if needed
           }
-        </span>
-      </footer>
+        } @else if (count() === 0) {
+          Adjust filters to see transactions
+        } @else {
+          Select Initiate callover to begin
+        }
+      </span>
       </section>
     } @else if (calloverStore.calloverInitiated()) {
       <section class="card table-panel called-over-screen">
@@ -456,7 +456,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of calledOverRows(); track row.id) {
+              @for (row of pagedCalledOverRows(); track row.id) {
                 <tr
                   class="is-clickable is-ticked"
                   title="Click to view details"
@@ -468,14 +468,14 @@
                   <td class="col-desc">{{ row.accountDescription }}</td>
                   <td class="col-currency mono">{{ row.currency }}</td>
                   <td class="col-details">{{ row.transactionDetails }}</td>
-                  <td class="col-debit">
+                  <td class="col-debit" [class.is-empty]="!debitAmount(row)">
                     @if (debitAmount(row); as debit) {
                       {{ debit | number: '1.2-2' }}
                     } @else {
                       —
                     }
                   </td>
-                  <td class="col-credit">
+                  <td class="col-credit" [class.is-empty]="!creditAmount(row)">
                     @if (creditAmount(row); as credit) {
                       {{ credit | number: '1.2-2' }}
                     } @else {
@@ -519,22 +519,17 @@
           </table>
         </div>
 
-        <footer class="table-footer table-footer-compact">
-          <div class="footer-left">
-            <div class="count-field">
-              <app-field-label forId="calledOverCountField" icon="status" text="Called over" />
-              <input
-                id="calledOverCountField"
-                class="field field-readonly"
-                [value]="calledOverCount()"
-                readonly
-              />
-            </div>
-          </div>
-          <span class="tally-note is-complete">
-            Uncheck to return a row to pending callover.
-          </span>
-        </footer>
+        <app-usg-table-pagination
+          [totalRecords]="calledOverCount()"
+          [page]="calledOverPage()"
+          [pageSize]="calledOverPageSize()"
+          [pageSizeOptions]="pageSizeOptions"
+          (pageChange)="calledOverPage.set($event)"
+          (pageSizeChange)="calledOverPageSize.set($event); calledOverPage.set(1)"
+        />
+        <span class="tally-note callover-tally-bar is-complete">
+          Uncheck to return a row to pending callover.
+        </span>
       </section>
     }
   </div>
@@ -585,88 +580,88 @@
           <div class="details-grid">
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="value" text="Value Date" />
-              <input class="field field-readonly" [value]="txn.valueDate" readonly />
+              <input usgFieldType="date" class="field-readonly" [value]="txn.valueDate" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="calendar" text="Posting Date" />
-              <input class="field field-readonly" [value]="txn.postingDate" readonly />
+              <input usgFieldType="date" class="field-readonly" [value]="txn.postingDate" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="voucher" text="Voucher Number" />
-              <input class="field field-readonly" [value]="txn.voucherNumber" readonly />
+              <input usgFieldType="short" class="field-readonly" [value]="txn.voucherNumber" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="calendar" text="Voucher Date" />
-              <input class="field field-readonly" [value]="txn.voucherDate" readonly />
+              <input usgFieldType="date" class="field-readonly" [value]="txn.voucherDate" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="hash" text="Trans No" />
-              <input class="field field-readonly" [value]="txn.transNo" readonly />
+              <input usgFieldType="short" class="field-readonly" [value]="txn.transNo" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="clock" text="Posting Sys Time" />
-              <input class="field field-readonly" [value]="txn.postingSysTime" readonly />
+              <input usgFieldType="short" class="field-readonly" [value]="txn.postingSysTime" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="customer" text="Customer No" />
-              <input class="field field-readonly" [value]="txn.customerNo" readonly />
+              <input usgFieldType="customerNumber" class="field-readonly" [value]="txn.customerNo" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="amount" text="Amount" />
-              <input class="field field-readonly field-amount" [value]="txn.amount | number: '1.2-2'" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.amount | number: '1.2-2'" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="account" text="Account Number" />
-              <input class="field field-readonly" [value]="txn.accountNumber" readonly />
+              <input usgFieldType="accountNumber" class="field-readonly" [value]="txn.accountNumber" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="user" text="Approved By" />
-              <input class="field field-readonly" [value]="txn.approvedBy" readonly />
+              <input usgFieldType="name" class="field-readonly" [value]="txn.approvedBy" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="debit" text="Fc Amount Db" />
-              <input class="field field-readonly field-amount" [value]="txn.fcAmountDb || '—'" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.fcAmountDb || '—'" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="link" text="Account Link" />
-              <input class="field field-readonly" [value]="txn.acctLink" readonly />
+              <input usgFieldType="accountNumber" class="field-readonly" [value]="txn.acctLink" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="rate" text="Exchange Rate" />
-              <input class="field field-readonly" [value]="txn.exchangeRate" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.exchangeRate" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="credit" text="Fc Amount Cr" />
-              <input class="field field-readonly field-amount" [value]="txn.fcAmountCr || '—'" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.fcAmountCr || '—'" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="debit" text="Local Equivalent Db" />
-              <input class="field field-readonly field-amount" [value]="txn.localEquivalentDb || '—'" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.localEquivalentDb || '—'" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="doc" text="Document Ref" />
-              <input class="field field-readonly" [value]="txn.documentRef" readonly />
+              <input usgFieldType="short" class="field-readonly" [value]="txn.documentRef" readonly />
             </div>
 
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="credit" text="Local Equivalent Cr" />
-              <input class="field field-readonly field-amount" [value]="txn.localEquivalentCr || '—'" readonly />
+              <input usgFieldType="amount" class="field-readonly" [value]="txn.localEquivalentCr || '—'" readonly />
             </div>
             <div class="detail-row">
               <app-field-label [asSpan]="true" icon="batch" text="Batch No" />
-              <input class="field field-readonly" [value]="txn.batchNo" readonly />
+              <input usgFieldType="short" class="field-readonly" [value]="txn.batchNo" readonly />
             </div>
 
             <div class="detail-row is-full">
               <app-field-label [asSpan]="true" icon="detail" text="Transaction Details" />
-              <input class="field field-readonly" [value]="txn.transactionDetails" readonly />
+              <input usgFieldType="name" class="field-readonly" [value]="txn.transactionDetails" readonly />
             </div>
           </div>
         </div>

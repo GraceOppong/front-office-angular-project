@@ -1,5 +1,6 @@
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/** Display / voucher format: `dd-Mmm-yyyy` (e.g. 26-Oct-2026). */
 export function formatBusinessDate(date = new Date()): string {
   const day = String(date.getDate()).padStart(2, '0');
   const month = MONTHS[date.getMonth()];
@@ -40,52 +41,116 @@ export function businessDateFromIsoDateInput(iso: string): string {
   return parsed ? formatBusinessDate(parsed) : formatBusinessDate();
 }
 
+/** Canonical editable date string (`dd-Mmm-yyyy`). */
 export function toDmyDateInputValue(date = new Date()): string {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}/${month}/${date.getFullYear()}`;
+  return formatBusinessDate(date);
+}
+
+function monthIndexFromToken(token: string): number | null {
+  const idx = MONTHS.findIndex((m) => m.toLowerCase() === token.toLowerCase());
+  return idx >= 0 ? idx : null;
+}
+
+function normalizeYear(raw: string): number | null {
+  const year = Number(raw);
+  if (!Number.isFinite(year)) {
+    return null;
+  }
+  if (raw.length === 2) {
+    return 2000 + year;
+  }
+  if (raw.length === 4) {
+    return year;
+  }
+  return null;
 }
 
 export function parseDmyDateInput(value: string): Date | null {
   const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const hyphenMatch = trimmed.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{2}|\d{4})$/);
+  if (hyphenMatch) {
+    const day = Number(hyphenMatch[1]);
+    const monthIdx = monthIndexFromToken(hyphenMatch[2]);
+    const year = normalizeYear(hyphenMatch[3]);
+    if (monthIdx === null || year === null) {
+      return null;
+    }
+    const parsed = new Date(year, monthIdx, day);
+    if (
+      parsed.getFullYear() !== year ||
+      parsed.getMonth() !== monthIdx ||
+      parsed.getDate() !== day
+    ) {
+      return null;
+    }
+    return parsed;
+  }
+
   const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  const digits = trimmed.replace(/\D/g, '');
-  let day: number;
-  let month: number;
-  let year: number;
   if (slashMatch) {
-    day = Number(slashMatch[1]);
-    month = Number(slashMatch[2]);
-    year = Number(slashMatch[3]);
-  } else if (digits.length === 8) {
-    day = Number(digits.slice(0, 2));
-    month = Number(digits.slice(2, 4));
-    year = Number(digits.slice(4, 8));
-  } else {
-    return null;
+    const day = Number(slashMatch[1]);
+    const month = Number(slashMatch[2]);
+    const year = Number(slashMatch[3]);
+    const parsed = new Date(year, month - 1, day);
+    if (
+      parsed.getFullYear() !== year ||
+      parsed.getMonth() !== month - 1 ||
+      parsed.getDate() !== day
+    ) {
+      return null;
+    }
+    return parsed;
   }
 
-  const parsed = new Date(year, month - 1, day);
-  if (
-    parsed.getFullYear() !== year ||
-    parsed.getMonth() !== month - 1 ||
-    parsed.getDate() !== day
-  ) {
-    return null;
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length === 8) {
+    const day = Number(digits.slice(0, 2));
+    const month = Number(digits.slice(2, 4));
+    const year = Number(digits.slice(4, 8));
+    const parsed = new Date(year, month - 1, day);
+    if (
+      parsed.getFullYear() !== year ||
+      parsed.getMonth() !== month - 1 ||
+      parsed.getDate() !== day
+    ) {
+      return null;
+    }
+    return parsed;
   }
 
-  return parsed;
+  return null;
 }
 
+/** Mask typing toward `dd-Mmm-yyyy` (type 8 digits DDMMYYYY or paste formatted / legacy slash). */
 export function maskDmyInput(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (/-[A-Za-z]{3}-/.test(trimmed)) {
+    const parsed = parseDmyDateInput(trimmed);
+    return parsed ? formatBusinessDate(parsed) : trimmed;
+  }
+
+  const slashParsed = parseDmyDateInput(trimmed);
+  if (slashParsed && trimmed.includes('/')) {
+    return formatBusinessDate(slashParsed);
+  }
+
   const digits = raw.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 2) {
-    return digits;
+  if (digits.length === 8) {
+    const parsed = parseDmyDateInput(digits);
+    if (parsed) {
+      return formatBusinessDate(parsed);
+    }
   }
-  if (digits.length <= 4) {
-    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-  }
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+
+  return digits;
 }
 
 export function normalizeDmyDateInput(value: string): string {
@@ -94,7 +159,7 @@ export function normalizeDmyDateInput(value: string): string {
     return '';
   }
   const parsed = parseDmyDateInput(trimmed);
-  return parsed ? toDmyDateInputValue(parsed) : trimmed;
+  return parsed ? formatBusinessDate(parsed) : trimmed;
 }
 
 export function isoFromDmy(value: string): string {
@@ -107,12 +172,12 @@ export function toDisplayDmy(value: string): string {
   if (!trimmed) {
     return '';
   }
-  const dmy = parseDmyDateInput(trimmed);
-  if (dmy) {
-    return toDmyDateInputValue(dmy);
+  const parsed = parseDmyDateInput(trimmed);
+  if (parsed) {
+    return formatBusinessDate(parsed);
   }
   const iso = parseIsoDateInput(trimmed);
-  return iso ? toDmyDateInputValue(iso) : trimmed;
+  return iso ? formatBusinessDate(iso) : trimmed;
 }
 
 export function businessDateFromDmyDateInput(dmy: string): string {
@@ -132,7 +197,7 @@ export function finalizeVoucherDateInput(value: string, today = new Date()): str
   }
   const entered = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
   if (entered.getTime() > max.getTime()) {
-    return toDmyDateInputValue(max);
+    return formatBusinessDate(max);
   }
-  return toDmyDateInputValue(parsed);
+  return formatBusinessDate(parsed);
 }
