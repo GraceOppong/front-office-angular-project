@@ -1,23 +1,4 @@
-.message-popup-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 250;
-  background: rgba(16, 39, 64, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.message-popup-dialog {
-  width: var(--modal-width-compact);
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+/* Shell: usg-modal.css (.message-popup-backdrop / .message-popup-dialog) */
 
 .message-popup-header {
   display: flex;

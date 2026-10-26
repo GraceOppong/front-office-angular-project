@@ -3,29 +3,7 @@
   font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(16, 39, 64, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.modal-dialog {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-dialog.is-wide {
-  width: min(43.5rem, 100%);
-}
+/* Modal shell: usg-modal.css */
 
 .modal-header {
   display: flex;
@@ -80,10 +58,12 @@
 
 .modal-body {
   padding: 0.85rem 1.15rem 0.95rem;
-  overflow: visible;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 
 .screen-feedback {
@@ -177,19 +157,15 @@
 
 .tables-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.95rem;
-}
-
-.tables-grid.is-single {
-  grid-template-columns: 1fr;
-}
-
-.modal-dialog.is-wide .tables-grid {
-  grid-template-columns: 1fr;
+  width: 100%;
+  min-width: 0;
 }
 
 .table-panel {
+  width: 100%;
+  min-width: 0;
   border: 1px solid #e2eaf2;
   border-radius: 14px;
   overflow: hidden;
@@ -250,10 +226,9 @@
 }
 
 .table-wrap {
+  width: 100%;
   overflow-x: auto;
-  overflow-y: visible;
   min-width: 0;
-  max-width: 100%;
   padding: 0 0.15rem 0.1rem;
   -webkit-overflow-scrolling: touch;
 }
@@ -285,25 +260,8 @@
   white-space: nowrap;
 }
 
-.data-table.is-awaiting thead th,
-.data-table.is-awaiting tbody td {
-  padding: 0.55rem 0.6rem;
-}
-
-.data-table.is-awaiting .col-batch {
-  width: 7.75rem;
-}
-
-.data-table.is-awaiting .col-amount {
-  width: 4.35rem;
-}
-
-.data-table.is-awaiting .col-to {
-  width: 6rem;
-}
-
-.data-table.is-awaiting .col-status {
-  width: 5.25rem;
+.data-table.is-awaiting {
+  width: 100%;
 }
 
 .col-delete {
@@ -477,10 +435,6 @@
 }
 
 @media (max-width: 820px) {
-  .tables-grid {
-    grid-template-columns: 1fr;
-  }
-
   .form-grid.is-inline {
     grid-template-columns: 1fr;
     align-items: stretch;

@@ -3,7 +3,8 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { formatBusinessDate } from '../../shared/business-date';
 import { CashRequestRow, CashRequestStore } from '../../shared/cash-request.store';
 import { CashOutTransfer, CashTransferStore } from '../../shared/cash-transfer.store';
-import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../../shared/till.store';
+import { denomsForCurrency } from '../../shared/currency-denominations';
+import { DenominationLine, TillStore } from '../../shared/till.store';
 import { VaultStore } from '../../shared/vault.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
@@ -175,7 +176,7 @@ export class Vault {
   startIssue(request: CashRequestRow): void {
     this.issuingRequest.set(request);
     this.issueRows.set(
-      DEFAULT_DENOMS.map((denom) => ({
+      denomsForCurrency(request.currency).map((denom) => ({
         denomination: String(denom),
         quantity: 0,
         amountDraft: '',

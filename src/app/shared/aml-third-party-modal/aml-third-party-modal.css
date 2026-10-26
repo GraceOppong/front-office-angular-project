@@ -28,6 +28,7 @@
 
 .modal-dialog.is-aml {
   width: min(40rem, calc(100vw - 2rem));
+  max-width: min(40rem, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
 }
 

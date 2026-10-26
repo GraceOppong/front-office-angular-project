@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CashRequestStore } from '../../shared/cash-request.store';
 import { CashTransferStore } from '../../shared/cash-transfer.store';
@@ -45,11 +45,12 @@ import { buildTellerInternalActionLabels } from './teller-quick-actions';
   templateUrl: './teller-activities.html',
   styleUrl: './teller-activities.css',
 })
-export class TellerActivities {
+export class TellerActivities implements OnInit {
   readonly tellerCalloverJournalTitle = TELLER_CALLOVER_JOURNAL_TITLE;
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   readonly cashRequestStore = inject(CashRequestStore);
   readonly cashTransferStore = inject(CashTransferStore);
   readonly tillStore = inject(TillStore);
@@ -131,6 +132,30 @@ export class TellerActivities {
         return;
       }
       this.openModalFromQuery(modal);
+    });
+
+    afterNextRender(() => {
+      this.bindViewportHeightSync();
+    });
+  }
+
+  ngOnInit(): void {
+    this.homePageLayout.set(readHomePageLayout());
+  }
+
+  private bindViewportHeightSync(): void {
+    const root = document.documentElement;
+    const sync = (): void => {
+      root.style.setProperty('--fo-vh', `${window.innerHeight * 0.01}px`);
+    };
+    sync();
+    window.addEventListener('resize', sync);
+    window.visualViewport?.addEventListener('resize', sync);
+    window.visualViewport?.addEventListener('scroll', sync);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('resize', sync);
+      window.visualViewport?.removeEventListener('resize', sync);
+      window.visualViewport?.removeEventListener('scroll', sync);
     });
   }
 

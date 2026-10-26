@@ -1,0 +1,60 @@
+/* Shared modal shell — match Transfer Cash / wide banking dialogs */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(16, 39, 64, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-dialog:not(.is-aml),
+.details-dialog,
+.message-popup-dialog {
+  width: var(--modal-width-wide);
+  max-width: var(--modal-width-wide);
+  max-height: min(92vh, 880px);
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.modal-dialog.is-compact,
+.message-popup-dialog.is-compact {
+  width: var(--modal-width-compact);
+  max-width: var(--modal-width-compact);
+}
+
+.modal-dialog.is-wide {
+  width: var(--modal-width-wide);
+  max-width: var(--modal-width-wide);
+}
+
+.details-dialog {
+  position: relative;
+}
+
+.message-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(16, 39, 64, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-body {
+  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}

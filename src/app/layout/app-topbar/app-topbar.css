@@ -86,12 +86,12 @@
   gap: 0.65rem 0.85rem;
   min-width: 0;
   padding: 0.45rem 0.85rem 0.45rem 0.55rem;
-  background: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: linear-gradient(180deg, #f4f9ff 0%, #e8f1fb 100%);
+  border: 1px solid #c7daf0;
   border-radius: 12px;
   box-shadow:
-    0 2px 4px rgba(9, 30, 55, 0.12),
-    0 8px 24px rgba(9, 30, 55, 0.18);
+    0 1px 2px rgba(21, 101, 168, 0.08),
+    0 4px 14px rgba(21, 101, 168, 0.1);
 }
 
 .session-user {
@@ -148,7 +148,7 @@
   width: 1px;
   align-self: stretch;
   min-height: 2.25rem;
-  background: linear-gradient(180deg, transparent, #d5e0ea 15%, #d5e0ea 85%, transparent);
+  background: linear-gradient(180deg, transparent, #b8d4ef 15%, #b8d4ef 85%, transparent);
   flex-shrink: 0;
 }
 
@@ -172,8 +172,8 @@
   padding: 0.2rem 0.55rem 0.2rem 0.35rem;
   margin: -0.05rem 0;
   border-radius: 9px;
-  background: #eff8ff;
-  border: 1px solid #cce5ff;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #b2ddff;
 }
 
 .chip-icon {
@@ -274,7 +274,7 @@
   .session-meta {
     width: 100%;
     padding-top: 0.15rem;
-    border-top: 1px solid #eef2f6;
+    border-top: 1px solid #b8d4ef;
   }
 }
 

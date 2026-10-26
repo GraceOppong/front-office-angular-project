@@ -1,11 +1,14 @@
 @import './app/shared/usg-fields.css';
 @import './app/shared/usg-datatable.css';
+@import './app/shared/usg-modal.css';
 
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --app-bg: #e4ebf3;
   --surface: #ffffff;
   --header-bg: #f4f8fc;
+  --topbar-bg: #ffffff;
+  --topbar-border: #e2eaf2;
   --mandatory-bg: #eef5fb;
   --text-primary: #152536;
   --text-secondary: #3d5166;
@@ -22,16 +25,10 @@
   --shadow-sm: 0 2px 8px rgba(15, 40, 70, 0.06);
   --shadow-panel: 0 12px 40px rgba(15, 40, 70, 0.1);
   --modal-width-compact: min(27.5rem, 100%);
-  --modal-width-wide: min(57.5rem, 100%);
+  --modal-width-wide: min(60rem, calc(100vw - 2rem));
 }
 
-.modal-dialog {
-  width: var(--modal-width-compact);
-}
-
-.modal-dialog.is-wide {
-  width: var(--modal-width-wide);
-}
+/* Default modal width: wide (see usg-modal.css). Use .is-compact for small dialogs. */
 
 /* Modal headers — sidebar blue (all modals) */
 .modal-header,
@@ -178,9 +175,10 @@ canvas {
     align-items: stretch;
   }
 
-  .modal-dialog,
+  .modal-dialog:not(.is-aml),
   .modal-dialog.is-wide,
-  .modal-dialog.is-aml,
+  .modal-dialog.is-compact,
+  .details-dialog,
   .message-popup-dialog {
     width: 100% !important;
     max-width: 100% !important;

@@ -1,7 +1,8 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, computed, inject, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, output, signal } from '@angular/core';
 import { CashTransferStore } from '../../shared/cash-transfer.store';
-import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../../shared/till.store';
+import { denomsForCurrency } from '../../shared/currency-denominations';
+import { DenominationLine, TillStore } from '../../shared/till.store';
 import { WorkspaceCurrencyStore } from '../../shared/workspace-currency.store';
 import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
@@ -37,14 +38,15 @@ export class TransferCash {
 
   readonly vault = signal('');
   readonly feedbackMessage = signal('');
-  readonly rows = signal<TransferRow[]>(
-    DEFAULT_DENOMS.map((denom) => ({
-      denomination: String(denom),
-      selected: false,
-      quantity: 0,
-      amountDraft: '',
-    })),
-  );
+
+  readonly rows = signal<TransferRow[]>([]);
+
+  constructor() {
+    effect(() => {
+      const currency = this.currencyStore.selectedCurrency();
+      this.resetRowsForCurrency(currency);
+    });
+  }
 
   readonly showTable = computed(() => !!this.currencyStore.selectedCurrency() && !!this.vault());
 
@@ -64,6 +66,7 @@ export class TransferCash {
 
   onCurrencyChange(value: string): void {
     this.currencyStore.setCurrency(value);
+    this.resetRowsForCurrency(value);
   }
 
   onVaultChange(value: string): void {
@@ -182,8 +185,13 @@ export class TransferCash {
   }
 
   private resetRows(): void {
+    this.resetRowsForCurrency(this.currencyStore.selectedCurrency());
+  }
+
+  private resetRowsForCurrency(currency: string): void {
+    const denoms = currency ? denomsForCurrency(currency) : [];
     this.rows.set(
-      DEFAULT_DENOMS.map((denom) => ({
+      denoms.map((denom) => ({
         denomination: String(denom),
         selected: false,
         quantity: 0,

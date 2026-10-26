@@ -1,4 +1,10 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import {
+  denomsForCurrency,
+  normalizeTillRows,
+  tillSeedForCurrency,
+} from './currency-denominations';
+import { WORKSPACE_CURRENCIES, WorkspaceCurrencyStore } from './workspace-currency.store';
 
 export interface TillRow {
   denomination: string;
@@ -12,20 +18,30 @@ export interface DenominationLine {
   amount: number;
 }
 
-export const DEFAULT_DENOMS = [200, 100, 50, 20, 10, 5, 2, 1];
+/** Ghana cedi default denomination order (legacy helpers). */
+export const DEFAULT_DENOMS = denomsForCurrency('GHANA CEDIS');
+
+function buildInitialTillByCurrency(): Record<string, TillRow[]> {
+  const map: Record<string, TillRow[]> = {};
+  for (const currency of WORKSPACE_CURRENCIES) {
+    map[currency] = tillSeedForCurrency(currency);
+  }
+  return map;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TillStore {
-  readonly tillRows = signal<TillRow[]>([
-    { denomination: '200', amount: 40000, quantity: 200 },
-    { denomination: '100', amount: 25000, quantity: 250 },
-    { denomination: '50', amount: 12500, quantity: 250 },
-    { denomination: '20', amount: 8000, quantity: 400 },
-    { denomination: '10', amount: 3500, quantity: 350 },
-    { denomination: '5', amount: 1250, quantity: 250 },
-    { denomination: '2', amount: 400, quantity: 200 },
-    { denomination: '1', amount: 150, quantity: 150 },
-  ]);
+  private readonly currencyStore = inject(WorkspaceCurrencyStore);
+
+  private readonly tillByCurrency = signal<Record<string, TillRow[]>>(buildInitialTillByCurrency());
+
+  readonly tillRows = computed(() => {
+    const currency = this.currencyStore.selectedCurrency();
+    if (!currency) {
+      return [];
+    }
+    return this.tillByCurrency()[currency] ?? [];
+  });
 
   readonly cashReceived = signal(201545);
   readonly cashSent = signal(45200);
@@ -59,13 +75,18 @@ export class TillStore {
     this.cashSentLines.set(this.breakIntoDenominations(this.cashSent()));
   }
 
-  breakIntoDenominations(total: number, denominationCount = 4): DenominationLine[] {
+  breakIntoDenominations(
+    total: number,
+    denominationCount = 4,
+    currency = this.currencyStore.selectedCurrency() || 'GHANA CEDIS',
+  ): DenominationLine[] {
     let remaining = Math.round(Number(total));
     if (!Number.isFinite(remaining) || remaining <= 0) {
       return [];
     }
 
-    const usableDenoms = DEFAULT_DENOMS.filter((denom) => denom <= remaining);
+    const denomOrder = denomsForCurrency(currency);
+    const usableDenoms = denomOrder.filter((denom) => denom <= remaining);
     if (usableDenoms.length === 0) {
       return [];
     }
@@ -101,7 +122,7 @@ export class TillStore {
       addLine(denom, quantity);
     }
 
-    for (const denom of DEFAULT_DENOMS) {
+    for (const denom of denomOrder) {
       if (remaining <= 0) {
         break;
       }
@@ -109,13 +130,13 @@ export class TillStore {
       addLine(denom, quantity);
     }
 
-    return DEFAULT_DENOMS.map((denom) => lineMap.get(String(denom))).filter(
-      (line): line is DenominationLine => !!line && line.quantity > 0,
-    );
+    return denomOrder
+      .map((denom) => lineMap.get(String(denom)))
+      .filter((line): line is DenominationLine => !!line && line.quantity > 0);
   }
 
   applyDenominationLines(lines: DenominationLine[]): void {
-    this.tillRows.update((rows) => {
+    this.updateCurrentTillRows((rows) => {
       const map = new Map(rows.map((row) => [row.denomination, { ...row }]));
 
       for (const line of lines) {
@@ -132,9 +153,7 @@ export class TillStore {
         }
       }
 
-      return DEFAULT_DENOMS.map((denom) => map.get(String(denom))).filter(
-        (row): row is TillRow => !!row && row.quantity > 0,
-      );
+      return Array.from(map.values());
     });
   }
 
@@ -189,7 +208,7 @@ export class TillStore {
   }
 
   removeDenominationLines(lines: DenominationLine[]): void {
-    this.tillRows.update((rows) => {
+    this.updateCurrentTillRows((rows) => {
       const map = new Map(rows.map((row) => [row.denomination, { ...row }]));
 
       for (const line of lines) {
@@ -206,9 +225,7 @@ export class TillStore {
         }
       }
 
-      return DEFAULT_DENOMS.map((denom) => map.get(String(denom))).filter(
-        (row): row is TillRow => !!row && row.quantity > 0,
-      );
+      return Array.from(map.values());
     });
   }
 
@@ -220,7 +237,19 @@ export class TillStore {
     return lines.every((line) => this.availableQuantity(line.denomination) >= line.quantity);
   }
 
+  private updateCurrentTillRows(updater: (rows: TillRow[]) => TillRow[]): void {
+    const currency = this.currencyStore.selectedCurrency();
+    if (!currency) {
+      return;
+    }
+    this.tillByCurrency.update((map) => ({
+      ...map,
+      [currency]: normalizeTillRows(updater(map[currency] ?? []), currency),
+    }));
+  }
+
   private mergeLines(current: DenominationLine[], incoming: DenominationLine[]): DenominationLine[] {
+    const currency = this.currencyStore.selectedCurrency() || 'GHANA CEDIS';
     const map = new Map(current.map((line) => [line.denomination, { ...line }]));
 
     for (const line of incoming) {
@@ -233,8 +262,9 @@ export class TillStore {
       }
     }
 
-    return DEFAULT_DENOMS.map((denom) => map.get(String(denom))).filter(
-      (line): line is DenominationLine => !!line && line.quantity > 0,
-    );
+    const denomOrder = denomsForCurrency(currency);
+    return denomOrder
+      .map((denom) => map.get(String(denom)))
+      .filter((line): line is DenominationLine => !!line && line.quantity > 0);
   }
 }

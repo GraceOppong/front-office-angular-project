@@ -15,8 +15,11 @@ export function readHomePageLayout(): HomePageLayout {
     return 'sidebar';
   }
   const stored = sessionStorage.getItem(STORAGE_KEY);
-  if (stored && HOME_PAGE_LAYOUTS.includes(stored as HomePageLayout)) {
-    return stored as HomePageLayout;
+  if (stored) {
+    if (HOME_PAGE_LAYOUTS.includes(stored as HomePageLayout)) {
+      return stored as HomePageLayout;
+    }
+    sessionStorage.removeItem(STORAGE_KEY);
   }
   return 'sidebar';
 }

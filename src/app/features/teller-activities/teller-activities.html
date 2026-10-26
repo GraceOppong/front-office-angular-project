@@ -11,11 +11,12 @@
             <select
               id="homePageLayout"
               class="field select-field home-layout-select"
-              [value]="homePageLayout()"
               (change)="onHomePageLayoutChange($any($event.target).value)"
             >
               @for (option of homePageLayoutOptions; track option.id) {
-                <option [value]="option.id">{{ option.label }}</option>
+                <option [value]="option.id" [selected]="homePageLayout() === option.id">
+                  {{ option.label }}
+                </option>
               }
             </select>
           </label>
@@ -165,14 +166,15 @@
         </article>
       </section>
 
+    @for (layoutKey of [homePageLayout()]; track layoutKey) {
     <div
       class="workspace"
-      [class.workspace-is-triple]="homePageLayout() === 'action-grid'"
+      [class.workspace-is-triple]="layoutKey === 'action-grid'"
     >
       <aside class="cash-stack workspace-rail is-external-rail">
         <article
           class="card quick-panel"
-          [class.is-external-only]="homePageLayout() !== 'sidebar'"
+          [class.is-external-only]="layoutKey !== 'sidebar'"
         >
           <header class="card-head">
             <span class="card-icon is-blue" aria-hidden="true">
@@ -183,9 +185,9 @@
 
           <div
             class="side-actions"
-            [class.is-external-only]="homePageLayout() !== 'sidebar'"
+            [class.is-external-only]="layoutKey !== 'sidebar'"
           >
-            @if (homePageLayout() === 'sidebar') {
+            @if (layoutKey === 'sidebar') {
             <section class="side-column is-internal">
               <p class="side-divider">Internal</p>
               <div class="side-action-scroll">
@@ -390,7 +392,7 @@
         </article>
       </section>
 
-      @if (homePageLayout() === 'action-grid') {
+      @if (layoutKey === 'action-grid') {
         <aside class="cash-stack workspace-rail is-internal-rail">
           <article class="card quick-panel is-internal-only">
             <header class="card-head">
@@ -450,7 +452,7 @@
       }
     </div>
 
-    @if (homePageLayout() === 'action-bar') {
+    @if (layoutKey === 'action-bar') {
       <nav class="home-action-bar-dock" aria-label="Internal teller activities">
         @for (label of tellerInternalActionLabels; track label; let i = $index) {
           <button
@@ -462,6 +464,7 @@
           </button>
         }
       </nav>
+    }
     }
 
   @if (showRequestCashModal()) {

@@ -1,4 +1,6 @@
-/** Human-readable labels for standard Ghana cedi note/coin denominations. */
+import { denominationDescriptionFor } from './currency-denominations';
+
+/** @deprecated Prefer denominationDescriptionFor with currency */
 export const DENOMINATION_DESCRIPTIONS: Record<string, string> = {
   '200': 'Two Hundred Cedis',
   '100': 'One Hundred Cedis',
@@ -10,6 +12,6 @@ export const DENOMINATION_DESCRIPTIONS: Record<string, string> = {
   '1': 'One Cedi',
 };
 
-export function denominationDescription(value: string): string {
-  return DENOMINATION_DESCRIPTIONS[value] ?? value;
+export function denominationDescription(value: string, currency?: string | null): string {
+  return denominationDescriptionFor(value, currency);
 }

@@ -1,5 +1,7 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { DEFAULT_DENOMS, type DenominationLine, type TillRow } from './till.store';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { normalizeTillRows, vaultSeedForCurrency } from './currency-denominations';
+import type { DenominationLine, TillRow } from './till.store';
+import { WORKSPACE_CURRENCIES, WorkspaceCurrencyStore } from './workspace-currency.store';
 
 export interface VaultMovement {
   id: string;
@@ -11,18 +13,27 @@ export interface VaultMovement {
   time: string;
 }
 
+function buildInitialVaultByCurrency(): Record<string, TillRow[]> {
+  const map: Record<string, TillRow[]> = {};
+  for (const currency of WORKSPACE_CURRENCIES) {
+    map[currency] = vaultSeedForCurrency(currency);
+  }
+  return map;
+}
+
 @Injectable({ providedIn: 'root' })
 export class VaultStore {
-  readonly vaultRows = signal<TillRow[]>([
-    { denomination: '200', amount: 400000, quantity: 2000 },
-    { denomination: '100', amount: 350000, quantity: 3500 },
-    { denomination: '50', amount: 175000, quantity: 3500 },
-    { denomination: '20', amount: 80000, quantity: 4000 },
-    { denomination: '10', amount: 40000, quantity: 4000 },
-    { denomination: '5', amount: 15000, quantity: 3000 },
-    { denomination: '2', amount: 4000, quantity: 2000 },
-    { denomination: '1', amount: 1500, quantity: 1500 },
-  ]);
+  private readonly currencyStore = inject(WorkspaceCurrencyStore);
+
+  private readonly vaultByCurrency = signal<Record<string, TillRow[]>>(buildInitialVaultByCurrency());
+
+  readonly vaultRows = computed(() => {
+    const currency = this.currencyStore.selectedCurrency();
+    if (!currency) {
+      return [];
+    }
+    return this.vaultByCurrency()[currency] ?? [];
+  });
 
   readonly openingBalance = signal(1_065_500);
   readonly issuedToday = signal(285_400);
@@ -43,12 +54,17 @@ export class VaultStore {
     return this.vaultRows().find((row) => row.denomination === denomination)?.quantity ?? 0;
   }
 
-  applyLines(lines: DenominationLine[], direction: 'in' | 'out'): void {
-    this.vaultRows.update((rows) => {
-      const map = new Map(rows.map((row) => [row.denomination, { ...row }]));
+  applyLines(lines: DenominationLine[], direction: 'in' | 'out', currency?: string): void {
+    const activeCurrency = currency || this.currencyStore.selectedCurrency();
+    if (!activeCurrency) {
+      return;
+    }
+    this.vaultByCurrency.update((map) => {
+      const rows = map[activeCurrency] ?? [];
+      const rowMap = new Map(rows.map((row) => [row.denomination, { ...row }]));
 
       for (const line of lines) {
-        const existing = map.get(line.denomination) ?? {
+        const existing = rowMap.get(line.denomination) ?? {
           denomination: line.denomination,
           quantity: 0,
           amount: 0,
@@ -57,15 +73,16 @@ export class VaultStore {
         existing.quantity = Math.max(0, existing.quantity + qtyDelta);
         existing.amount = existing.quantity * Number(existing.denomination);
         if (existing.quantity === 0) {
-          map.delete(line.denomination);
+          rowMap.delete(line.denomination);
         } else {
-          map.set(line.denomination, existing);
+          rowMap.set(line.denomination, existing);
         }
       }
 
-      return DEFAULT_DENOMS.map((denom) => map.get(String(denom))).filter(
-        (row): row is TillRow => !!row && row.quantity > 0,
-      );
+      return {
+        ...map,
+        [activeCurrency]: normalizeTillRows(Array.from(rowMap.values()), activeCurrency),
+      };
     });
   }
 

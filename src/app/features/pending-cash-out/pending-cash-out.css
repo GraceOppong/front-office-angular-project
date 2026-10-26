@@ -3,26 +3,7 @@
   font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(16, 39, 64, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.modal-dialog {
-  max-height: min(92vh, 820px);
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(16, 39, 64, 0.28);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
+/* Modal shell: usg-modal.css */
 
 .modal-header {
   display: flex;

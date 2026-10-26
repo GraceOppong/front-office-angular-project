@@ -15,7 +15,9 @@ import {
   parseWholeAmountInput,
   quantityFromEnteredAmount,
 } from '../cash-denomination.helpers';
-import { DEFAULT_DENOMS, DenominationLine, TillStore } from '../till.store';
+import { denomsForCurrency } from '../currency-denominations';
+import { DenominationLine, TillStore } from '../till.store';
+import { WorkspaceCurrencyStore } from '../workspace-currency.store';
 
 export type CashDenominationMode = 'receive' | 'pay';
 
@@ -27,8 +29,6 @@ interface DenominationRow {
   amountDraft: string;
 }
 
-const KNOWN_DENOMS = new Set(DEFAULT_DENOMS.map(String));
-
 @Component({
   selector: 'app-cash-denomination-modal',
   imports: [DecimalPipe, DenominationDescriptionPipe],
@@ -38,7 +38,17 @@ const KNOWN_DENOMS = new Set(DEFAULT_DENOMS.map(String));
 export class CashDenominationModal implements OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly tillStore = inject(TillStore);
+  private readonly currencyStore = inject(WorkspaceCurrencyStore);
   private rowSeq = 0;
+
+  private activeDenoms(): number[] {
+    const currency = this.currencyStore.selectedCurrency() || 'GHANA CEDIS';
+    return denomsForCurrency(currency);
+  }
+
+  private knownDenoms(): Set<string> {
+    return new Set(this.activeDenoms().map(String));
+  }
 
   readonly targetAmount = input.required<number>();
   readonly mode = input<CashDenominationMode>('receive');
@@ -125,7 +135,9 @@ export class CashDenominationModal implements OnDestroy {
     );
 
     if (digits && !this.isKnownOrPrefix(digits)) {
-      this.formError.set(`Unknown denomination ${digits}. Use 200, 100, 50, 20, 10, 5, 2 or 1.`);
+      this.formError.set(
+        `Unknown denomination ${digits}. Use ${this.activeDenoms().join(', ')}.`,
+      );
     } else if (resolved && this.isDuplicate(resolved, id)) {
       this.formError.set(`Denomination ${resolved} is already added.`);
     } else if (this.formError()) {
@@ -148,9 +160,9 @@ export class CashDenominationModal implements OnDestroy {
       return;
     }
 
-    if (!KNOWN_DENOMS.has(row.denominationDraft)) {
+    if (!this.knownDenoms().has(row.denominationDraft)) {
       this.formError.set(
-        `Unknown denomination ${row.denominationDraft}. Use 200, 100, 50, 20, 10, 5, 2 or 1.`,
+        `Unknown denomination ${row.denominationDraft}. Use ${this.activeDenoms().join(', ')}.`,
       );
       return;
     }
@@ -257,7 +269,7 @@ export class CashDenominationModal implements OnDestroy {
   }
 
   private resolveDenomination(draft: string, id: string, allowPrefixMatch: boolean): string {
-    if (!KNOWN_DENOMS.has(draft) || this.isDuplicate(draft, id)) {
+    if (!this.knownDenoms().has(draft) || this.isDuplicate(draft, id)) {
       return '';
     }
     if (!allowPrefixMatch && this.isPrefixOfLongerDenom(draft)) {
@@ -267,14 +279,14 @@ export class CashDenominationModal implements OnDestroy {
   }
 
   private isPrefixOfLongerDenom(draft: string): boolean {
-    return DEFAULT_DENOMS.some((denom) => {
+    return this.activeDenoms().some((denom) => {
       const value = String(denom);
       return value !== draft && value.startsWith(draft);
     });
   }
 
   private isKnownOrPrefix(draft: string): boolean {
-    return DEFAULT_DENOMS.some((denom) => String(denom).startsWith(draft));
+    return this.activeDenoms().some((denom) => String(denom).startsWith(draft));
   }
 
   private isDuplicate(denomination: string, id: string): boolean {
