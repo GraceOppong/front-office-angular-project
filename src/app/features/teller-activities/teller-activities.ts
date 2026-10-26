@@ -17,6 +17,14 @@ import { MessagePopup } from '../../shared/message-popup/message-popup';
 import { TELLER_CALLOVER_JOURNAL_PATH, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 import { DenominationDescriptionPipe } from '../../shared/denomination-description.pipe';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import {
+  HOME_PAGE_LAYOUT_LABELS,
+  HOME_PAGE_LAYOUTS,
+  HomePageLayout,
+  readHomePageLayout,
+  saveHomePageLayout,
+} from '../../shared/home-page-layout';
+import { buildTellerInternalActionLabels } from './teller-quick-actions';
 
 @Component({
   selector: 'app-teller-activities',
@@ -48,6 +56,12 @@ export class TellerActivities {
   readonly currencyStore = inject(WorkspaceCurrencyStore);
 
   readonly screenTitle = 'Teller Activities';
+  readonly homePageLayoutOptions = HOME_PAGE_LAYOUTS.map((id) => ({
+    id,
+    label: HOME_PAGE_LAYOUT_LABELS[id],
+  }));
+  readonly homePageLayout = signal<HomePageLayout>(readHomePageLayout());
+  readonly tellerInternalActionLabels = buildTellerInternalActionLabels(this.tellerCalloverJournalTitle);
   readonly feedbackMessage = signal('');
   readonly showRequestCashModal = signal(false);
   readonly showPendingCashInModal = signal(false);
@@ -194,6 +208,15 @@ export class TellerActivities {
 
   onCurrencyChange(value: string): void {
     this.currencyStore.setCurrency(value);
+  }
+
+  onHomePageLayoutChange(value: string): void {
+    if (!HOME_PAGE_LAYOUTS.includes(value as HomePageLayout)) {
+      return;
+    }
+    const layout = value as HomePageLayout;
+    this.homePageLayout.set(layout);
+    saveHomePageLayout(layout);
   }
 
   onQuickAction(label: string): void {
