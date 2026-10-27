@@ -5,6 +5,9 @@ import { isoFromDmy, maskDmyInput, toDisplayDmy, toIsoDateInputValue } from '../
   selector: 'app-date-input',
   templateUrl: './date-input.html',
   styleUrl: './date-input.css',
+  host: {
+    '[class.has-value]': 'value().trim().length > 0',
+  },
 })
 export class DateInput {
   readonly inputId = input.required<string>();

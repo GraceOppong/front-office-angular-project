@@ -27,74 +27,88 @@
           <div class="form-grid-compact">
             <div class="account-pair">
             <div class="form-field">
-              <app-field-label forId="debitAccount" icon="debit" [required]="true" text="Debit Account" />
-              <input
-                id="debitAccount"
-                type="text"
-                inputmode="numeric"
-                autocomplete="off"
-                class="field"
-                [class.is-loading]="accountLookupLoading()"
-                placeholder="10-digit number"
-                [attr.maxlength]="accountNumberMaxLength"
-                [value]="debitAccount()"
-                (input)="onDebitAccountInput($any($event.target).value)"
-                (blur)="onDebitAccountBlur()"
-              />
+              <div class="field-inset-shell">
+                <app-field-label forId="debitAccount" icon="debit" [required]="true" text="Debit Account" />
+                <input
+                  id="debitAccount"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  class="field"
+                  [class.is-loading]="accountLookupLoading()"
+                  placeholder=" "
+                  [attr.maxlength]="accountNumberMaxLength"
+                  [value]="debitAccount()"
+                  (input)="onDebitAccountInput($any($event.target).value)"
+                  (blur)="onDebitAccountBlur()"
+                />
+              </div>
             </div>
 
-            <div class="form-field">
-              <app-field-label forId="accountName" icon="user" text="Account Name" />
-              <input
-                id="accountName"
-                type="text"
-                class="field field-readonly"
-                [class.is-loading]="accountLookupLoading()"
-                [value]="showAccountInformation() ? accountName() : ''"
-                readonly
-                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-              />
+            <div class="form-field is-display">
+              <div class="field-inset-shell">
+                <app-field-label forId="accountName" icon="user" text="Account Name" />
+                <input
+                  id="accountName"
+                  type="text"
+                  class="field field-readonly"
+                  tabindex="-1"
+                  [class.is-loading]="accountLookupLoading()"
+                  [value]="showAccountInformation() ? accountName() : ''"
+                  readonly
+                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+                />
+              </div>
             </div>
             </div>
 
             <div class="account-meta">
-            <div class="form-field">
-              <app-field-label forId="accountBranch" icon="branch" text="Account Branch" />
-              <input
-                id="accountBranch"
-                type="text"
-                class="field field-readonly"
-                [class.is-loading]="accountLookupLoading()"
-                [value]="showAccountInformation() ? (accountSnapshot()?.branch ?? '') : ''"
-                readonly
-                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-              />
+            <div class="form-field is-display">
+              <div class="field-inset-shell">
+                <app-field-label forId="accountBranch" icon="branch" text="Account Branch" />
+                <input
+                  id="accountBranch"
+                  type="text"
+                  class="field field-readonly"
+                  tabindex="-1"
+                  [class.is-loading]="accountLookupLoading()"
+                  [value]="showAccountInformation() ? (accountSnapshot()?.branch ?? '') : ''"
+                  readonly
+                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+                />
+              </div>
             </div>
 
-            <div class="form-field">
-              <app-field-label forId="accountProduct" icon="product" text="Account Product" />
-              <input
-                id="accountProduct"
-                type="text"
-                class="field field-readonly"
-                [class.is-loading]="accountLookupLoading()"
-                [value]="showAccountInformation() ? (accountSnapshot()?.product ?? '') : ''"
-                readonly
-                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-              />
+            <div class="form-field is-display">
+              <div class="field-inset-shell">
+                <app-field-label forId="accountProduct" icon="product" text="Account Product" />
+                <input
+                  id="accountProduct"
+                  type="text"
+                  class="field field-readonly"
+                  tabindex="-1"
+                  [class.is-loading]="accountLookupLoading()"
+                  [value]="showAccountInformation() ? (accountSnapshot()?.product ?? '') : ''"
+                  readonly
+                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+                />
+              </div>
             </div>
 
-            <div class="form-field is-currency">
-              <app-field-label forId="accountCurrency" icon="currency" text="Currency" />
-              <input
-                id="accountCurrency"
-                type="text"
-                class="field field-readonly"
-                [class.is-loading]="accountLookupLoading()"
-                [value]="showAccountInformation() ? toCurrencyCode(accountSnapshot()?.currency) : ''"
-                readonly
-                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-              />
+            <div class="form-field is-currency is-display">
+              <div class="field-inset-shell">
+                <app-field-label forId="accountCurrency" icon="currency" text="Currency" />
+                <input
+                  id="accountCurrency"
+                  type="text"
+                  class="field field-readonly"
+                  tabindex="-1"
+                  [class.is-loading]="accountLookupLoading()"
+                  [value]="showAccountInformation() ? toCurrencyCode(accountSnapshot()?.currency) : ''"
+                  readonly
+                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+                />
+              </div>
             </div>
             </div>
           </div>
@@ -112,19 +126,21 @@
           <div class="form-grid-compact">
             <div class="txn-lane">
             <div class="form-field">
-              <app-field-label forId="amount" icon="amount" [required]="true" text="Amount" />
-              <input
-                id="amount"
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                class="field field-amount"
-                placeholder="0.00"
-                [value]="amount()"
-                (input)="onAmountInput($any($event.target).value)"
-                (blur)="onAmountBlur()"
-                (keydown.enter)="onAmountEnter($event)"
-              />
+              <div class="field-inset-shell">
+                <app-field-label forId="amount" icon="amount" [required]="true" text="Amount" />
+                <input
+                  id="amount"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  class="field field-amount"
+                  placeholder=" "
+                  [value]="amount()"
+                  (input)="onAmountInput($any($event.target).value)"
+                  (blur)="onAmountBlur()"
+                  (keydown.enter)="onAmountEnter($event)"
+                />
+              </div>
               @if (capturedDenominationLines()) {
                 <p class="field-hint is-success">Denominations confirmed for this amount.</p>
               } @else {
@@ -132,8 +148,8 @@
               }
             </div>
 
-            <div class="form-field">
-              <app-field-label forId="voucherDate" icon="calendar" text="Voucher Date" />
+            <div class="form-field is-date-field is-stacked">
+              <app-field-label forId="voucherDate" icon="calendar" [compact]="true" text="Voucher Date" />
               <app-date-input
                 inputId="voucherDate"
                 [value]="voucherDateDmy()"
@@ -143,68 +159,82 @@
               />
             </div>
 
-            <div class="form-field">
-              <app-field-label forId="accountPhone" icon="phone" text="Phone Number" />
-              <input
-                id="accountPhone"
-                type="text"
-                class="field field-readonly"
-                [class.is-loading]="accountLookupLoading()"
-                [value]="displayPhone()"
-                readonly
-                [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-              />
+            <div class="form-field is-display">
+              <div class="field-inset-shell">
+                <app-field-label forId="accountPhone" icon="phone" text="Phone Number" />
+                <input
+                  id="accountPhone"
+                  type="text"
+                  class="field field-readonly"
+                  tabindex="-1"
+                  [class.is-loading]="accountLookupLoading()"
+                  [value]="displayPhone()"
+                  readonly
+                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
+                />
+              </div>
             </div>
             </div>
 
             <div class="form-field">
-              <app-field-label forId="voucherRef" icon="voucher" text="Voucher Reference" />
-              <input
-                id="voucherRef"
-                type="text"
-                class="field"
-                [value]="voucherRef()"
-                (input)="onVoucherRefInput($any($event.target).value)"
-              />
+              <div class="field-inset-shell">
+                <app-field-label forId="voucherRef" icon="voucher" text="Voucher Reference" />
+                <input
+                  id="voucherRef"
+                  type="text"
+                  class="field"
+                  placeholder=" "
+                  [value]="voucherRef()"
+                  (input)="onVoucherRefInput($any($event.target).value)"
+                />
+              </div>
             </div>
 
             <div class="form-field">
-              <app-field-label forId="sourceOfFunds" icon="funds" text="Source of Funds" />
-              <select
-                id="sourceOfFunds"
-                class="field select-field"
-                [class.is-placeholder]="!sourceOfFunds()"
-                [value]="sourceOfFunds()"
-                [disabled]="!sourceOfFundsEnabled()"
-                (change)="onSourceOfFundsChange($any($event.target).value)"
-              >
-                <option value="" disabled hidden>Select</option>
-                @for (item of sourceOfFundsOptions; track item) {
-                  <option [value]="item">{{ item }}</option>
-                }
-              </select>
+              <div class="field-inset-shell">
+                <app-field-label forId="sourceOfFunds" icon="funds" text="Source of Funds" />
+                <select
+                  id="sourceOfFunds"
+                  class="field select-field"
+                  [class.is-placeholder]="!sourceOfFunds()"
+                  [value]="sourceOfFunds()"
+                  [disabled]="!sourceOfFundsEnabled()"
+                  (change)="onSourceOfFundsChange($any($event.target).value)"
+                >
+                  <option value="" disabled hidden>Select</option>
+                  @for (item of sourceOfFundsOptions; track item) {
+                    <option [value]="item">{{ item }}</option>
+                  }
+                </select>
+              </div>
             </div>
 
             <div class="form-field">
-              <app-field-label forId="narration1" icon="narration" [required]="true" text="Narration 1" />
-              <input
-                id="narration1"
-                type="text"
-                class="field"
-                [value]="narration1()"
-                (input)="onNarration1Input($any($event.target).value)"
-              />
+              <div class="field-inset-shell">
+                <app-field-label forId="narration1" icon="narration" [required]="true" text="Narration 1" />
+                <input
+                  id="narration1"
+                  type="text"
+                  class="field"
+                  placeholder=" "
+                  [value]="narration1()"
+                  (input)="onNarration1Input($any($event.target).value)"
+                />
+              </div>
             </div>
 
             <div class="form-field">
-              <app-field-label forId="narration2" icon="narration" text="Narration 2" />
-              <input
-                id="narration2"
-                type="text"
-                class="field"
-                [value]="narration2()"
-                (input)="onNarration2Input($any($event.target).value)"
-              />
+              <div class="field-inset-shell">
+                <app-field-label forId="narration2" icon="narration" text="Narration 2" />
+                <input
+                  id="narration2"
+                  type="text"
+                  class="field"
+                  placeholder=" "
+                  [value]="narration2()"
+                  (input)="onNarration2Input($any($event.target).value)"
+                />
+              </div>
             </div>
 
             <div class="form-field span-2">

@@ -29,6 +29,7 @@ import { DenominationLine } from '../../shared/till.store';
 import { WorkspaceCurrencyStore, toCurrencyCode } from '../../shared/workspace-currency.store';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { FieldInsetNotchDirective } from '../../shared/field-inset-notch.directive';
 import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
 import { calculateCashCharges } from '../../shared/cash-charges';
 import {
@@ -49,6 +50,7 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
     FieldLabel,
     DateInput,
     UsgFieldTypeDirective,
+    FieldInsetNotchDirective,
   ],
   templateUrl: './cash-withdrawal.html',
   styleUrl: '../cash-deposit/cash-deposit.css',

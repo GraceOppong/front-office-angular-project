@@ -432,3 +432,61 @@
   padding-right: 28px;
   cursor: pointer;
 }
+
+/* Date fields — label above control (standard layout, not inset float) */
+.form-field.is-date-field,
+.aml-field.is-date {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.form-field.is-date-field > app-field-label,
+.aml-field.is-date > app-field-label {
+  position: static;
+  transform: none;
+  width: 100%;
+  margin: 0;
+  pointer-events: auto;
+}
+
+.form-field.is-date-field > app-field-label .field-label,
+.aml-field.is-date > app-field-label .field-label {
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #3d5166;
+  line-height: 1.2;
+  min-height: 0;
+}
+
+.form-field.is-date-field > app-field-label .label-text,
+.aml-field.is-date > app-field-label .label-text {
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0;
+  background: transparent;
+}
+
+@media (min-width: 640px) {
+  .form-field.is-date-field {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: unset !important;
+    align-items: flex-start !important;
+  }
+
+  .form-field.is-date-field > app-field-label,
+  .form-field.is-date-field > app-field-label .field-label {
+    justify-content: flex-start !important;
+    text-align: left !important;
+    padding-top: 0 !important;
+  }
+
+  .form-field.is-date-field > app-date-input {
+    grid-column: unset !important;
+  }
+}

@@ -105,3 +105,48 @@
   font-size: 0.82rem;
   padding-inline: 0.45rem;
 }
+
+/* Standard date fields: label above, bordered text + picker (cash forms, AML, etc.) */
+:host-context(.is-date-field),
+:host-context(.aml-field.is-date) {
+  display: block;
+  width: calc(20ch + 1.7rem + 2px);
+  max-width: 100%;
+  --date-input-height: 2.15rem;
+}
+
+:host-context(.form-card .is-date-field) {
+  --date-input-height: 2.55rem;
+}
+
+:host-context(.is-date-field) .date-input,
+:host-context(.aml-field.is-date) .date-input {
+  width: 100%;
+  max-width: 100%;
+}
+
+:host-context(.is-date-field) .date-text,
+:host-context(.aml-field.is-date) .date-text {
+  max-width: none;
+  flex: 1 1 auto;
+  height: var(--date-input-height);
+  font-size: 0.88rem;
+  border: 1px solid #d0dbe6;
+  border-radius: 4px;
+  padding: 0 0.65rem;
+}
+
+:host-context(.is-date-field) .date-text:focus,
+:host-context(.aml-field.is-date) .date-text:focus {
+  border-color: #7eb3e0;
+  box-shadow: 0 0 0 3px rgba(21, 101, 168, 0.12);
+}
+
+:host-context(.is-date-field) .date-picker-hit,
+:host-context(.aml-field.is-date) .date-picker-hit {
+  width: var(--date-input-height);
+  flex: 0 0 var(--date-input-height);
+  height: var(--date-input-height);
+  border: 1px solid #d0dbe6;
+  border-radius: 4px;
+}

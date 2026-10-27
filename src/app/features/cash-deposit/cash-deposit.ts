@@ -33,6 +33,7 @@ import {
 } from '../../shared/aml-third-party.model';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
+import { FieldInsetNotchDirective } from '../../shared/field-inset-notch.directive';
 import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
 import { calculateCashCharges } from '../../shared/cash-charges';
 
@@ -49,6 +50,7 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
     FieldLabel,
     DateInput,
     UsgFieldTypeDirective,
+    FieldInsetNotchDirective,
   ],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
