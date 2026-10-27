@@ -71,7 +71,15 @@
     text-align: left;
     padding-top: 0;
   }
+
+  .field,
+  .select-field,
+  .qty-field {
+    width: 100%;
+    max-width: 100%;
+  }
 }
+
 
 @media (min-width: 640px) {
   .usg-form-row,

@@ -1482,3 +1482,21 @@
     align-items: stretch;
   }
 }
+
+@media (max-width: 560px) {
+  .page {
+    padding: 0.65rem 0.55rem 1rem;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 0.85rem 0.85rem;
+  }
+}

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { TellerSessionStore } from '../../shared/teller-session.store';
 
 @Component({
@@ -11,6 +11,7 @@ export class AppTopbar {
   readonly menuOpen = input(false);
   readonly menuToggle = output<void>();
   readonly session = inject(TellerSessionStore);
+  readonly profileOpen = signal(false);
 
   readonly initials = computed(() => {
     const name = this.session.displayName().trim();
@@ -20,4 +21,12 @@ export class AppTopbar {
     }
     return name.slice(0, 2).toUpperCase();
   });
+
+  toggleProfile(): void {
+    this.profileOpen.update((open) => !open);
+  }
+
+  closeProfile(): void {
+    this.profileOpen.set(false);
+  }
 }

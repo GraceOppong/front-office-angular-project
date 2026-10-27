@@ -323,4 +323,21 @@
   .form-field.span-2 {
     grid-column: span 1;
   }
+
+  .form-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    min-height: 2.25rem;
+  }
 }

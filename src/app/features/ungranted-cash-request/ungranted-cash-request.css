@@ -249,3 +249,16 @@
   background: #0f4d82;
   border-color: #0f4d82;
 }
+
+@media (max-width: 720px) {
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    min-height: 2.25rem;
+  }
+}

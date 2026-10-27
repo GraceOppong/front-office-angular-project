@@ -28,51 +28,92 @@
     </svg>
   </button>
 
-  <div class="session-panel" aria-label="Session information">
-      <div class="session-user">
-        <span class="profile-avatar" aria-hidden="true">{{ initials() }}</span>
-        <div class="session-user-text">
-          <span class="session-kicker">Signed in</span>
-          <span class="session-name">{{ session.displayName() }}</span>
+  <div class="session-profile" [class.is-open]="profileOpen()">
+    @if (profileOpen()) {
+      <button
+        type="button"
+        class="profile-backdrop"
+        aria-label="Close profile"
+        (click)="closeProfile()"
+      ></button>
+    }
+
+    <button
+      type="button"
+      class="profile-trigger"
+      id="session-profile-trigger"
+      [attr.aria-expanded]="profileOpen()"
+      aria-controls="session-profile-details"
+      aria-haspopup="dialog"
+      [attr.aria-label]="profileOpen() ? 'Close profile' : 'Open profile for ' + session.displayName()"
+      (click)="toggleProfile()"
+    >
+      <span class="profile-avatar" aria-hidden="true">{{ initials() }}</span>
+      <span class="profile-trigger-text">
+        <span class="profile-trigger-label">Profile</span>
+        <span class="session-name">{{ session.displayName() }}</span>
+      </span>
+      <span class="profile-chevron" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path fill="currentColor" d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+        </svg>
+      </span>
+    </button>
+
+    @if (profileOpen()) {
+      <div
+        id="session-profile-details"
+        class="session-panel"
+        role="region"
+        aria-labelledby="session-profile-trigger"
+        aria-label="Session information"
+      >
+        <div class="session-user">
+          <span class="profile-avatar profile-avatar-lg" aria-hidden="true">{{ initials() }}</span>
+          <div class="session-user-text">
+            <span class="session-kicker">Signed in</span>
+            <span class="session-name session-name-lg">{{ session.displayName() }}</span>
+          </div>
+        </div>
+
+        <span class="panel-sep" aria-hidden="true"></span>
+
+        <div class="session-meta">
+          <div class="meta-chip">
+            <span class="chip-icon is-branch" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
+            </span>
+            <div class="chip-copy">
+              <span class="chip-label">Branch</span>
+              <span class="chip-value">{{ session.branch() }}</span>
+            </div>
+          </div>
+
+          <span class="meta-sep" aria-hidden="true"></span>
+
+          <div class="meta-chip">
+            <span class="chip-icon is-date" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
+            </span>
+            <div class="chip-copy">
+              <span class="chip-label">Current date</span>
+              <span class="chip-value">{{ session.currentDate() }}</span>
+            </div>
+          </div>
+
+          <span class="meta-sep" aria-hidden="true"></span>
+
+          <div class="meta-chip is-highlight">
+            <span class="chip-icon is-business" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
+            </span>
+            <div class="chip-copy">
+              <span class="chip-label">Business date</span>
+              <span class="chip-value">{{ session.businessDate() }}</span>
+            </div>
+          </div>
         </div>
       </div>
-
-      <span class="panel-sep" aria-hidden="true"></span>
-
-      <div class="session-meta">
-        <div class="meta-chip">
-          <span class="chip-icon is-branch" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
-          </span>
-          <div class="chip-copy">
-            <span class="chip-label">Branch</span>
-            <span class="chip-value">{{ session.branch() }}</span>
-          </div>
-        </div>
-
-        <span class="meta-sep" aria-hidden="true"></span>
-
-        <div class="meta-chip">
-          <span class="chip-icon is-date" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/></svg>
-          </span>
-          <div class="chip-copy">
-            <span class="chip-label">Current date</span>
-            <span class="chip-value">{{ session.currentDate() }}</span>
-          </div>
-        </div>
-
-        <span class="meta-sep" aria-hidden="true"></span>
-
-        <div class="meta-chip is-highlight">
-          <span class="chip-icon is-business" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-          </span>
-          <div class="chip-copy">
-            <span class="chip-label">Business date</span>
-            <span class="chip-value">{{ session.businessDate() }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    }
+  </div>
 </header>

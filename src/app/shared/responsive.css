@@ -1,0 +1,230 @@
+/* App-wide layout — tablet 960 / small tablet 720 / phone 639 */
+
+@media (max-width: 639px) {
+  html {
+    font-size: 13px;
+  }
+
+  :root {
+    --usg-label-font-size: 11px;
+    --usg-input-font-size: 12px;
+    --usg-input-height: 30px;
+    --usg-input-height-lg: 34px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+  }
+}
+
+@media (min-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 960px) {
+  .screen {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .main-content,
+  .page,
+  .screen,
+  .card,
+  .perf-strip,
+  .workspace {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --modal-width-wide: calc(100vw - 1rem);
+    --modal-width-compact: calc(100vw - 1rem);
+  }
+
+  .page {
+    padding: 0.85rem max(0.65rem, env(safe-area-inset-right, 0px))
+      max(1.15rem, env(safe-area-inset-bottom, 0px))
+      max(0.65rem, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  .heading-block h2,
+  .modal-header .heading-block h2,
+  .table-title h2,
+  .table-card-head h2 {
+    font-size: 0.92rem;
+  }
+
+  .modal-header,
+  .details-header,
+  .panel-header,
+  .message-popup-header {
+    padding: 0.7rem 0.85rem !important;
+    gap: 0.65rem;
+  }
+
+  .modal-body,
+  .details-body,
+  .panel-body {
+    padding-left: 0.85rem;
+    padding-right: 0.85rem;
+  }
+
+  .modal-footer,
+  .form-actions,
+  .screen-toolbar,
+  .table-footer,
+  .callover-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .modal-footer:has(.btn + .btn),
+  .form-actions:has(.btn + .btn) {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-footer:has(.btn + .btn) .btn,
+  .form-actions:has(.btn + .btn) .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 2.25rem;
+  }
+
+  .table-panel:has(.data-table) > .table-footer,
+  .table-panel:has(.data-table) .table-footer,
+  .usg-table-footer {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .usg-table-container .usg-table-footer-meta,
+  .table-panel:has(.data-table) app-usg-table-pagination .usg-table-footer-meta {
+    justify-self: stretch;
+  }
+
+  .usg-table-container .usg-table-pagination,
+  .table-panel:has(.data-table) app-usg-table-pagination .usg-table-pagination {
+    justify-self: stretch;
+    justify-content: center;
+  }
+
+  .usg-table-container .page-size-field,
+  .table-panel:has(.data-table) app-usg-table-pagination .page-size-field {
+    justify-self: stretch;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .batch-table {
+    min-width: 26rem;
+    font-size: 0.76rem;
+  }
+
+  .batch-table thead th,
+  .batch-table tbody td,
+  .batch-table tfoot td {
+    padding: 0.52rem 0.5rem;
+  }
+
+  .app-topbar {
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+    padding-right: max(0.75rem, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 639px) {
+  .page {
+    padding: 10px max(12px, env(safe-area-inset-right, 0px))
+      14px max(12px, env(safe-area-inset-left, 0px)) !important;
+  }
+
+  .screen {
+    gap: 10px !important;
+  }
+
+  .heading-block h1 {
+    font-size: 1.05rem !important;
+    letter-spacing: -0.02em;
+  }
+
+  .heading-block h2,
+  .modal-header .heading-block h2,
+  .table-title h2,
+  .table-card-head h2 {
+    font-size: 0.85rem !important;
+  }
+
+  .card:not(.pending-chip):not(.perf-card):not(.quick-panel) {
+    padding: 0.45rem 0.4rem !important;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(15, 40, 70, 0.04);
+  }
+
+  .activity-item {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    padding: 0.58rem 0.65rem;
+  }
+
+  .activity-label {
+    font-size: 0.8rem;
+  }
+
+  .batch-table {
+    min-width: 22rem;
+    font-size: 0.72rem;
+  }
+
+  .data-table {
+    min-width: 36rem;
+  }
+
+  .table-head-tools {
+    width: 100%;
+  }
+
+  .message-popup-body {
+    padding: 0.85rem 1rem 0.2rem !important;
+    font-size: 0.86rem;
+  }
+
+  .message-popup-actions {
+    flex-direction: column-reverse;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .message-popup-actions .btn-cancel,
+  .message-popup-actions .btn-primary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .btn {
+    font-size: 0.75rem;
+    min-height: 2rem;
+  }
+
+  .chip-label {
+    font-size: 0.58rem;
+  }
+
+  .chip-value {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .batch-table {
+    min-width: 20rem;
+    font-size: 0.68rem;
+  }
+}

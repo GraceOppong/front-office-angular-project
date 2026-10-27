@@ -43,3 +43,17 @@
   color: #3d5166;
   font-size: 0.92rem;
 }
+
+@media (max-width: 720px) {
+  .page {
+    padding: 0.85rem 0.65rem 1.15rem;
+  }
+
+  .card {
+    padding: 1rem 0.85rem;
+  }
+
+  .card p {
+    font-size: 0.86rem;
+  }
+}
