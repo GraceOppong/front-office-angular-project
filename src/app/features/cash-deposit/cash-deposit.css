@@ -274,7 +274,7 @@
 
 .form-grid-compact {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.6rem 0.75rem;
   align-items: start;
 }
@@ -286,46 +286,12 @@
   min-width: 0;
 }
 
+.credit-account-field {
+  max-width: 24rem;
+}
+
 .form-field.span-2 {
   grid-column: span 2;
-}
-
-.account-pair {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.6rem 0.75rem;
-  align-items: start;
-}
-
-.account-pair > .form-field:first-child {
-  width: calc(25ch + 1.7rem + 2px);
-  max-width: 100%;
-  font-size: 0.88rem;
-}
-
-.form-field.is-currency {
-  justify-self: start;
-  width: calc(6ch + 1.7rem + 2px);
-  max-width: 100%;
-  font-size: 0.88rem;
-}
-
-.account-meta {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-  gap: 0.6rem 0.75rem;
-  align-items: end;
-}
-
-.txn-lane {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-  gap: 0.6rem 0.75rem;
-  align-items: start;
-  overflow: visible;
 }
 
 .form-field.span-full,
@@ -343,17 +309,14 @@
   text-overflow: ellipsis;
 }
 
-/* In-field floating labels — border on shell; label notches the top line when floated */
+/* In-field floating labels — line input with animated label */
 .form-card .form-field:not(.span-2) {
   display: flex;
   flex-direction: column;
   gap: 0.28rem;
   min-width: 0;
-  --inset-field-height: 2.55rem;
+  --inset-field-height: 3rem;
   --inset-label-motion: 280ms cubic-bezier(0.33, 1, 0.68, 1);
-  --inset-label-notch-pad: 0.4rem;
-  --inset-field-bg: #fff;
-  --inset-display-bg: #f8fafc;
   --inset-border: #d0dbe6;
 }
 
@@ -363,27 +326,16 @@
   width: 100%;
   min-width: 0;
   min-height: var(--inset-field-height);
-  border: 1px solid var(--inset-border);
-  border-radius: var(--usg-input-radius, 4px);
-  background: var(--inset-field-bg);
+  border: none;
+  border-bottom: 1px solid var(--inset-border);
+  border-radius: 0;
+  background: transparent;
   overflow: visible;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.form-card .form-field.is-display .field-inset-shell {
-  background: var(--inset-display-bg);
+  transition: border-color 150ms ease;
 }
 
 .form-card .field-inset-shell:focus-within {
   border-color: #7eb3e0;
-  box-shadow: 0 0 0 3px rgba(21, 101, 168, 0.12);
-}
-
-.form-card .form-field.is-display .field-inset-shell:focus-within {
-  border-color: var(--inset-border);
-  box-shadow: none;
 }
 
 .form-card .field-inset-shell > .field,
@@ -392,9 +344,11 @@
   width: 100%;
   height: var(--inset-field-height);
   border: none;
+  border-radius: 0;
   box-shadow: none;
   background: transparent;
-  transition: padding var(--inset-label-motion);
+  padding: 1.15rem 0 0.25rem;
+  transition: padding var(--inset-label-motion), color var(--inset-label-motion);
 }
 
 .form-card .field-inset-shell > .field:focus,
@@ -407,8 +361,8 @@
   position: absolute;
   z-index: 5;
   top: calc(var(--inset-field-height) / 2);
-  left: 0.75rem;
-  max-width: calc(100% - 1.5rem);
+  left: 0;
+  max-width: 100%;
   margin: 0;
   pointer-events: none;
   transform: translateY(-50%) scale(1);
@@ -422,7 +376,7 @@
   justify-content: flex-start;
   text-align: left;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 550;
   color: #4a6785;
   transition: color var(--inset-label-motion);
 }
@@ -436,101 +390,112 @@
   white-space: nowrap;
   line-height: 1.15;
   padding: 0;
-  transition:
-    background-color var(--inset-label-motion),
-    padding var(--inset-label-motion);
 }
 
-.form-card .field-inset-shell:focus-within:not(:has(.field-readonly)) > app-field-label,
-.form-card .field-inset-shell:has(.field:not(:placeholder-shown):not(.field-readonly)) > app-field-label,
+.form-card .field-inset-shell:focus-within > app-field-label,
+.form-card .field-inset-shell:has(.field:not(:placeholder-shown)) > app-field-label,
 .form-card .field-inset-shell:has(.select-field:not(.is-placeholder)) > app-field-label,
-.form-card .field-inset-shell:has(.field.is-loading:not(.field-readonly)) > app-field-label,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly:not(:placeholder-shown)) > app-field-label,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly.is-loading) > app-field-label {
-  top: 0;
-  transform: translateY(-50%) scale(0.72);
+.form-card .field-inset-shell:has(.field.is-loading) > app-field-label {
+  top: 0.25rem;
+  transform: translateY(0) scale(0.76);
 }
 
-/* Notch: top border is split left / gap / right (gap width from field-inset-notch.directive) */
-.form-card .field-inset-shell.has-label-notch {
-  border-top-color: transparent;
-}
-
-.form-card .field-inset-shell.has-label-notch::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  z-index: 4;
-  background: linear-gradient(
-    90deg,
-    var(--notch-stroke, var(--inset-border)) 0,
-    var(--notch-stroke, var(--inset-border)) var(--notch-start, 0px),
-    transparent var(--notch-start, 0px),
-    transparent var(--notch-end, 100%),
-    var(--notch-stroke, var(--inset-border)) var(--notch-end, 100%),
-    var(--notch-stroke, var(--inset-border)) 100%
-  );
-}
-
-.form-card .field-inset-shell.has-label-notch:focus-within {
-  --notch-stroke: #7eb3e0;
-}
-
-.form-card .form-field.is-display .field-inset-shell.has-label-notch:focus-within {
-  --notch-stroke: var(--inset-border);
-}
-
-.form-card .field-inset-shell:focus-within:not(:has(.field-readonly)) > app-field-label .label-text,
-.form-card .field-inset-shell:has(.field:not(:placeholder-shown):not(.field-readonly)) > app-field-label .label-text,
-.form-card .field-inset-shell:has(.select-field:not(.is-placeholder)) > app-field-label .label-text,
-.form-card .field-inset-shell:has(.field.is-loading:not(.field-readonly)) > app-field-label .label-text {
-  padding: 0 var(--inset-label-notch-pad);
-  background-color: var(--inset-field-bg);
-}
-
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly:not(:placeholder-shown)) > app-field-label .label-text,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly.is-loading) > app-field-label .label-text {
-  padding: 0 var(--inset-label-notch-pad);
-  background-color: var(--inset-display-bg);
-}
-
-.form-card .field-inset-shell:focus-within:not(:has(.field-readonly)) > app-field-label .field-label,
-.form-card .field-inset-shell:has(.field:not(:placeholder-shown):not(.field-readonly)) > app-field-label .field-label,
+.form-card .field-inset-shell:focus-within > app-field-label .field-label,
+.form-card .field-inset-shell:has(.field:not(:placeholder-shown)) > app-field-label .field-label,
 .form-card .field-inset-shell:has(.select-field:not(.is-placeholder)) > app-field-label .field-label,
-.form-card .field-inset-shell:has(.field.is-loading:not(.field-readonly)) > app-field-label .field-label {
+.form-card .field-inset-shell:has(.field.is-loading) > app-field-label .field-label {
   color: #0f4d82;
 }
 
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly:not(:placeholder-shown)) > app-field-label .field-label,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly.is-loading) > app-field-label .field-label {
-  color: #6b7f94;
-}
-
-.form-card .form-field.is-display .field-inset-shell > .field.field-readonly {
-  color: #5a6d80;
-  cursor: default;
-  pointer-events: none;
-  user-select: none;
-}
-
-.form-card .field-inset-shell:focus-within:not(:has(.field-readonly)) > .field,
+.form-card .field-inset-shell:focus-within > .field,
 .form-card .field-inset-shell:focus-within > .select-field,
-.form-card .field-inset-shell:has(.field:not(:placeholder-shown):not(.field-readonly)) > .field,
+.form-card .field-inset-shell:has(.field:not(:placeholder-shown)) > .field,
 .form-card .field-inset-shell:has(.select-field:not(.is-placeholder)) > .select-field,
-.form-card .field-inset-shell:has(.field.is-loading:not(.field-readonly)) > .field,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly.is-loading) > .field.field-readonly,
-.form-card .form-field.is-display .field-inset-shell:has(.field-readonly:not(:placeholder-shown)) > .field.field-readonly {
-  padding-top: 0.85rem;
-  padding-bottom: 0.28rem;
+.form-card .field-inset-shell:has(.field.is-loading) > .field {
+  padding-top: 1.2rem;
+  padding-bottom: 0.2rem;
 }
 
 .form-field .radio-group {
   min-height: 2.4rem;
   align-items: center;
+}
+
+.amount-field {
+  min-width: 0;
+  max-width: 12rem;
+}
+
+.voucher-date-field {
+  width: 100%;
+  max-width: 18rem;
+}
+
+.date-field-shell {
+  min-width: 16rem;
+}
+
+.date-field-shell app-date-input {
+  display: block;
+  width: 100%;
+}
+
+.date-field-shell ::ng-deep .date-input {
+  width: 100%;
+  max-width: 100%;
+  gap: 0.35rem;
+  align-items: stretch;
+}
+
+.date-field-shell ::ng-deep .date-text {
+  max-width: none;
+  flex: 1 1 auto;
+  height: var(--inset-field-height);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 1.15rem 0 0.2rem;
+  text-align: left;
+  font-size: 0.88rem;
+  color: #122536;
+}
+
+.date-field-shell ::ng-deep .date-text:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.date-field-shell ::ng-deep .date-picker-hit {
+  height: calc(var(--inset-field-height) - 0.5rem);
+  margin-top: 0.3rem;
+  border-color: #d0dbe6;
+}
+
+.form-card .field-inset-shell.date-field-shell:focus-within > app-field-label,
+.form-card .field-inset-shell.date-field-shell:has(.date-text:not(:placeholder-shown)) > app-field-label {
+  top: 0.25rem;
+  transform: translateY(0) scale(0.76);
+}
+
+.form-card .field-inset-shell.date-field-shell:focus-within > app-field-label .field-label,
+.form-card .field-inset-shell.date-field-shell:has(.date-text:not(:placeholder-shown)) > app-field-label .field-label {
+  color: #0f4d82;
+}
+
+.voucher-ref-row,
+.source-of-funds-row {
+  min-width: 0;
+  max-width: 24rem;
+}
+
+.third-party-row {
+  max-width: 22rem;
+}
+
+.narration-one-row,
+.narration-two-row {
+  grid-column: 1 / -1;
+  max-width: 28rem;
 }
 
 .form-row {
@@ -586,9 +551,9 @@
 }
 
 .field-amount {
-  width: calc(20ch + 1.7rem + 2px);
+  width: 100%;
   max-width: 100%;
-  text-align: right;
+  text-align: left;
   font-variant-numeric: tabular-nums;
 }
 
@@ -613,7 +578,7 @@
   background-repeat: no-repeat;
   background-position: right 0.65rem center;
   background-size: 1.15rem;
-  padding-right: 2.2rem;
+  padding-right: 2rem;
   cursor: pointer;
 }
 
@@ -1072,6 +1037,66 @@
   text-align: center;
 }
 
+.account-display-card {
+  border: 1px solid #e2eaf2;
+  border-radius: 10px;
+  background: #f9fcff;
+  padding: 0.75rem;
+}
+
+.account-display-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.account-display-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  border: 1px solid #dbe7f2;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  background: #fff;
+}
+
+.account-display-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 8px;
+  background: #e8f1fb;
+  color: #1565a8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-display-icon svg {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.account-display-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.account-display-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7f94;
+}
+
+.account-display-value {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1a2b3c;
+  word-break: break-word;
+}
+
 @media (max-width: 960px) {
   .screen {
     width: 100%;
@@ -1089,6 +1114,14 @@
   .form-grid-compact,
   .info-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .account-display-list {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-account-field {
+    max-width: 100%;
   }
 
   .form-field.span-2 {
@@ -1112,18 +1145,14 @@
     grid-column: 1 / -1;
   }
 
-  .account-pair,
-  .account-meta,
-  .txn-lane {
-    grid-template-columns: 1fr;
-  }
-
-  .account-pair > .form-field:first-child,
-  .form-field.is-currency,
   .field-amount,
   .field-date {
     width: 100%;
     max-width: 100%;
+  }
+
+  .account-display-list {
+    grid-template-columns: 1fr;
   }
 
   .header-actions,

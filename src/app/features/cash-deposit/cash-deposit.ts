@@ -33,8 +33,6 @@ import {
 } from '../../shared/aml-third-party.model';
 import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
-import { FieldInsetNotchDirective } from '../../shared/field-inset-notch.directive';
-import { UsgFieldTypeDirective } from '../../shared/usg-field-type.directive';
 import { calculateCashCharges } from '../../shared/cash-charges';
 
 const DEFAULT_NARRATION = 'CASH DEPOSIT';
@@ -49,8 +47,6 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
     CashDenominationModal,
     FieldLabel,
     DateInput,
-    UsgFieldTypeDirective,
-    FieldInsetNotchDirective,
   ],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
@@ -113,13 +109,6 @@ export class CashDeposit {
   readonly showCharges = computed(() => {
     const amount = parseAmountInput(this.amount());
     return amount !== null && amount > 0;
-  });
-
-  readonly displayPhone = computed(() => {
-    if (this.thirdParty() === 'yes') {
-      return this.amlThirdPartyCaptured() ? this.amlThirdPartyDetails().phone.trim() : '';
-    }
-    return this.showAccountInformation() ? (this.accountSnapshot()?.phone ?? '') : '';
   });
 
   onCreditAccountInput(value: string): void {

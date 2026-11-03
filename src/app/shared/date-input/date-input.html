@@ -5,11 +5,12 @@
     inputmode="text"
     autocomplete="off"
     maxlength="11"
-    placeholder="dd-mmm-yyyy"
+    [attr.placeholder]="resolvedPlaceholder()"
     [id]="inputId()"
     [value]="value()"
     [attr.aria-label]="ariaLabel() || null"
     (input)="onTextInput($any($event.target).value)"
+    (focus)="onTextFocus()"
     (blur)="onTextBlur()"
   />
   <div class="date-picker-hit" title="Select date">

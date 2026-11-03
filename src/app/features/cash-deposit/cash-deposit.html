@@ -25,8 +25,7 @@
           </header>
           <div class="form-card-body">
           <div class="form-grid-compact">
-            <div class="account-pair">
-            <div class="form-field">
+            <div class="form-field credit-account-field">
               <div class="field-inset-shell">
                 <app-field-label forId="creditAccount" icon="credit" [required]="true" text="Credit Account" />
                 <input
@@ -45,72 +44,51 @@
               </div>
             </div>
 
-            <div class="form-field is-display">
-              <div class="field-inset-shell">
-                <app-field-label forId="accountName" icon="user" text="Account Name" />
-                <input
-                  id="accountName"
-                  type="text"
-                  class="field field-readonly"
-                  tabindex="-1"
-                  [class.is-loading]="accountLookupLoading()"
-                  [value]="showAccountInformation() ? accountName() : ''"
-                  readonly
-                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-                />
-              </div>
-            </div>
-            </div>
+            @if (showAccountInformation()) {
+              <section class="account-display-card" aria-label="Account profile">
+                <div class="account-display-list">
+                  <div class="account-display-item">
+                    <span class="account-display-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
+                    </span>
+                    <div class="account-display-copy">
+                      <span class="account-display-label">Account Name</span>
+                      <strong class="account-display-value">{{ accountName() }}</strong>
+                    </div>
+                  </div>
 
-            <div class="account-meta">
-            <div class="form-field is-display">
-              <div class="field-inset-shell">
-                <app-field-label forId="accountBranch" icon="branch" text="Account Branch" />
-                <input
-                  id="accountBranch"
-                  type="text"
-                  class="field field-readonly"
-                  tabindex="-1"
-                  [class.is-loading]="accountLookupLoading()"
-                  [value]="showAccountInformation() ? (accountSnapshot()?.branch ?? '') : ''"
-                  readonly
-                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-                />
-              </div>
-            </div>
+                  <div class="account-display-item">
+                    <span class="account-display-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3 2 8v2h20V8L12 3zm-7 8v7H3v2h18v-2h-2v-7h-2v7h-4v-7H9v7H5v-7z"/></svg>
+                    </span>
+                    <div class="account-display-copy">
+                      <span class="account-display-label">Account Branch</span>
+                      <strong class="account-display-value">{{ accountSnapshot()?.branch ?? '—' }}</strong>
+                    </div>
+                  </div>
 
-            <div class="form-field is-display">
-              <div class="field-inset-shell">
-                <app-field-label forId="accountProduct" icon="product" text="Account Product" />
-                <input
-                  id="accountProduct"
-                  type="text"
-                  class="field field-readonly"
-                  tabindex="-1"
-                  [class.is-loading]="accountLookupLoading()"
-                  [value]="showAccountInformation() ? (accountSnapshot()?.product ?? '') : ''"
-                  readonly
-                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-                />
-              </div>
-            </div>
+                  <div class="account-display-item">
+                    <span class="account-display-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h16v2H4zm0 5h16v2H4zm0 5h16v6H4z"/></svg>
+                    </span>
+                    <div class="account-display-copy">
+                      <span class="account-display-label">Account Product</span>
+                      <strong class="account-display-value">{{ accountSnapshot()?.product ?? '—' }}</strong>
+                    </div>
+                  </div>
 
-            <div class="form-field is-currency is-display">
-              <div class="field-inset-shell">
-                <app-field-label forId="accountCurrency" icon="currency" text="Currency" />
-                <input
-                  id="accountCurrency"
-                  type="text"
-                  class="field field-readonly"
-                  tabindex="-1"
-                  [class.is-loading]="accountLookupLoading()"
-                  [value]="showAccountInformation() ? toCurrencyCode(accountSnapshot()?.currency) : ''"
-                  readonly
-                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-                />
-              </div>
-            </div>
-            </div>
+                  <div class="account-display-item">
+                    <span class="account-display-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path fill="currentColor" d="M11 17h2v-1h1a2 2 0 0 0 0-4h-4v-2h4v1h2v-1a2 2 0 0 0-2-2h-1V7h-2v1h-1a2 2 0 0 0 0 4h4v2h-4v-1H8v1a2 2 0 0 0 2 2h1v1zm1-15a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+                    </span>
+                    <div class="account-display-copy">
+                      <span class="account-display-label">Currency</span>
+                      <strong class="account-display-value">{{ toCurrencyCode(accountSnapshot()?.currency) }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            }
           </div>
           </div>
         </section>
@@ -124,8 +102,22 @@
           </header>
           <div class="form-card-body">
           <div class="form-grid-compact">
-            <div class="txn-lane">
-            <div class="form-field">
+            <div class="form-field voucher-date-field">
+              <div class="field-inset-shell date-field-shell">
+                <app-field-label forId="voucherDate" icon="calendar" text="Effective Date" />
+                <app-date-input
+                  inputId="voucherDate"
+                  [value]="voucherDateDmy()"
+                  [maxToday]="true"
+                  placeholder="dd-mmm-yy"
+                  [placeholderOnFocusOnly]="true"
+                  (valueChange)="onVoucherDateInput($event)"
+                  (blurred)="onVoucherDateBlur()"
+                />
+              </div>
+            </div>
+
+            <div class="form-field amount-field">
               <div class="field-inset-shell">
                 <app-field-label forId="amount" icon="amount" [required]="true" text="Amount" />
                 <input
@@ -148,35 +140,7 @@
               }
             </div>
 
-            <div class="form-field is-date-field is-stacked">
-              <app-field-label forId="voucherDate" icon="calendar" [compact]="true" text="Voucher Date" />
-              <app-date-input
-                inputId="voucherDate"
-                [value]="voucherDateDmy()"
-                [maxToday]="true"
-                (valueChange)="onVoucherDateInput($event)"
-                (blurred)="onVoucherDateBlur()"
-              />
-            </div>
-
-            <div class="form-field is-display">
-              <div class="field-inset-shell">
-                <app-field-label forId="accountPhone" icon="phone" text="Phone Number" />
-                <input
-                  id="accountPhone"
-                  type="text"
-                  class="field field-readonly"
-                  tabindex="-1"
-                  [class.is-loading]="accountLookupLoading()"
-                  [value]="displayPhone()"
-                  readonly
-                  [placeholder]="accountLookupLoading() ? 'Loading account…' : '—'"
-                />
-              </div>
-            </div>
-            </div>
-
-            <div class="form-field">
+            <div class="form-field voucher-ref-row">
               <div class="field-inset-shell">
                 <app-field-label forId="voucherRef" icon="voucher" text="Voucher Reference" />
                 <input
@@ -190,7 +154,7 @@
               </div>
             </div>
 
-            <div class="form-field">
+            <div class="form-field source-of-funds-row">
               <div class="field-inset-shell">
                 <app-field-label forId="sourceOfFunds" icon="funds" text="Source of Funds" />
                 <select
@@ -209,35 +173,7 @@
               </div>
             </div>
 
-            <div class="form-field">
-              <div class="field-inset-shell">
-                <app-field-label forId="narration1" icon="narration" [required]="true" text="Narration 1" />
-                <input
-                  id="narration1"
-                  type="text"
-                  class="field"
-                  placeholder=" "
-                  [value]="narration1()"
-                  (input)="onNarration1Input($any($event.target).value)"
-                />
-              </div>
-            </div>
-
-            <div class="form-field">
-              <div class="field-inset-shell">
-                <app-field-label forId="narration2" icon="narration" text="Narration 2" />
-                <input
-                  id="narration2"
-                  type="text"
-                  class="field"
-                  placeholder=" "
-                  [value]="narration2()"
-                  (input)="onNarration2Input($any($event.target).value)"
-                />
-              </div>
-            </div>
-
-            <div class="form-field span-2">
+            <div class="form-field third-party-row">
               <app-field-label [asSpan]="true" icon="users" [required]="true" text="Third Party" />
               <div class="radio-group" role="radiogroup" aria-label="Third party transaction">
                 <label class="radio-option">
@@ -267,6 +203,34 @@
                   <button type="button" class="link-btn" (click)="openAmlThirdPartyModal()">View / edit</button>
                 </p>
               }
+            </div>
+
+            <div class="form-field narration-one-row">
+              <div class="field-inset-shell">
+                <app-field-label forId="narration1" icon="narration" [required]="true" text="Narration 1" />
+                <input
+                  id="narration1"
+                  type="text"
+                  class="field"
+                  placeholder=" "
+                  [value]="narration1()"
+                  (input)="onNarration1Input($any($event.target).value)"
+                />
+              </div>
+            </div>
+
+            <div class="form-field narration-two-row">
+              <div class="field-inset-shell">
+                <app-field-label forId="narration2" icon="narration" text="Narration 2" />
+                <input
+                  id="narration2"
+                  type="text"
+                  class="field"
+                  placeholder=" "
+                  [value]="narration2()"
+                  (input)="onNarration2Input($any($event.target).value)"
+                />
+              </div>
             </div>
           </div>
           <div class="form-actions">
