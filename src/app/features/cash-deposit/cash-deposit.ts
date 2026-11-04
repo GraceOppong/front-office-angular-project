@@ -1,10 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  businessDateFromDmyDateInput,
-  finalizeVoucherDateInput,
-  maskDmyInput,
-} from '../../shared/business-date';
+import { formatBusinessDate } from '../../shared/business-date';
 import { CalloverStore, TELLER_CALLOVER_JOURNAL_TITLE } from '../../shared/callover.store';
 import { TillStore } from '../../shared/till.store';
 import {
@@ -31,7 +27,6 @@ import {
   AmlThirdPartyDetails,
   createEmptyAmlThirdParty,
 } from '../../shared/aml-third-party.model';
-import { DateInput } from '../../shared/date-input/date-input';
 import { FieldLabel } from '../../shared/field-label/field-label';
 import { calculateCashCharges } from '../../shared/cash-charges';
 
@@ -46,7 +41,6 @@ const SOURCE_OF_FUNDS_THRESHOLD = 1_000_000;
     AmlThirdPartyModal,
     CashDenominationModal,
     FieldLabel,
-    DateInput,
   ],
   templateUrl: './cash-deposit.html',
   styleUrl: './cash-deposit.css',
@@ -77,8 +71,7 @@ export class CashDeposit {
   );
   readonly accountSnapshot = this.accountLookupHandlers.accountSnapshot;
   readonly accountName = this.accountLookupHandlers.accountName;
-  readonly voucherDateDmy = signal('');
-  readonly voucherDate = computed(() => businessDateFromDmyDateInput(this.voucherDateDmy()));
+  readonly voucherDate = computed(() => formatBusinessDate());
   readonly amount = signal('');
   readonly voucherRef = signal('');
   readonly sourceOfFunds = signal('');
@@ -113,14 +106,6 @@ export class CashDeposit {
 
   onCreditAccountInput(value: string): void {
     this.accountLookupHandlers.onAccountNumberInput(value);
-  }
-
-  onVoucherDateInput(value: string): void {
-    this.voucherDateDmy.set(maskDmyInput(value));
-  }
-
-  onVoucherDateBlur(): void {
-    this.voucherDateDmy.set(finalizeVoucherDateInput(this.voucherDateDmy()));
   }
 
   onCreditAccountBlur(): void {
@@ -311,6 +296,10 @@ export class CashDeposit {
 
   openSignature(): void {
     this.showSignaturePanel.update((open) => !open);
+  }
+
+  onPrint(): void {
+    window.print();
   }
 
   openUnclearedDetail(): void {
