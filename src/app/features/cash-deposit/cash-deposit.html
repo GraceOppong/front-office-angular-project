@@ -44,7 +44,7 @@
           <div class="form-grid-compact">
             <div class="credit-account-row">
               <div class="form-field credit-account-field">
-                <div class="field-inset-shell field-inset-shell--emphasis">
+                <div class="field-inset-shell">
                   <app-field-label forId="creditAccount" icon="credit" [required]="true" text="Credit Account" />
                   <input
                     id="creditAccount"
@@ -119,7 +119,7 @@
           <div class="form-card-body">
           <div class="form-grid-compact">
             <div class="form-field voucher-date-field">
-              <div class="field-inset-shell field-inset-shell--emphasis">
+              <div class="field-inset-shell">
                 <app-field-label forId="voucherDate" icon="calendar" text="Effective Date" />
                 <input
                   id="voucherDate"
@@ -275,12 +275,12 @@
               <span>Fetching account details…</span>
             </div>
           } @else if (showAccountInformation()) {
-            <div class="available-balance">
-              <span class="available-balance-label">Available Balance</span>
-              <span class="available-balance-value">{{ formatAmount(accountSnapshot()?.availableBalance) }}</span>
-            </div>
             <div class="balance-lines">
               <dl class="charge-list">
+                <div class="charge-row">
+                  <dt>Available Balance</dt>
+                  <dd>{{ formatAmount(accountSnapshot()?.availableBalance) }}</dd>
+                </div>
                 <div class="charge-row">
                   <dt>Ledger Balance</dt>
                   <dd>{{ formatAmount(accountSnapshot()?.ledgerBalance) }}</dd>
