@@ -756,26 +756,26 @@
   border-color: #d0dbe6;
 }
 
-.third-party-inline {
+.third-party-control {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 0.62rem;
+  align-items: center;
+  gap: 1rem;
   width: 100%;
 }
 
-.third-party-inline app-field-label .field-label {
-  font-size: 0.71rem;
-  font-weight: 400;
-  color: #5a6d80;
+.third-party-control .field-label {
+  margin: 0;
+  font-size: 0.8rem;
 }
 
-.third-party-inline .radio-group {
+.third-party-control .radio-group {
   min-height: 0;
   display: inline-flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 0 0 0.6rem 0;
+  padding: 0;
 }
 
 .form-row {
