@@ -5,8 +5,8 @@
   font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, sans-serif);
   --deposit-label-color: #a3b1bf;
   --deposit-label-weight: 300;
-  --deposit-panel-bg: #d6e9ed;
-  --deposit-panel-border: #9eb9c2;
+  --deposit-panel-bg: #e8f2fb;
+  --deposit-panel-border: #b5cfe4;
 }
 
 .page {
@@ -240,6 +240,10 @@
   font-weight: 500;
 }
 
+.charge-total > span {
+  font-weight: 700;
+}
+
 .charge-total strong {
   font-variant-numeric: tabular-nums;
   font-size: 1.05rem;
@@ -435,6 +439,41 @@
   box-shadow: none;
 }
 
+.form-card-head--transaction .btn-head-action--signature {
+  background: #0f4d82;
+  border-color: #0c3d66;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(12, 61, 102, 0.28);
+}
+
+.form-card-head--transaction .btn-head-action--signature:hover:not(:disabled) {
+  background: #0c3d66;
+  border-color: #082f4f;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(12, 61, 102, 0.35);
+}
+
+.form-card-head--transaction .btn-head-action--signature:active:not(:disabled) {
+  background: #082f4f;
+}
+
+.form-card-head--transaction .btn-head-action--print {
+  background: #2d6a4f;
+  border-color: #1b4332;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(27, 67, 50, 0.28);
+}
+
+.form-card-head--transaction .btn-head-action--print:hover:not(:disabled) {
+  background: #1b4332;
+  border-color: #143326;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(27, 67, 50, 0.35);
+}
+
+.form-card-head--transaction .btn-head-action--print:active:not(:disabled) {
+  background: #143326;
+}
 
 .form-card-body {
   padding: 1rem 1rem 1.25rem;
@@ -501,13 +540,6 @@
   border-bottom: 1px solid #d0dbe6;
 }
 
-.account-name-flat-label {
-  font-size: 0.71rem;
-  font-weight: 400;
-  color: #5a6d80;
-  line-height: 1.2;
-  margin-bottom: 0.62rem;
-}
 
 .account-name-flat-value {
   font-size: 0.96rem;
@@ -759,21 +791,50 @@
 .third-party-control {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
   align-items: center;
-  gap: 1rem;
+  gap: 1rem 1.5rem;
   width: 100%;
 }
 
-.third-party-control .field-label {
-  margin: 0;
-  font-size: 0.8rem;
+/* Label size/color matches Source of Funds (floated state) */
+.form-card .third-party-control > app-field-label,
+.form-card .account-name-flat > app-field-label,
+.account-display-segment > app-field-label {
+  display: block;
+  flex: 0 0 auto;
+  font-size: 0.71rem;
+  font-weight: 400;
+  color: #5a6d80;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.form-card .account-name-flat > app-field-label {
+  margin-bottom: 0.62rem;
+}
+
+.account-display-segment > app-field-label {
+  margin-bottom: 0.35rem;
+}
+
+.form-card .third-party-control > app-field-label .field-label,
+.form-card .account-name-flat > app-field-label .field-label,
+.account-display-segment > app-field-label .field-label {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.account-display-segment > app-field-label .label-icon {
+  display: none;
 }
 
 .third-party-control .radio-group {
-  min-height: 0;
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   gap: 1.5rem;
   padding: 0;
 }
@@ -1274,7 +1335,7 @@
   font-weight: var(--deposit-label-weight);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--deposit-label-color);
+  color: #000000;
 }
 
 .instructions-panel ul {
@@ -1314,9 +1375,9 @@
   grid-column: 1 / -1;
   width: fit-content;
   max-width: 100%;
-  border: 1px solid var(--deposit-panel-border);
+  border: 1px solid #e2e5ea;
   border-radius: 0;
-  background: var(--deposit-panel-bg);
+  background: #f3f5f7;
   padding: 0.35rem 0.45rem;
   box-sizing: border-box;
 }
@@ -1354,14 +1415,6 @@
   margin-left: 2.5ch;
   padding-left: 2.5ch;
   border-left: 1px solid rgba(21, 101, 168, 0.18);
-}
-
-.account-display-label {
-  font-size: 0.71rem;
-  font-weight: 400;
-  color: #5a6d80;
-  line-height: 1.2;
-  margin-bottom: 0.35rem;
 }
 
 .account-display-value {

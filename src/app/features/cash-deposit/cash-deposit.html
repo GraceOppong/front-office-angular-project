@@ -17,15 +17,15 @@
             <section class="account-display-card account-display-card--sizer">
               <div class="account-display-list">
                 <div class="account-display-segment">
-                  <span class="account-display-label">Account Branch</span>
+                  <app-field-label [asSpan]="true" icon="branch" text="Account Branch" />
                   <strong class="account-display-value">HEAD OFFICE</strong>
                 </div>
                 <div class="account-display-segment">
-                  <span class="account-display-label">Account Product</span>
+                  <app-field-label [asSpan]="true" icon="product" text="Account Product" />
                   <strong class="account-display-value">CURRENT ACCOUNT</strong>
                 </div>
                 <div class="account-display-segment">
-                  <span class="account-display-label">Currency</span>
+                  <app-field-label [asSpan]="true" icon="currency" text="Currency" />
                   <strong class="account-display-value">USD</strong>
                 </div>
               </div>
@@ -33,13 +33,7 @@
           </div>
         </div>
 
-        <section class="card form-card" aria-labelledby="accountDetailsTitle">
-          <header class="form-card-head form-card-head--account">
-            <span class="form-card-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v1h16v-1c0-2.66-5.33-4-8-4z"/></svg>
-            </span>
-            <h2 id="accountDetailsTitle">Account Details</h2>
-          </header>
+        <section class="card form-card" aria-label="Account details">
           <div class="form-card-body">
           <div class="form-grid-compact">
             <div class="credit-account-row">
@@ -68,7 +62,7 @@
                   [class.is-loading]="accountLookupLoading()"
                   aria-live="polite"
                 >
-                  <span class="account-name-flat-label">Account Name</span>
+                  <app-field-label [asSpan]="true" icon="user" text="Account Name" />
                   <span class="account-name-flat-value">{{ accountName() }}</span>
                 </div>
               }
@@ -78,15 +72,15 @@
               <section class="account-display-card account-display-card--live" aria-label="Account profile">
                 <div class="account-display-list">
                   <div class="account-display-segment">
-                    <span class="account-display-label">Account Branch</span>
+                    <app-field-label [asSpan]="true" icon="branch" text="Account Branch" />
                     <strong class="account-display-value">{{ accountSnapshot()?.branch ?? '—' }}</strong>
                   </div>
                   <div class="account-display-segment">
-                    <span class="account-display-label">Account Product</span>
+                    <app-field-label [asSpan]="true" icon="product" text="Account Product" />
                     <strong class="account-display-value">{{ accountSnapshot()?.product ?? '—' }}</strong>
                   </div>
                   <div class="account-display-segment">
-                    <span class="account-display-label">Currency</span>
+                    <app-field-label [asSpan]="true" icon="currency" text="Currency" />
                     <strong class="account-display-value">{{ toCurrencyCode(accountSnapshot()?.currency) }}</strong>
                   </div>
                 </div>
@@ -107,13 +101,19 @@
             <div class="form-card-head-actions">
               <button
                 type="button"
-                class="btn btn-outline btn-head-action"
+                class="btn btn-outline btn-head-action btn-head-action--signature"
                 [disabled]="!showAccountInformation()"
                 (click)="openSignature()"
               >
                 Signature
               </button>
-              <button type="button" class="btn btn-outline btn-head-action" (click)="onPrint()">Print</button>
+              <button
+                type="button"
+                class="btn btn-outline btn-head-action btn-head-action--print"
+                (click)="onPrint()"
+              >
+                Print
+              </button>
             </div>
           </header>
           <div class="form-card-body">
@@ -191,7 +191,7 @@
 
             <div class="form-field third-party-row">
               <div class="third-party-control">
-                <span class="field-label"><span class="req">*</span> Third Party</span>
+                <app-field-label [asSpan]="true" icon="users" [required]="true" text="Third Party" />
                 <div class="radio-group" role="radiogroup" aria-label="Third party transaction">
                   <label class="radio-option">
                     <input
