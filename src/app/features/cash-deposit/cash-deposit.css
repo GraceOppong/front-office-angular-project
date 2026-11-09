@@ -292,6 +292,22 @@
   color: #0f4d82;
 }
 
+.form-card-head--account {
+  background: transparent;
+  border-bottom: none;
+  padding-bottom: 0.15rem;
+  color: #0f4d82;
+}
+
+.form-card-head--account h2 {
+  color: #0f4d82;
+}
+
+.form-card-head--account .form-card-icon {
+  background: transparent;
+  color: #0f4d82;
+}
+
 .form-card-head--with-actions {
   justify-content: space-between;
   gap: 0.65rem;
@@ -324,34 +340,35 @@
 }
 
 .form-card-head--transaction {
-  background: linear-gradient(180deg, #3d5568 0%, #334858 100%);
-  border-bottom: 1px solid #2a3d4c;
-  color: #f4f8fb;
+  background: linear-gradient(135deg, #dfeee2 0%, #cfe7d1 48%, #b9ddb9 100%);
+  border-bottom: 1px solid rgba(67, 102, 73, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  color: #173d2d;
 }
 
 .form-card-head--transaction .form-card-head h2,
 .form-card-head--transaction h2 {
-  color: rgba(255, 255, 255, 0.92);
+  color: #173d2d;
 }
 
 .form-card-head--transaction .form-card-icon {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+  background: rgba(23, 61, 45, 0.12);
+  color: #173d2d;
 }
 
 .form-card-head--transaction .btn-head-action {
   height: 1.45rem;
   padding: 0 0.45rem;
   font-size: 0.64rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.32);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(38, 72, 52, 0.32);
+  color: #173d2d;
 }
 
 .form-card-head--transaction .btn-head-action:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.45);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(38, 72, 52, 0.42);
+  color: #173d2d;
 }
 
 .form-card-head--transaction .btn-head-action:disabled {
@@ -398,14 +415,14 @@
 .form-grid-compact {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 0.35rem 0.5rem;
+  gap: 0.6rem 0.75rem;
   align-items: start;
 }
 
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
+  gap: 0.42rem;
   min-width: 0;
 }
 
@@ -442,8 +459,8 @@
   max-width: none;
   display: flex;
   flex-direction: column;
-  gap: 0.32rem;
-  padding-bottom: 0.28rem;
+  gap: 0.42rem;
+  padding-bottom: 0.3rem;
 }
 
 .account-name-flat-label {
@@ -498,10 +515,10 @@
 .form-card .form-field:not(.span-2) {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.32rem;
   min-width: 0;
   --inset-field-height: 2.7rem;
-  --inset-label-value-gap: 0.2rem;
+  --inset-label-value-gap: 0.38rem;
   --inset-label-motion: 280ms cubic-bezier(0.33, 1, 0.68, 1);
   --inset-border: #d0dbe6;
 }
