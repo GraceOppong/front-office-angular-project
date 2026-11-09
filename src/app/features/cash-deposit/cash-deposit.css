@@ -654,6 +654,9 @@
   white-space: nowrap;
   line-height: inherit;
   padding: 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
 }
 
 /* Floated label state: transitions to the top on tap/focus or when field has value */
@@ -731,6 +734,10 @@
 
 .amount-field .field-hint {
   white-space: nowrap;
+}
+
+.form-card .voucher-ref-row .field-inset-shell:focus-within {
+  border-bottom-color: #d0dbe6;
 }
 
 .form-stack .voucher-ref-row,
